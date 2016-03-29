@@ -1,0 +1,32 @@
+// @stylint off
+@import url("~clusterize.js/clusterize.css");
+// @stylint on
+
+.infinite-tree {
+}
+.infinite-tree-scroll {
+    max-height: 200px;
+    overflow: auto;
+}
+.infinite-tree-content {
+    // Outline removes default browser's borders for focused elements.
+    outline: 0;
+
+    .tree-selected.tree-item,
+    .tree-selected.tree-item:hover {
+        background: #deecfd;
+        border: 1px solid #0066cc;
+    }
+    .tree-item {
+        border: 1px solid transparent;
+        cursor: pointer;
+        user-select: none;
+    }
+    .tree-item:hover {
+        background: #f2fdff;
+    }
+    .tree-toggler {
+    }
+    .tree-title {
+    }
+}
