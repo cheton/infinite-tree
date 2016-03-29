@@ -1,0 +1,23 @@
+.infinite-tree-scroll {
+  overflow: auto;
+}
+.infinite-tree-content {
+  outline: 0;
+}
+.infinite-tree-content .tree-selected.tree-item,
+.infinite-tree-content .tree-selected.tree-item:hover {
+  background: #deecfd;
+  border: 1px solid #06c;
+}
+.infinite-tree-content .tree-item {
+  border: 1px solid transparent;
+  cursor: pointer;
+  user-select: none;
+}
+.infinite-tree-content .tree-item:hover {
+  background: #f2fdff;
+}
+.infinite-tree-no-data {
+  text-align: center;
+}
+
