@@ -12,3 +12,30 @@ A browser-ready tree library that can efficiently display a large tree with smoo
 ```bash
 npm install --save infinite-tree
 ```
+
+## Usage
+```js
+import InfiniteTree from 'infinite-tree';
+import 'infinite-tree/dist/infinite-tree.css';
+
+const data = {
+    id: 'fruit',
+    label: 'Fruit',
+    children: [
+        { id: 'apple', label: 'Apple' },
+        { id: 'banana', label: 'Banana', children: [{ id: 'cherry', label: 'Cherry' }] }
+    ]
+};
+const tree = new InfiniteTree({
+  el: document.querySelector('#tree'),
+  data: [data],
+  autoOpen: true
+});
+
+tree.on('tree.open', (node) => {
+});
+tree.on('tree.close', (node) => {
+});
+tree.on('tree.select', (node) => {
+});
+```
