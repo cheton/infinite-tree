@@ -265,7 +265,8 @@ class InfiniteTree extends events.EventEmitter {
             tag: 'div',
             rows: [],
             scrollElem: infiniteTreeScroll,
-            contentElem: infiniteTreeContent
+            contentElem: infiniteTreeContent,
+            no_data_class: 'infinite-tree-no-data'
         });
 
         this.contentElement = infiniteTreeContent;
