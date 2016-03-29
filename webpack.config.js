@@ -8,6 +8,10 @@ if (env === 'dist') {
     plugins = plugins.concat([
         new webpack.optimize.UglifyJsPlugin({ minimize: true })
     ]);
+} else {
+    plugins = plugins.concat([
+        new webpack.optimize.UglifyJsPlugin({ mangle: false })
+    ]);
 }
 
 module.exports = {
