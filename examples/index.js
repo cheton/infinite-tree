@@ -19,10 +19,16 @@ var tree = new InfiniteTree({
     */
 });
 
+tree.on('tree.open', (node) => {
+    console.log('tree.open', node);
+});
+tree.on('tree.close', (node) => {
+    console.log('tree.close', node);
+});
+tree.on('tree.select', (node) => {
+    console.log('tree.select', node);
+});
+
 tree.loadData(data);
 
 window.tree = tree;
-
-// API
-// node = tree.getNodeById();
-// tree.selectNode();
