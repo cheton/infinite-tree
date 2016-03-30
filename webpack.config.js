@@ -15,7 +15,8 @@ if (env === 'dist') {
 }
 
 module.exports = {
-    devtool: 'source-map',
+    debug: (env === 'debug'),
+    devtool: (env === 'debug') ? 'source-map' : '',
     entry: path.resolve(__dirname, 'lib/index.js'),
     output: {
         path: path.join(__dirname, 'dist'),
