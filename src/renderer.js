@@ -1,8 +1,9 @@
 import { buildHTML, classNames, quoteattr } from './utils';
 
 const defaultRowRenderer = (node) => {
-    const { id, label, state } = node;
-    const { depth, more, open, path, children, total, selected = false } = state;
+    const { id, label, children, state } = node;
+    const { depth, more, open, path, total, selected = false } = state;
+    const childrenLength = Object.keys(children).length;
 
     let togglerContent = '';
     if (more && open) {
@@ -40,7 +41,7 @@ const defaultRowRenderer = (node) => {
         'aria-depth': depth,
         'aria-path': path,
         'aria-selected': selected,
-        'aria-children': children ? Object.keys(children).length : 0,
+        'aria-children': childrenLength,
         'aria-total': total,
         'class': classNames(
             'tree-item',
