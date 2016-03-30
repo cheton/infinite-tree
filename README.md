@@ -74,19 +74,21 @@ The DOM element for rendering a tree.
 
 Type: `Function` Default: `defaultRowRenderer`
 
-A custom row renderer that returns a HTML string. A minimum setup is shown as below:
+A custom row renderer that returns a HTML string. An example of minimum setup is shown as below:
 ```js
 function (node) {
-    // node is selected
-    // node is closed
-    return '
-        <div aria-id="id" class="tree-item tree-selected">
-            <div class="tree-node">
-                <a class="tree-toggler tree-toggler-closed">►</a>
-                <span class="tree-title">Node Label</span>
-            </div>
-        </div>
-    ';
+    var state = node.state;
+    // Check node state
+    var html = [
+        '<div aria-id=' + JSON.stringify(node.id) + ' class="tree-item tree-selected">',
+        '   <div class="tree-node">',
+        '       <a class="tree-toggler tree-toggler-closed">►</a>',
+        '       <span class="tree-title">' + node.label + '</span>',
+        '   </div>',
+        '</div>',
+        ''
+    ].join('\r\n');
+    return html;
 }
 ```
 
