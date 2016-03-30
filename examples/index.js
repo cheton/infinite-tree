@@ -50,7 +50,7 @@ const tree = new InfiniteTree({
         });
         const treeNode = buildHTML('div', toggler + icon + title, {
             'class': 'tree-node',
-            'style': 'margin-left: ' + depth * 20 + 'px'
+            'style': 'margin-left: ' + depth * 18 + 'px'
         });
         const treeItem = buildHTML('div', treeNode, {
             'aria-id': id,
