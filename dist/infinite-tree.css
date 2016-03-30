@@ -1,6 +1,9 @@
 .infinite-tree-scroll {
   overflow: auto;
 }
+.infinite-tree-content {
+  outline: 0;
+}
 .infinite-tree-content .tree-selected.tree-item,
 .infinite-tree-content .tree-selected.tree-item:hover {
   background: #deecfd;
