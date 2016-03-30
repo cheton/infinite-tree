@@ -1,12 +1,11 @@
 .infinite-tree {
 }
+
 .infinite-tree-scroll {
     overflow: auto;
 }
-.infinite-tree-content {
-    // Outline removes default browser's borders for focused elements.
-    outline: 0;
 
+.infinite-tree-content {
     .tree-selected.tree-item,
     .tree-selected.tree-item:hover {
         background: #deecfd;
@@ -14,8 +13,7 @@
     }
     .tree-item {
         border: 1px solid transparent;
-        cursor: pointer;
-        user-select: none;
+        cursor: default;
     }
     .tree-item:hover {
         background: #f2fdff;
@@ -23,8 +21,10 @@
     .tree-toggler {
     }
     .tree-title {
+        cursor: pointer;
     }
 }
+
 // centering message that appears when no data provided
 .infinite-tree-no-data {
     text-align: center;
