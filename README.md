@@ -3,6 +3,8 @@
 
 A browser-ready tree library that can efficiently display a large tree with smooth scrolling.
 
+View [demo](http://cheton.github.io/infinite-tree) at http://cheton.github.io/infinite-tree.
+
 <i>
 **The project is under heavy development and a lot of things are changing.**<br>
 **Stay tuned for more information later.**
