@@ -55,6 +55,7 @@ class InfiniteTree extends events.EventEmitter {
         selectedNode: null
     };
     clusterize = null;
+    nodebucket = {};
     nodes = [];
     rows = [];
     contentElement = null;
@@ -71,17 +72,13 @@ class InfiniteTree extends events.EventEmitter {
             }
 
             const id = itemTarget.getAttribute('aria-id');
-            const nodeIndex = ((id) => {
-                for (let i = 0; i < this.nodes.length; ++i) {
-                    let node = this.nodes[i];
-                    if (node.id === id) {
-                        return i;
-                    }
-                }
-                return -1;
-            })(id);
+            const node = this.getNodeById(id);
+            const nodeIndex = this.nodes.indexOf(node);
 
-            const node = this.nodes[nodeIndex];
+            if (nodeIndex < 0) {
+                throw new Error('Invalid node id specified: id=' + JSON.stringify(id));
+            }
+
             const { openNode, closeNode, selectNode } = this.eventHandler;
 
             // Click on the toggler to open/close a tree node
@@ -283,9 +280,10 @@ class InfiniteTree extends events.EventEmitter {
         // TODO
     }
     // Get a tree node by the unique node id. This assumes that you have given the nodes in the data a unique id.
-    // @param {string|number} id The unique node id
+    // @param {string|number} id The unique node id. A null value will be returned if node.id not matched.
     getNodeById(id) {
-        // TODO
+        const node = (this.nodebucket[id] || [])[0];
+        return (node !== undefined) ? node : null;
     }
     // Get the selected node. Returns the row data or null.
     getSelectedNode() {
@@ -310,6 +308,15 @@ class InfiniteTree extends events.EventEmitter {
         const { autoOpen, rowRenderer } = this.options;
 
         this.nodes = flatten(data, { openAllNodes: autoOpen });
+
+        // Construct node bucket
+        this.nodebucket = {};
+        this.nodes.forEach((node) => {
+            if (node.id !== undefined) {
+                const nodebucket = this.nodebucket[node.id];
+                this.nodebucket[node.id] = nodebucket ? nodebucket.concat(node) : [node];
+            }
+        });
 
         const openNodes = this.nodes.filter((node) => (node.state.more && node.state.open));
         this.state.openNodes = openNodes;
