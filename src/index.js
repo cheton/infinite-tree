@@ -190,6 +190,11 @@ class InfiniteTree extends events.EventEmitter {
             throw new Error('Invalid node specified: node.id=' + JSON.stringify(node.id));
         }
 
+        // Check if the closeNode action can be performed
+        if (this.state.openNodes.indexOf(node) < 0) {
+            return false;
+        }
+
         // Keep selected node unchanged if "node" is equal to "this.state.selectedNode"
         if (this.state.selectedNode && (this.state.selectedNode !== node)) {
             // Action:
@@ -233,6 +238,8 @@ class InfiniteTree extends events.EventEmitter {
 
         // Updates list with new data
         this.update();
+
+        return true;
     }
     // Get a tree node by the unique node id. This assumes that you have given the nodes in the data a unique id.
     // @param {string|number} id The unique node id. A null value will be returned if node.id not matched.
@@ -291,6 +298,11 @@ class InfiniteTree extends events.EventEmitter {
             throw new Error('Invalid node specified: node.id=' + JSON.stringify(node.id));
         }
 
+        // Check if the openNode action can be performed
+        if (this.state.openNodes.indexOf(node) >= 0) {
+            return false;
+        }
+
         node.state.open = true; // Set node.state.open to true
         const openNodes = [node].concat(this.state.openNodes); // the most recently used items first
         this.state.openNodes = openNodes;
@@ -307,6 +319,8 @@ class InfiniteTree extends events.EventEmitter {
 
         // Updates list with new data
         this.update();
+
+        return true;
     }
     // Remove node from the tree
     // @param {object} node
@@ -334,8 +348,11 @@ class InfiniteTree extends events.EventEmitter {
 
                 // Updates list with new data
                 this.update();
+
+                return true;
             }
-            return;
+
+            return false;
         }
 
         const { rowRenderer } = this.options;
@@ -368,6 +385,8 @@ class InfiniteTree extends events.EventEmitter {
 
         // Updates list with new data
         this.update();
+
+        return true;
     }
     // Set the state of the tree. See getState for more information.
     // @param {object} state The state object
