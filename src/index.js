@@ -66,8 +66,12 @@ class InfiniteTree extends events.EventEmitter {
 
         if (target !== currentTarget) {
             let itemTarget = target;
+            let handleToggler = false;
 
             while (itemTarget && itemTarget.parentElement !== currentTarget) {
+                if (itemTarget.className.indexOf('tree-toggler') >= 0) {
+                    handleToggler = true;
+                }
                 itemTarget = itemTarget.parentElement;
             }
 
@@ -75,7 +79,7 @@ class InfiniteTree extends events.EventEmitter {
             const node = this.getNodeById(id);
 
             // Click on the toggler to open/close a tree node
-            if (target.className.indexOf('tree-toggler') >= 0) {
+            if (handleToggler) {
                 if (this.state.openNodes.indexOf(node) >= 0) { // Close node
                     this.closeNode(node);
                 } else {
