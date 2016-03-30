@@ -3,9 +3,7 @@ var path = require('path');
 var webpack = require('webpack');
 
 module.exports = {
-    cache: true,
-    debug: true,
-    devtool: 'eval',
+    devtool: 'source-map',
     entry: path.resolve('index.js'),
     output: {
         path: path.join(__dirname),
@@ -20,6 +18,33 @@ module.exports = {
                 query: {
                     presets: ['es2015', 'stage-0']
                 }
+            },
+            {
+                test: /\.styl$/,
+                loader: 'style!css!stylus'
+            },
+            {
+                test: /\.css$/,
+                loader: 'style!css'
+            },
+            {
+                test: /\.(png|jpg)$/,
+                loader: 'url',
+                query: {
+                    limit: 8192
+                }
+            },
+            {
+                test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
+                loader: 'url',
+                query: {
+                    limit: 10000,
+                    mimetype: 'application/font-woff'
+                }
+            },
+            {
+                test: /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/,
+                loader: 'file'
             }
         ]
     },

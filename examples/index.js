@@ -1,22 +1,66 @@
-var InfiniteTree = require('../src');
+import InfiniteTree from '../src';
+import { buildHTML, classNames, quoteattr } from '../src/utils';
+import '../src/index.styl';
 
-var data = [];
-var source = '{"id":"<root>","label":"<root>","children":[{"id":"alpha","label":"Alpha"},{"id":"bravo","label":"Bravo","children":[{"id":"charlie","label":"Charlie","children":[{"id":"delta","label":"Delta","children":[{"id":"echo","label":"Echo"},{"id":"foxtrot","label":"Foxtrot"}]},{"id":"golf","label":"Golf"}]},{"id":"hotel","label":"Hotel","children":[{"id":"india","label":"India","children":[{"id":"juliet","label":"Juliet"}]}]},{"id":"kilo","label":"Kilo"}]}]}';
-
-for (var i = 0; i < 1000; ++i) {
+let data = [];
+let source = '{"id":"<root>","label":"<root>","children":[{"id":"alpha","label":"Alpha"},{"id":"bravo","label":"Bravo","children":[{"id":"charlie","label":"Charlie","children":[{"id":"delta","label":"Delta","children":[{"id":"echo","label":"Echo"},{"id":"foxtrot","label":"Foxtrot"}]},{"id":"golf","label":"Golf"}]},{"id":"hotel","label":"Hotel","children":[{"id":"india","label":"India","children":[{"id":"juliet","label":"Juliet"}]}]},{"id":"kilo","label":"Kilo"}]}]}';
+for (let i = 0; i < 1000; ++i) {
     data.push(JSON.parse(source.replace(/"(id|label)":"([^"]*)"/g, '"$1": "$2.' + i + '"')));
 }
 
-var tree = new InfiniteTree({
+const tree = new InfiniteTree({
     autoOpen: true,
     el: document.querySelector('#tree'),
-
-    // Customize your row renderer
-    /*
     rowRenderer: (node) => {
-        return '<div>' + node.label + '</div>'
+        const { id, label, state } = node;
+        const { depth, more, open, path, children, total, selected = false } = state;
+
+        let togglerContent = '';
+        if (more && open) {
+            togglerContent = '▼';
+        }
+        if (more && !open) {
+            togglerContent = '►';
+        }
+        const toggler = buildHTML('a', togglerContent, {
+            'class': (() => {
+                if (more && open) {
+                    return classNames(
+                        'tree-toggler'
+                    );
+                }
+                if (more && !open) {
+                    return classNames(
+                        'tree-toggler',
+                        'tree-closed'
+                    );
+                }
+                return '';
+            })()
+        });
+        const title = buildHTML('span', quoteattr(label), {
+            'class': classNames('tree-title')
+        });
+        const treeNode = buildHTML('div', toggler + title, {
+            'class': 'tree-node',
+            'style': 'margin-left: ' + depth * 12 + 'px'
+        });
+        const treeItem = buildHTML('div', treeNode, {
+            'aria-id': id,
+            'aria-expanded': more && open,
+            'aria-depth': depth,
+            'aria-path': path,
+            'aria-selected': selected,
+            'aria-children': children ? Object.keys(children).length : 0,
+            'aria-total': total,
+            'class': classNames(
+                'tree-item',
+                { 'tree-selected': selected }
+            )
+        });
+
+        return treeItem;
     }
-    */
 });
 
 tree.on('tree.open', (node) => {
