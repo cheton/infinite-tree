@@ -183,8 +183,11 @@ class InfiniteTree extends events.EventEmitter {
     }
     // Close this node. The node must have child nodes.
     // @param {object} node
+    // @return {boolean} Returns true on success, false otherwise.
     closeNode(node) {
         const { rowRenderer } = this.options;
+
+        // Retrieve node index
         const nodeIndex = this.nodes.indexOf(node);
         if (nodeIndex < 0) {
             throw new Error('Invalid node specified: node.id=' + JSON.stringify(node.id));
@@ -234,6 +237,7 @@ class InfiniteTree extends events.EventEmitter {
         this.rows.splice(nodeIndex + 1, deleteCount);
         this.rows[nodeIndex] = rowRenderer(node);
 
+        // Emit the 'tree.close' event
         this.emit('tree.close', node);
 
         // Updates list with new data
@@ -291,8 +295,11 @@ class InfiniteTree extends events.EventEmitter {
     }
     // Open this node. The node must have child nodes.
     // @param {object} node
+    // @return {boolean} Returns true on success, false otherwise.
     openNode(node) {
         const { rowRenderer } = this.options;
+
+        // Retrieve node index
         const nodeIndex = this.nodes.indexOf(node);
         if (nodeIndex < 0) {
             throw new Error('Invalid node specified: node.id=' + JSON.stringify(node.id));
@@ -315,6 +322,7 @@ class InfiniteTree extends events.EventEmitter {
         this.rows.splice.apply(this.rows, [nodeIndex + 1, 0].concat(rows));
         this.rows[nodeIndex] = generateRows([node], rowRenderer)[0];
 
+        // Emit the 'tree.open' event
         this.emit('tree.open', node);
 
         // Updates list with new data
@@ -334,6 +342,7 @@ class InfiniteTree extends events.EventEmitter {
     }
     // Select this node. You can deselect the current node by calling selectNode(null) or selectNode().
     // @param {object} node
+    // @return {boolean} Returns true on success, false otherwise.
     selectNode(node = null) {
         const { rowRenderer } = this.options;
 
@@ -342,10 +351,12 @@ class InfiniteTree extends events.EventEmitter {
             if (this.state.selectedNode) {
                 const selectedNode = this.state.selectedNode;
                 const selectedIndex = this.nodes.indexOf(selectedNode);
+
                 selectedNode.state.selected = false;
                 this.rows[selectedIndex] = rowRenderer(selectedNode);
-
                 this.state.selectedNode = null;
+
+                // Emit the 'tree.select' event
                 this.emit('tree.select', null);
 
                 // Updates list with new data
@@ -357,6 +368,7 @@ class InfiniteTree extends events.EventEmitter {
             return false;
         }
 
+        // Retrieve node index
         const nodeIndex = this.nodes.indexOf(node);
         if (nodeIndex < 0) {
             throw new Error('Invalid node specified: node.id=' + JSON.stringify(node.id));
@@ -378,9 +390,13 @@ class InfiniteTree extends events.EventEmitter {
 
         if (this.state.selectedNode !== node) {
             this.state.selectedNode = node;
+
+            // Emit the 'tree.select' event
             this.emit('tree.select', node);
         } else {
             this.state.selectedNode = null;
+
+            // Emit the 'tree.select' event
             this.emit('tree.select', null);
         }
 
