@@ -18,6 +18,7 @@
 }
 .infinite-tree-content .tree-toggler {
   color: #333;
+  user-select: none;
 }
 .infinite-tree-content .tree-toggler:hover {
   color: #000;
@@ -25,6 +26,7 @@
 }
 .infinite-tree-content .tree-title {
   cursor: pointer;
+  user-select: none;
 }
 .infinite-tree-no-data {
   text-align: center;
