@@ -74,7 +74,7 @@ The DOM element for rendering a tree.
 
 #### rowRenderer
 
-Type: `Function` Default: `[defaultRowRenderer](https://github.com/cheton/infinite-tree/blob/master/src/renderer.js)`
+Type: `Function` Default: [defaultRowRenderer](https://github.com/cheton/infinite-tree/blob/master/src/renderer.js)
 
 A custom row renderer that returns a HTML string. An example of minimum setup is shown as below:
 ```js
