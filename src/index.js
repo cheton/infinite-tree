@@ -73,113 +73,16 @@ class InfiniteTree extends events.EventEmitter {
 
             const id = itemTarget.getAttribute('aria-id');
             const node = this.getNodeById(id);
-            const nodeIndex = this.nodes.indexOf(node);
-
-            if (nodeIndex < 0) {
-                throw new Error('Invalid node id specified: id=' + JSON.stringify(id));
-            }
-
-            const { openNode, closeNode, selectNode } = this.eventHandler;
 
             // Click on the toggler to open/close a tree node
             if (target.className.indexOf('tree-toggler') >= 0) {
                 if (this.state.openNodes.indexOf(node) >= 0) { // Close node
-                    closeNode({ evt, node, nodeIndex });
+                    this.closeNode(node);
                 } else {
-                    openNode({ evt, node, nodeIndex });
+                    this.openNode(node);
                 }
             } else {
-                selectNode({ evt, node, nodeIndex });
-            }
-
-            this.clusterize.update(this.rows);
-        }
-    };
-    eventHandler = {
-        closeNode: ({ evt, node, nodeIndex }) => {
-            const { rowRenderer } = this.options;
-
-            // Keep selected node unchanged if "node" is equal to "this.state.selectedNode"
-            if (this.state.selectedNode && (this.state.selectedNode !== node)) {
-                const { selectNode } = this.eventHandler;
-
-                // Action:
-                //   close "node.0.0"
-                //
-                // Tree:
-                // [0] - node.0
-                // [1]  - node.0.0      => next selected node (index=1, total=2)
-                // [2]      node.0.0.0  => last selected node (index=2, total=0)
-                // [3]      node.0.0.1
-                // [4]    node.0.1
-                let selectedIndex = this.nodes.indexOf(this.state.selectedNode);
-                let rangeFrom = nodeIndex + 1;
-                let rangeTo = nodeIndex + node.state.total;
-
-                if ((rangeFrom <= selectedIndex) && (selectedIndex <= rangeTo)) {
-                    selectNode({ evt, node, nodeIndex });
-                }
-            }
-
-            node.state.open = false; // Set node.state.open to false
-            const openNodes = this.state.openNodes.filter((node) => (node.state.more && node.state.open));
-            this.state.openNodes = openNodes;
-
-            const deleteCount = node.state.total;
-
-            { // Traversing up through ancestors to subtract node.state.total
-                let p = node;
-                while (p) {
-                    p.state.total = (p.state.total - deleteCount);
-                    p = p.parent;
-                }
-            }
-
-            // Remove elements from an array
-            this.nodes.splice(nodeIndex + 1, deleteCount);
-            this.rows.splice(nodeIndex + 1, deleteCount);
-            this.rows[nodeIndex] = generateRows([node], rowRenderer)[0];
-            this.emit('tree.close', node);
-        },
-        openNode: ({ evt, node, nodeIndex }) => {
-            const { rowRenderer } = this.options;
-
-            node.state.open = true; // Set node.state.open to true
-            const openNodes = [node].concat(this.state.openNodes); // the most recently used items first
-            this.state.openNodes = openNodes;
-
-            const nodes = flatten(node.children, { openNodes: this.state.openNodes });
-            const rows = generateRows(nodes, rowRenderer);
-
-            // Insert an array inside another array
-            this.nodes.splice.apply(this.nodes, [nodeIndex + 1, 0].concat(nodes));
-            this.rows.splice.apply(this.rows, [nodeIndex + 1, 0].concat(rows));
-            this.rows[nodeIndex] = generateRows([node], rowRenderer)[0];
-            this.emit('tree.open', node);
-        },
-        selectNode: ({ evt, node, nodeIndex }) => {
-            const { rowRenderer } = this.options;
-
-            // select node
-            if (this.state.selectedNode !== node) {
-                node.state.selected = true;
-                this.rows[nodeIndex] = generateRows([node], rowRenderer)[0];
-            }
-
-            // deselect node
-            if (this.state.selectedNode) {
-                let selectedNode = this.state.selectedNode;
-                let selectedIndex = this.nodes.indexOf(selectedNode);
-                selectedNode.state.selected = false;
-                this.rows[selectedIndex] = generateRows([selectedNode], rowRenderer)[0];
-            }
-
-            if (this.state.selectedNode !== node) {
-                this.state.selectedNode = node;
-                this.emit('tree.select', node);
-            } else {
-                this.state.selectedNode = null;
-                this.emit('tree.select', null);
+                this.selectNode(node);
             }
         }
     };
@@ -250,6 +153,10 @@ class InfiniteTree extends events.EventEmitter {
         this.state.openNodes = [];
         this.state.selectedNode = null;
     }
+    // Updates list with new data
+    update() {
+        this.clusterize.update(this.rows);
+    }
     // Add a new node after this existing node.
     // @param {object} newNode
     // @param {object} node
@@ -277,7 +184,55 @@ class InfiniteTree extends events.EventEmitter {
     // Close this node. The node must have child nodes.
     // @param {object} node
     closeNode(node) {
-        // TODO
+        const { rowRenderer } = this.options;
+        const nodeIndex = this.nodes.indexOf(node);
+        if (nodeIndex < 0) {
+            throw new Error('Invalid node specified: node.id=' + JSON.stringify(node.id));
+        }
+
+        // Keep selected node unchanged if "node" is equal to "this.state.selectedNode"
+        if (this.state.selectedNode && (this.state.selectedNode !== node)) {
+            // Action:
+            //   close "node.0.0"
+            //
+            // Tree:
+            // [0] - node.0
+            // [1]  - node.0.0      => next selected node (index=1, total=2)
+            // [2]      node.0.0.0  => last selected node (index=2, total=0)
+            // [3]      node.0.0.1
+            // [4]    node.0.1
+            const selectedIndex = this.nodes.indexOf(this.state.selectedNode);
+            const rangeFrom = nodeIndex + 1;
+            const rangeTo = nodeIndex + node.state.total;
+
+            if ((rangeFrom <= selectedIndex) && (selectedIndex <= rangeTo)) {
+                this.selectNode(node);
+            }
+        }
+
+        node.state.open = false; // Set node.state.open to false
+        const openNodes = this.state.openNodes.filter((node) => (node.state.more && node.state.open));
+        this.state.openNodes = openNodes;
+
+        const deleteCount = node.state.total;
+
+        { // Traversing up through ancestors to subtract node.state.total
+            let p = node;
+            while (p) {
+                p.state.total = (p.state.total - deleteCount);
+                p = p.parent;
+            }
+        }
+
+        // Remove elements from an array
+        this.nodes.splice(nodeIndex + 1, deleteCount);
+        this.rows.splice(nodeIndex + 1, deleteCount);
+        this.rows[nodeIndex] = rowRenderer(node);
+
+        this.emit('tree.close', node);
+
+        // Updates list with new data
+        this.update();
     }
     // Get a tree node by the unique node id. This assumes that you have given the nodes in the data a unique id.
     // @param {string|number} id The unique node id. A null value will be returned if node.id not matched.
@@ -322,13 +277,36 @@ class InfiniteTree extends events.EventEmitter {
         this.state.openNodes = openNodes;
         this.state.selectedNode = null;
 
-        this.rows = generateRows(this.nodes, rowRenderer);
-        this.clusterize.update(this.rows);
+        this.rows = this.nodes.map(node => rowRenderer(node));
+
+        // Updates list with new data
+        this.update();
     }
     // Open this node. The node must have child nodes.
     // @param {object} node
     openNode(node) {
-        // TODO
+        const { rowRenderer } = this.options;
+        const nodeIndex = this.nodes.indexOf(node);
+        if (nodeIndex < 0) {
+            throw new Error('Invalid node specified: node.id=' + JSON.stringify(node.id));
+        }
+
+        node.state.open = true; // Set node.state.open to true
+        const openNodes = [node].concat(this.state.openNodes); // the most recently used items first
+        this.state.openNodes = openNodes;
+
+        const nodes = flatten(node.children, { openNodes: this.state.openNodes });
+        const rows = generateRows(nodes, rowRenderer);
+
+        // Insert an array inside another array
+        this.nodes.splice.apply(this.nodes, [nodeIndex + 1, 0].concat(nodes));
+        this.rows.splice.apply(this.rows, [nodeIndex + 1, 0].concat(rows));
+        this.rows[nodeIndex] = generateRows([node], rowRenderer)[0];
+
+        this.emit('tree.open', node);
+
+        // Updates list with new data
+        this.update();
     }
     // Remove node from the tree
     // @param {object} node
@@ -340,10 +318,56 @@ class InfiniteTree extends events.EventEmitter {
     scrollToNode(node) {
         // TODO
     }
-    // Select this node. You can deselect the current node by calling selectNode(null).
+    // Select this node. You can deselect the current node by calling selectNode(null) or selectNode().
     // @param {object} node
-    selectNode(node) {
-        // TODO
+    selectNode(node = null) {
+        if (node === null) {
+            // Deselect the current node
+            if (this.state.selectedNode) {
+                const selectedNode = this.state.selectedNode;
+                const selectedIndex = this.nodes.indexOf(selectedNode);
+                selectedNode.state.selected = false;
+                this.rows[selectedIndex] = rowRenderer(selectedNode);
+
+                this.state.selectedNode = null;
+                this.emit('tree.select', null);
+
+                // Updates list with new data
+                this.update();
+            }
+            return;
+        }
+
+        const { rowRenderer } = this.options;
+        const nodeIndex = this.nodes.indexOf(node);
+        if (nodeIndex < 0) {
+            throw new Error('Invalid node specified: node.id=' + JSON.stringify(node.id));
+        }
+
+        // Select this node
+        if (this.state.selectedNode !== node) {
+            node.state.selected = true;
+            this.rows[nodeIndex] = rowRenderer(node);
+        }
+
+        // Deselect the current node
+        if (this.state.selectedNode) {
+            const selectedNode = this.state.selectedNode;
+            const selectedIndex = this.nodes.indexOf(selectedNode);
+            selectedNode.state.selected = false;
+            this.rows[selectedIndex] = rowRenderer(selectedNode);
+        }
+
+        if (this.state.selectedNode !== node) {
+            this.state.selectedNode = node;
+            this.emit('tree.select', node);
+        } else {
+            this.state.selectedNode = null;
+            this.emit('tree.select', null);
+        }
+
+        // Updates list with new data
+        this.update();
     }
     // Set the state of the tree. See getState for more information.
     // @param {object} state The state object
