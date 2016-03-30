@@ -1,4 +1,4 @@
-var InfiniteTree = require('../lib');
+var InfiniteTree = require('../src');
 
 var data = [];
 var source = '{"id":"<root>","label":"<root>","children":[{"id":"alpha","label":"Alpha"},{"id":"bravo","label":"Bravo","children":[{"id":"charlie","label":"Charlie","children":[{"id":"delta","label":"Delta","children":[{"id":"echo","label":"Echo"},{"id":"foxtrot","label":"Foxtrot"}]},{"id":"golf","label":"Golf"}]},{"id":"hotel","label":"Hotel","children":[{"id":"india","label":"India","children":[{"id":"juliet","label":"Juliet"}]}]},{"id":"kilo","label":"Kilo"}]}]}';
@@ -8,10 +8,18 @@ for (var i = 0; i < 1000; ++i) {
 }
 
 var tree = new InfiniteTree({
+    autoOpen: true,
     el: document.querySelector('#tree'),
-    data: data,
-    autoOpen: true
+
+    // Customize your row renderer
+    /*
+    rowRenderer: (node) => {
+        return '<div>' + node.label + '</div>'
+    }
+    */
 });
+
+tree.loadData(data);
 
 window.tree = tree;
 
