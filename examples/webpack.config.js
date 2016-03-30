@@ -1,4 +1,5 @@
 /* eslint no-var: 0 */
+var nib = require('nib');
 var path = require('path');
 var webpack = require('webpack');
 
@@ -55,5 +56,11 @@ module.exports = {
                 warnings: false
             }
         })
-    ]
+    ],
+    stylus: {
+        // nib - CSS3 extensions for Stylus
+        use: [nib()],
+        // no need to have a '@import "nib"' in the stylesheet
+        import: ['~nib/lib/nib/index.styl']
+    }
 };
