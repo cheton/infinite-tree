@@ -17,9 +17,10 @@
   background: #f2fdff;
 }
 .infinite-tree-content .tree-toggler {
-  color: #000;
+  color: #333;
 }
 .infinite-tree-content .tree-toggler:hover {
+  color: #000;
   text-decoration: none;
 }
 .infinite-tree-content .tree-title {
