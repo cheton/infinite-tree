@@ -4,8 +4,12 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="chrome=1">
 <title>infinite-tree</title>
-<link rel="stylesheet" href="infinite-tree.css" />
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+<link rel="stylesheet" href="infinite-tree.css">
 <style>
+#tree {
+    border: 1px solid #ccc;
+}
 .infinite-tree-content {
     max-height: 400px;
 }
@@ -16,9 +20,19 @@
 <![endif]-->
 </head>
 <body>
-<h1>infinite-tree</h1>
-<p>A browser-ready tree library that can efficiently display a large tree with smooth scrolling.</p>
-<div id="tree"></div>
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12" style="margin-top: 1em">
+            <h1>infinite-tree</h1>
+            <h4>A browser-ready tree library that can efficiently display a large tree with smooth scrolling.</h4>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div id="tree"></div>
+        </div>
+    </div>
+</div>
 <script src="bundle.js"></script>
 </body>
 </html>
