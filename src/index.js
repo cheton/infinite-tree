@@ -114,21 +114,22 @@ class InfiniteTree extends events.EventEmitter {
 
         if (target !== currentTarget) {
             let itemTarget = target;
-            let itemIndex = 0;
 
             while (itemTarget && itemTarget.parentElement !== currentTarget) {
                 itemTarget = itemTarget.parentElement;
             }
 
-            { // Get item's index
-                let p = itemTarget;
-                while (p.previousSibling) {
-                    p = p.previousSibling;
-                    ++itemIndex;
+            const id = itemTarget.getAttribute('aria-id');
+            const nodeIndex = ((id) => {
+                for (let i = 0; i < this.nodes.length; ++i) {
+                    let node = this.nodes[i];
+                    if (node.id === id) {
+                        return i;
+                    }
                 }
-            }
+                return -1;
+            })(id);
 
-            const nodeIndex = itemIndex;
             const node = this.nodes[nodeIndex];
             const { openNode, closeNode, selectNode } = this.eventHandler;
 
