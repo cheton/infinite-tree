@@ -75,13 +75,19 @@ The DOM element for rendering a tree.
 Type: `Function` Default: `defaultRowRenderer`
 
 A custom row renderer that returns a HTML string. A minimum setup is shown as below:
-```html
-<div aria-id="id" class="tree-item tree-selected">
-    <div class="tree-node">
-        <a class="tree-toggler tree-toggler-closed">►</a>
-        <span class="tree-title">Node Label</span>
-    </div>
-</div>
+```js
+function (node) {
+    // node is selected
+    // node is closed
+    return '
+        <div aria-id="id" class="tree-item tree-selected">
+            <div class="tree-node">
+                <a class="tree-toggler tree-toggler-closed">►</a>
+                <span class="tree-title">Node Label</span>
+            </div>
+        </div>
+    ';
+}
 ```
 
 #### data
