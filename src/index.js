@@ -39,65 +39,66 @@ const stopPropagation = (evt) => {
     }
 };
 
-const generateRowsByNodes = (nodes = []) => {
-    const rows = nodes.map((node) => {
-        const { id, label, state } = node;
-        const { depth, more, open, path, children, total, selected = false } = state;
+const defaultRowRenderer = (node) => {
+    const { id, label, state } = node;
+    const { depth, more, open, path, children, total, selected = false } = state;
 
-        let togglerContent = '';
-        if (more && open) {
-            togglerContent = '▼';
-        }
-        if (more && !open) {
-            togglerContent = '►';
-        }
-        const toggler = buildHTML('a', togglerContent, {
-            'class': (() => {
-                if (more && open) {
-                    return classNames(
-                        'tree-toggler'
-                    );
-                }
-                if (more && !open) {
-                    return classNames(
-                        'tree-toggler',
-                        'tree-closed'
-                    );
-                }
-                return '';
-            })()
-        });
-        const title = buildHTML('span', quoteattr(label), {
-            'class': classNames('tree-title')
-        });
-        const treeNode = buildHTML('div', toggler + title, {
-            'class': 'tree-node',
-            'style': 'margin-left: ' + depth * 12 + 'px'
-        });
-        const treeItem = buildHTML('div', treeNode, {
-            'aria-id': id,
-            'aria-expanded': more && open,
-            'aria-depth': depth,
-            'aria-path': path,
-            'aria-selected': selected,
-            'aria-children': children ? Object.keys(children).length : 0,
-            'aria-total': total,
-            'class': classNames(
-                'tree-item',
-                { 'tree-selected': selected }
-            )
-        });
-
-        return treeItem;
+    let togglerContent = '';
+    if (more && open) {
+        togglerContent = '▼';
+    }
+    if (more && !open) {
+        togglerContent = '►';
+    }
+    const toggler = buildHTML('a', togglerContent, {
+        'class': (() => {
+            if (more && open) {
+                return classNames(
+                    'tree-toggler'
+                );
+            }
+            if (more && !open) {
+                return classNames(
+                    'tree-toggler',
+                    'tree-closed'
+                );
+            }
+            return '';
+        })()
+    });
+    const title = buildHTML('span', quoteattr(label), {
+        'class': classNames('tree-title')
+    });
+    const treeNode = buildHTML('div', toggler + title, {
+        'class': 'tree-node',
+        'style': 'margin-left: ' + depth * 12 + 'px'
+    });
+    const treeItem = buildHTML('div', treeNode, {
+        'aria-id': id,
+        'aria-expanded': more && open,
+        'aria-depth': depth,
+        'aria-path': path,
+        'aria-selected': selected,
+        'aria-children': children ? Object.keys(children).length : 0,
+        'aria-total': total,
+        'class': classNames(
+            'tree-item',
+            { 'tree-selected': selected }
+        )
     });
 
-    return rows;
+    return treeItem;
+};
+
+const generateRows = (nodes = [], rowRenderer = defaultRowRenderer) => {
+    return nodes.map(node => rowRenderer(node));
 };
 
 class InfiniteTree extends events.EventEmitter {
     options = {
+        autoOpen: false,
         el: null,
-        autoOpen: false
+        rowRenderer: defaultRowRenderer
     };
     state = {
         openNodes: [],
@@ -149,6 +150,8 @@ class InfiniteTree extends events.EventEmitter {
     };
     eventHandler = {
         closeNode: ({ evt, node, nodeIndex }) => {
+            const { rowRenderer } = this.options;
+
             // Keep selected node unchanged if "node" is equal to "this.state.selectedNode"
             if (this.state.selectedNode && (this.state.selectedNode !== node)) {
                 const { selectNode } = this.eventHandler;
@@ -188,28 +191,32 @@ class InfiniteTree extends events.EventEmitter {
             // Remove elements from an array
             this.nodes.splice(nodeIndex + 1, deleteCount);
             this.rows.splice(nodeIndex + 1, deleteCount);
-            this.rows[nodeIndex] = generateRowsByNodes([node])[0];
+            this.rows[nodeIndex] = generateRows([node], rowRenderer)[0];
             this.emit('tree.close', node);
         },
         openNode: ({ evt, node, nodeIndex }) => {
+            const { rowRenderer } = this.options;
+
             node.state.open = true; // Set node.state.open to true
             const openNodes = [node].concat(this.state.openNodes); // the most recently used items first
             this.state.openNodes = openNodes;
 
             const nodes = flatten(node.children, { openNodes: this.state.openNodes });
-            const rows = generateRowsByNodes(nodes);
+            const rows = generateRows(nodes, rowRenderer);
 
             // Insert an array inside another array
             this.nodes.splice.apply(this.nodes, [nodeIndex + 1, 0].concat(nodes));
             this.rows.splice.apply(this.rows, [nodeIndex + 1, 0].concat(rows));
-            this.rows[nodeIndex] = generateRowsByNodes([node])[0];
+            this.rows[nodeIndex] = generateRows([node], rowRenderer)[0];
             this.emit('tree.open', node);
         },
         selectNode: ({ evt, node, nodeIndex }) => {
+            const { rowRenderer } = this.options;
+
             // select node
             if (this.state.selectedNode !== node) {
                 node.state.selected = true;
-                this.rows[nodeIndex] = generateRowsByNodes([node])[0];
+                this.rows[nodeIndex] = generateRows([node], rowRenderer)[0];
             }
 
             // deselect node
@@ -217,7 +224,7 @@ class InfiniteTree extends events.EventEmitter {
                 let selectedNode = this.state.selectedNode;
                 let selectedIndex = this.nodes.indexOf(selectedNode);
                 selectedNode.state.selected = false;
-                this.rows[selectedIndex] = generateRowsByNodes([selectedNode])[0];
+                this.rows[selectedIndex] = generateRows([selectedNode], rowRenderer)[0];
             }
 
             if (this.state.selectedNode !== node) {
@@ -233,21 +240,19 @@ class InfiniteTree extends events.EventEmitter {
     constructor(options = {}) {
         super();
 
-        const { autoOpen = false, el = null, data = null } = options;
+        // Assign options
+        this.options = extend({}, this.options, options);
 
-        if (!el) {
-            console.error('Failed to initialize infinite tree: el is not specified.');
+        if (!this.options.el) {
+            console.error('Failed to initialize infinite-tree: el is not specified.', options);
             return;
         }
-
-        // Assign options
-        this.options = extend({}, { autoOpen, el });
 
         this.create();
 
         // Load tree data if it's provided
-        if (data) {
-            this.loadData(data);
+        if (options.data) {
+            this.loadData(options.data);
         }
     }
     create() {
@@ -351,9 +356,8 @@ class InfiniteTree extends events.EventEmitter {
     }
     // Load data in the tree.
     // @param {object|array} data The data is a node object or array of nodes
-    // @param {object} [options] The options object
-    loadData(data = [], options = {}) {
-        const { autoOpen = this.options.autoOpen } = options;
+    loadData(data = []) {
+        const { autoOpen, rowRenderer } = this.options;
 
         this.nodes = flatten(data, { openAllNodes: autoOpen });
 
@@ -361,7 +365,7 @@ class InfiniteTree extends events.EventEmitter {
         this.state.openNodes = openNodes;
         this.state.selectedNode = null;
 
-        this.rows = generateRowsByNodes(this.nodes);
+        this.rows = generateRows(this.nodes, rowRenderer);
         this.clusterize.update(this.rows);
     }
     // Open this node. The node must have child nodes.
