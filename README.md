@@ -21,21 +21,70 @@ import 'infinite-tree/dist/infinite-tree.css';
 const data = {
     id: 'fruit',
     label: 'Fruit',
-    children: [
-        { id: 'apple', label: 'Apple' },
-        { id: 'banana', label: 'Banana', children: [{ id: 'cherry', label: 'Cherry' }] }
-    ]
+    children: [{
+        id: 'apple',
+        label: 'Apple'
+    }, {
+        id: 'banana',
+        label: 'Banana',
+        children: [{
+            id: 'cherry',
+            label: 'Cherry'
+        }]
+    }]
 };
 const tree = new InfiniteTree({
-  el: document.querySelector('#tree'),
-  data: [data],
-  autoOpen: true
+    autoOpen: true,
+    el: document.querySelector('#tree'),
+    // tree data
+    data: data
 });
-
 tree.on('tree.open', (node) => {
 });
 tree.on('tree.close', (node) => {
 });
 tree.on('tree.select', (node) => {
 });
+```
+
+## Options
+Below are the configuration options with their default values:
+```js
+{
+    autoOpen: false,
+    el: null,
+    rowRenderer: defaultRowRenderer,
+    data: []
+}
+```
+
+#### autoOpen
+
+Type: `Boolean` Default: `false`
+
+Set to `true` to open all nodes.
+
+#### el
+
+Type: `DOMElement` Default: `null`
+
+The DOM element for rendering a tree.
+
+#### rowRenderer
+
+Type: `Function` Default: `defaultRowRenderer`
+
+#### data
+
+Type: `Object` or `Array` Default: `[]`
+
+A tree node structure:
+```js
+[
+    { // node
+        id: '<unique-node-id>', // Required
+        label: 'Node Label', // Required
+        children: [] // Optional
+    }
+]
 ```
