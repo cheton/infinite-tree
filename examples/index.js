@@ -12,8 +12,9 @@ const tree = new InfiniteTree({
     autoOpen: true,
     el: document.querySelector('#tree'),
     rowRenderer: (node) => {
-        const { id, label, state } = node;
-        const { depth, more, open, path, children, total, selected = false } = state;
+        const { id, label, children, state } = node;
+        const { depth, more, open, path, total, selected = false } = state;
+        const childrenLength = Object.keys(children).length;
 
         let togglerContent = '';
         if (more && open) {
@@ -48,7 +49,10 @@ const tree = new InfiniteTree({
         const title = buildHTML('span', quoteattr(label), {
             'class': classNames('tree-title')
         });
-        const treeNode = buildHTML('div', toggler + icon + title, {
+        const count = buildHTML('span', childrenLength, {
+            'class': 'count'
+        });
+        const treeNode = buildHTML('div', toggler + icon + title + count, {
             'class': 'tree-node',
             'style': 'margin-left: ' + depth * 18 + 'px'
         });
@@ -58,7 +62,7 @@ const tree = new InfiniteTree({
             'aria-depth': depth,
             'aria-path': path,
             'aria-selected': selected,
-            'aria-children': children ? Object.keys(children).length : 0,
+            'aria-children': childrenLength,
             'aria-total': total,
             'class': classNames(
                 'tree-item',
