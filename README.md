@@ -64,11 +64,13 @@ Type: `Boolean` Default: `false`
 
 Set to `true` to open all nodes.
 
+
 #### el
 
 Type: `DOMElement` Default: `null`
 
 The DOM element for rendering a tree.
+
 
 #### rowRenderer
 
@@ -91,6 +93,7 @@ function (node) {
     return html;
 }
 ```
+
 
 #### data
 
