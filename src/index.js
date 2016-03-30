@@ -335,6 +335,8 @@ class InfiniteTree extends events.EventEmitter {
     // Select this node. You can deselect the current node by calling selectNode(null) or selectNode().
     // @param {object} node
     selectNode(node = null) {
+        const { rowRenderer } = this.options;
+
         if (node === null) {
             // Deselect the current node
             if (this.state.selectedNode) {
@@ -355,7 +357,6 @@ class InfiniteTree extends events.EventEmitter {
             return false;
         }
 
-        const { rowRenderer } = this.options;
         const nodeIndex = this.nodes.indexOf(node);
         if (nodeIndex < 0) {
             throw new Error('Invalid node specified: node.id=' + JSON.stringify(node.id));
