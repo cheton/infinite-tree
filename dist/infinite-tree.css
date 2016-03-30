@@ -13,6 +13,12 @@
 .infinite-tree-content .tree-item:hover {
   background: #f2fdff;
 }
+.infinite-tree-content .tree-toggler {
+  color: #000;
+}
+.infinite-tree-content .tree-toggler:hover {
+  text-decoration: none;
+}
 .infinite-tree-content .tree-title {
   cursor: pointer;
 }
