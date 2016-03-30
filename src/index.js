@@ -131,15 +131,12 @@ class InfiniteTree extends events.EventEmitter {
     destroy() {
         removeEventListener(this.contentElement, 'click', this.contentListener);
 
+        this.clear();
+
         if (this.clusterize) {
-            this.clusterize.clear();
+            this.clusterize.destroy(true); // True to remove all data from the list
             this.clusterize = null;
         }
-
-        this.nodes = [];
-        this.rows = [];
-        this.state.openNodes = [];
-        this.state.selectedNode = null;
 
         // Remove all child nodes
         while (this.contentElement.firstChild) {
@@ -148,6 +145,7 @@ class InfiniteTree extends events.EventEmitter {
     }
     clear() {
         this.clusterize.clear();
+        this.nodebucket = {};
         this.nodes = [];
         this.rows = [];
         this.state.openNodes = [];
