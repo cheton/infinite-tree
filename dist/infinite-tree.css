@@ -18,6 +18,9 @@
 }
 .infinite-tree-content .tree-toggler {
   color: #333;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
   user-select: none;
 }
 .infinite-tree-content .tree-toggler:hover {
@@ -26,6 +29,9 @@
 }
 .infinite-tree-content .tree-title {
   cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
   user-select: none;
 }
 .infinite-tree-no-data {
