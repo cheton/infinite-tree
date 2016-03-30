@@ -96,7 +96,7 @@ function (node) {
 
 Type: `Object` or `Array` Default: `[]`
 
-A tree node structure:
+Define a tree node structure like so:
 ```js
 [
     { // node
