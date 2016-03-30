@@ -16,6 +16,9 @@
 .infinite-tree-content .tree-item:hover {
   background: #f2fdff;
 }
+.infinite-tree-content .tree-node {
+  position: relative;
+}
 .infinite-tree-content .tree-toggler {
   color: #333;
   -webkit-user-select: none;
