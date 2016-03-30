@@ -17,10 +17,10 @@ const tree = new InfiniteTree({
 
         let togglerContent = '';
         if (more && open) {
-            togglerContent = '▼';
+            togglerContent = '<i class="fa fa-chevron-down"></i>';
         }
         if (more && !open) {
-            togglerContent = '►';
+            togglerContent = '<i class="fa fa-chevron-right"></i>';
         }
         const toggler = buildHTML('a', togglerContent, {
             'class': (() => {
@@ -38,12 +38,19 @@ const tree = new InfiniteTree({
                 return '';
             })()
         });
+        const icon = buildHTML('i', '', {
+            'class': classNames(
+                'tree-folder-icon',
+                'fa',
+                'fa-folder'
+            )
+        });
         const title = buildHTML('span', quoteattr(label), {
             'class': classNames('tree-title')
         });
-        const treeNode = buildHTML('div', toggler + title, {
+        const treeNode = buildHTML('div', toggler + icon + title, {
             'class': 'tree-node',
-            'style': 'margin-left: ' + depth * 12 + 'px'
+            'style': 'margin-left: ' + depth * 20 + 'px'
         });
         const treeItem = buildHTML('div', treeNode, {
             'aria-id': id,
