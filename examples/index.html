@@ -5,17 +5,24 @@
 <meta http-equiv="X-UA-Compatible" content="chrome=1">
 <title>infinite-tree</title>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
 <style>
 html, body {
-    background-color: #f5f6f7;
+    font-family: Arial, Helvetica, sans-serif;
+}
+.progress-bar {
+    -webkit-transition: none;
+    -moz-transition: none;
+    -ms-transition: none;
+    -o-transition: none;
+    transition: none;
 }
 #tree {
     border: 1px solid #ccc;
     background-color: #fff;
 }
 #preview {
-    font-size: 12px;
+    font-family: Consolas;
+    font-size: 14px;
     white-space: pre-wrap;
     background-color: #282c34;
     border: solid 1px #ccc;
@@ -28,12 +35,13 @@ html, body {
 }
 .tree-toggler {
     text-align: center;
+    margin-right: 5px;
 }
-.tree-toggler .fa {
-    width: 18px;
+.tree-folder-icon:first-child {
+    margin-left: 20px;
 }
-.tree-folder-icon {
-    margin: 0 2px;
+.tree-folder-icon:before {
+    margin-right: 5px;
 }
 .tree-node .count {
     position: absolute;
@@ -57,9 +65,25 @@ html, body {
 <body>
 <div class="container">
     <div class="row">
-        <div class="col-sm-12" style="margin-top: 1em">
-            <h1>infinite-tree</h1>
-            <h4>A browser-ready tree library that can efficiently display a large tree with smooth scrolling.</h4>
+        <div class="col-sm-12 text-center" style="margin-top: 2em">
+            <div class="jumbotron">
+                <div class="row">
+                    <h1>infinite-tree</h1>
+                </div>
+                <div class="row" style="margin-bottom: 15px">
+                    <h3>A browser-ready tree library that can efficiently display a large tree with smooth scrolling.</h3>
+                </div>
+                <div class="row">
+                    <a class="btn btn-primary btn-lg" href="https://github.com/cheton/infinite-tree" role="button">View on GitHub</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="progress">
+                <div class="progress-bar" role="progressbar" id="scrolling-progress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
         </div>
     </div>
     <div class="row">
