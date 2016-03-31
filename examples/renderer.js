@@ -5,29 +5,33 @@ const rowRenderer = (node) => {
     const { depth, more, open, path, total, selected = false } = state;
     const childrenLength = Object.keys(children).length;
 
-    let togglerContent = '';
-    if (more && open) {
-        togglerContent = '<i class="glyphicon glyphicon-menu-down"></i>';
+    let toggler = '';
+    if (more) {
+        let togglerContent = '';
+        if (open) {
+            togglerContent = '<i class="glyphicon glyphicon-menu-down"></i>';
+        }
+        if (!open) {
+            togglerContent = '<i class="glyphicon glyphicon-menu-right"></i>';
+        }
+        toggler = buildHTML('a', togglerContent, {
+            'class': (() => {
+                if (more && open) {
+                    return classNames(
+                        'tree-toggler'
+                    );
+                }
+                if (more && !open) {
+                    return classNames(
+                        'tree-toggler',
+                        'tree-closed'
+                    );
+                }
+                return '';
+            })()
+        });
     }
-    if (more && !open) {
-        togglerContent = '<i class="glyphicon glyphicon-menu-right"></i>';
-    }
-    const toggler = buildHTML('a', togglerContent, {
-        'class': (() => {
-            if (more && open) {
-                return classNames(
-                    'tree-toggler'
-                );
-            }
-            if (more && !open) {
-                return classNames(
-                    'tree-toggler',
-                    'tree-closed'
-                );
-            }
-            return '';
-        })()
-    });
+
     const icon = buildHTML('i', '', {
         'class': classNames(
             'tree-folder-icon',
