@@ -9,10 +9,10 @@ const rowRenderer = (node) => {
     if (more) {
         let togglerContent = '';
         if (open) {
-            togglerContent = '<i class="glyphicon glyphicon-menu-down"></i>';
+            togglerContent = '<i class="glyphicon glyphicon-triangle-bottom"></i>';
         }
         if (!open) {
-            togglerContent = '<i class="glyphicon glyphicon-menu-right"></i>';
+            togglerContent = '<i class="glyphicon glyphicon-triangle-right"></i>';
         }
         toggler = buildHTML('a', togglerContent, {
             'class': (() => {
