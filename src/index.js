@@ -31,7 +31,9 @@ class InfiniteTree extends events.EventEmitter {
     nodebucket = {};
     nodes = [];
     rows = [];
+    scrollElement = null;
     contentElement = null;
+
     contentListener = (evt) => {
         let { target, currentTarget } = evt;
 
@@ -83,26 +85,47 @@ class InfiniteTree extends events.EventEmitter {
         }
     }
     create() {
-        const infiniteTree = document.createElement('div');
-        infiniteTree.className = classNames('infinite-tree');
-        const infiniteTreeScroll = document.createElement('div');
-        infiniteTreeScroll.className = classNames('infinite-tree-scroll');
-        const infiniteTreeContent = document.createElement('div');
-        infiniteTreeContent.className = classNames('infinite-tree-content');
+        if (!this.options.el) {
+            throw new Error('The element option is not specified.');
+        }
 
-        infiniteTreeScroll.appendChild(infiniteTreeContent);
-        infiniteTree.appendChild(infiniteTreeScroll);
-        this.options.el.appendChild(infiniteTree);
+        const scrollElement = document.createElement('div');
+        scrollElement.className = classNames(
+            'infinite-tree',
+            'infinite-tree-scroll'
+        );
+        const contentElement = document.createElement('div');
+        contentElement.className = classNames(
+            'infinite-tree',
+            'infinite-tree-content'
+        );
+
+        scrollElement.appendChild(contentElement);
+        this.options.el.appendChild(scrollElement);
 
         this.clusterize = new Clusterize({
             tag: 'div',
             rows: [],
-            scrollElem: infiniteTreeScroll,
-            contentElem: infiniteTreeContent,
-            no_data_class: 'infinite-tree-no-data'
+            scrollElem: scrollElement,
+            contentElem: contentElement,
+            no_data_class: 'infinite-tree-no-data',
+            callbacks: {
+                // Will be called right before replacing previous cluster with new one.
+                clusterWillChange: () => {
+                },
+                // Will be called right after replacing previous cluster with new one.
+                clusterChanged: () => {
+                },
+                // Will be called on scrolling. Returns progress position.
+                scrollingProgress: (progress) => {
+                    this.emit('scrollProgress', progress);
+                }
+            }
         });
 
-        this.contentElement = infiniteTreeContent;
+        this.scrollElement = scrollElement;
+        this.contentElement = contentElement;
+
         addEventListener(this.contentElement, 'click', this.contentListener);
     }
     destroy() {
@@ -119,6 +142,17 @@ class InfiniteTree extends events.EventEmitter {
         while (this.contentElement.firstChild) {
             this.contentElement.removeChild(this.contentElement.firstChild);
         }
+        while (this.scrollElement.firstChild) {
+            this.scrollElement.removeChild(this.scrollElement.firstChild);
+        }
+        if (this.options.el) {
+            const containerElement = this.options.el;
+            while (containerElement.firstChild) {
+                containerElement.removeChild(containerElement.firstChild);
+            }
+        }
+        this.contentElement = null;
+        this.scrollElement = null;
     }
     clear() {
         this.clusterize.clear();
@@ -212,8 +246,8 @@ class InfiniteTree extends events.EventEmitter {
         this.rows.splice(nodeIndex + 1, deleteCount);
         this.rows[nodeIndex] = rowRenderer(node);
 
-        // Emit the 'tree.close' event
-        this.emit('tree.close', node);
+        // Emit the 'closeNode' event
+        this.emit('closeNode', node);
 
         // Updates list with new data
         this.update();
@@ -297,8 +331,8 @@ class InfiniteTree extends events.EventEmitter {
         this.rows.splice.apply(this.rows, [nodeIndex + 1, 0].concat(rows));
         this.rows[nodeIndex] = rowRenderer(node);
 
-        // Emit the 'tree.open' event
-        this.emit('tree.open', node);
+        // Emit the 'openNode' event
+        this.emit('openNode', node);
 
         // Updates list with new data
         this.update();
@@ -312,8 +346,32 @@ class InfiniteTree extends events.EventEmitter {
     }
     // Scroll to this node.
     // @param {object} node
+    // @return {number} Returns the vertical scroll position, or -1 on error.
     scrollToNode(node) {
-        // TODO
+        // Retrieve node index
+        const nodeIndex = this.nodes.indexOf(node);
+        if (nodeIndex < 0) {
+            return -1;
+        }
+        if (!this.contentElement) {
+            return -1;
+        }
+        // Get the offset height of the first child element that contains the "tree-item" class.
+        const firstChild = this.contentElement.querySelectorAll('.tree-item')[0];
+        const rowHeight = (firstChild && firstChild.offsetHeight) || 0;
+        return this.scrollTop(nodeIndex * rowHeight);
+    }
+    // Get or set the current vertical position of the scroll bar.
+    // @param {number} [value] An integer indicating the new position to set the scroll bar to.
+    // @return {number} Returns the vertical scroll position.
+    scrollTop(value) {
+        if (!this.scrollElement) {
+            return 0;
+        }
+        if (value !== undefined) {
+            this.scrollElement.scrollTop = Number(value);
+        }
+        return this.scrollElement.scrollTop;
     }
     // Select this node. You can deselect the current node by calling selectNode(null) or selectNode().
     // @param {object} node
@@ -331,8 +389,8 @@ class InfiniteTree extends events.EventEmitter {
                 this.rows[selectedIndex] = rowRenderer(selectedNode);
                 this.state.selectedNode = null;
 
-                // Emit the 'tree.select' event
-                this.emit('tree.select', null);
+                // Emit the 'selectNode' event
+                this.emit('selectNode', null);
 
                 // Updates list with new data
                 this.update();
@@ -366,13 +424,13 @@ class InfiniteTree extends events.EventEmitter {
         if (this.state.selectedNode !== node) {
             this.state.selectedNode = node;
 
-            // Emit the 'tree.select' event
-            this.emit('tree.select', node);
+            // Emit the 'selectNode' event
+            this.emit('selectNode', node);
         } else {
             this.state.selectedNode = null;
 
-            // Emit the 'tree.select' event
-            this.emit('tree.select', null);
+            // Emit the 'selectNode' event
+            this.emit('selectNode', null);
         }
 
         // Updates list with new data
