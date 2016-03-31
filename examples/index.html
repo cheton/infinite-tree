@@ -7,8 +7,21 @@
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
 <style>
+html, body {
+    background-color: #f5f6f7;
+}
 #tree {
     border: 1px solid #ccc;
+    background-color: #fff;
+}
+#preview {
+    font-size: 12px;
+    white-space: pre-wrap;
+    background-color: #282c34;
+    border: solid 1px #ccc;
+    color: #9197a3;
+    padding: 20px;
+    min-height: 400px;
 }
 .infinite-tree-content {
     max-height: 400px;
@@ -54,6 +67,7 @@
             <div id="tree"></div>
         </div>
         <div class="col-sm-6">
+            <div id="preview"></div>
         </div>
     </div>
 </div>
