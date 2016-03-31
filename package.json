@@ -1,6 +1,6 @@
 {
   "name": "infinite-tree",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "A browser-ready tree library that can efficiently display a large tree with smooth scrolling.",
   "main": "lib/index.js",
   "scripts": {
