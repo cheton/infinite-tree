@@ -39,11 +39,13 @@ const tree = new InfiniteTree({
     // tree data
     data: data
 });
-tree.on('tree.open', (node) => {
+tree.on('openNode', (node) => {
 });
-tree.on('tree.close', (node) => {
+tree.on('closeNode', (node) => {
 });
-tree.on('tree.select', (node) => {
+tree.on('selectNode', (node) => {
+});
+tree.on('scrollProgress', (progress) => {
 });
 ```
 
