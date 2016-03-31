@@ -7,10 +7,10 @@ const rowRenderer = (node) => {
 
     let togglerContent = '';
     if (more && open) {
-        togglerContent = '<i class="fa fa-chevron-down"></i>';
+        togglerContent = '<i class="glyphicon glyphicon-chevron-down"></i>';
     }
     if (more && !open) {
-        togglerContent = '<i class="fa fa-chevron-right"></i>';
+        togglerContent = '<i class="glyphicon glyphicon-chevron-right"></i>';
     }
     const toggler = buildHTML('a', togglerContent, {
         'class': (() => {
@@ -31,8 +31,10 @@ const rowRenderer = (node) => {
     const icon = buildHTML('i', '', {
         'class': classNames(
             'tree-folder-icon',
-            'fa',
-            'fa-folder'
+            'glyphicon',
+            { 'glyphicon-folder-open': more && open },
+            { 'glyphicon-folder-close': more && !open },
+            { 'glyphicon-file': !more }
         )
     });
     const title = buildHTML('span', quoteattr(label), {
