@@ -5,7 +5,7 @@ A browser-ready tree library that can efficiently display a large tree with smoo
 
 View [demo](http://cheton.github.io/infinite-tree) at http://cheton.github.io/infinite-tree.
 
-![](https://github.com/cheton/infinite-tree/blob/master/media/infinite-tree.gif)
+![http://cheton.github.io/infinite-tree](https://github.com/cheton/infinite-tree/blob/master/media/infinite-tree.gif)
 
 #### The project is under heavy development and a lot of things are changing. Stay tuned for more information later.
 
