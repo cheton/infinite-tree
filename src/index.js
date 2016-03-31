@@ -344,7 +344,7 @@ class InfiniteTree extends events.EventEmitter {
     removeNode(node) {
         // TODO
     }
-    // Scroll to this node.
+    // Set the current scroll position to this node.
     // @param {object} node
     // @return {number} Returns the vertical scroll position, or -1 on error.
     scrollToNode(node) {
@@ -361,7 +361,7 @@ class InfiniteTree extends events.EventEmitter {
         const rowHeight = (firstChild && firstChild.offsetHeight) || 0;
         return this.scrollTop(nodeIndex * rowHeight);
     }
-    // Get or set the current vertical position of the scroll bar.
+    // Get/set the current vertical position of the scroll bar.
     // @param {number} [value] An integer indicating the new position to set the scroll bar to.
     // @return {number} Returns the vertical scroll position.
     scrollTop(value) {
