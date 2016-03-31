@@ -32,6 +32,8 @@ tree.on('selectNode', (node) => {
         el.innerHTML = JSON.stringify({
             id: node.id,
             label: node.label,
+            children: node.children ? node.children.length : 0,
+            parent: node.parent ? node.parent.state.path : null,
             state: node.state
         }, null, 2);
     } else {
