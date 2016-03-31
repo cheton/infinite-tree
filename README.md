@@ -96,6 +96,7 @@ function (node) {
 }
 ```
 
+Find a more advanced example at [examples/renderer.js](https://github.com/cheton/infinite-tree/blob/master/examples/renderer.js).
 
 #### data
 
