@@ -10,6 +10,15 @@
 html, body {
     font-family: Arial, Helvetica, sans-serif;
 }
+
+.progress-bar {
+    -webkit-transition: none;
+    -moz-transition: none;
+    -ms-transition: none;
+    -o-transition: none;
+    transition: none;
+}
+
 #tree {
     border: 1px solid #ccc;
 }
@@ -58,6 +67,13 @@ html, body {
                 <div class="row">
                     <a class="btn btn-primary btn-lg" href="https://github.com/cheton/infinite-tree" role="button">View on GitHub</a>
                 </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="progress">
+                <div class="progress-bar" role="progressbar" id="scrolling-progress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
             </div>
         </div>
     </div>

@@ -74,14 +74,18 @@ const tree = new InfiniteTree({
     }
 });
 
-tree.on('tree.open', (node) => {
-    console.log('tree.open', node);
+tree.on('scrollProgress', (progress) => {
+    document.querySelector('#scrolling-progress').style = 'width: ' + progress + '%';
 });
-tree.on('tree.close', (node) => {
-    console.log('tree.close', node);
+
+tree.on('openNode', (node) => {
+    console.log('openNode', node);
 });
-tree.on('tree.select', (node) => {
-    console.log('tree.select', node);
+tree.on('closeNode', (node) => {
+    console.log('closeNode', node);
+});
+tree.on('selectNode', (node) => {
+    console.log('selectNode', node);
 });
 
 tree.loadData(data);
