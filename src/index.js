@@ -16,32 +16,40 @@ const extend = (target, ...sources) => {
     return target;
 };
 
+const preventDefault = (e) => {
+    if (typeof e.preventDefault !== 'undefined') {
+        e.preventDefault();
+    } else {
+        e.returnValue = false;
+    }
+};
+
+const stopPropagation = (e) => {
+    if (typeof e.stopPropagation !== 'undefined') {
+        e.stopPropagation();
+    } else {
+        e.cancelBubble = true;
+    }
+};
+
+// https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener#Compatibility
 const addEventListener = (target, type, listener) => {
-    if (target.attachEvent) {
-        return target.attachEvent('on' + type, listener);
-    } else {
-        return target.addEventListener(type, listener, false);
+    if (target.addEventListener) { // Standard
+        target.addEventListener(type, listener, false);
+    } else if (target.attachEvent) { // IE8
+        // In Internet Explorer versions before IE 9, you have to use attachEvent rather than the standard addEventListener.
+        target.attachEvent('on' + type, listener);
     }
 };
 
+// https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/removeEventListener
 const removeEventListener = (target, type, listener) => {
-    if (target.detachEvent) {
-        return target.detachEvent('on' + type, listener);
-    } else {
-        return target.removeEventListener(type, listener, false);
+    if (target.removeEventListener) { // Standard
+        target.removeEventListener(type, listener, false);
+    } else if (target.detachEvent) { // IE8
+        // In Internet Explorer versions before IE 9, you have to use detachEvent rather than the standard removeEventListener.
+        target.detachEvent('on' + type, listener);
     }
-};
-
-const stopPropagation = (evt) => {
-    if (typeof evt.stopPropagation !== 'undefined') {
-        evt.stopPropagation();
-    } else {
-        evt.cancelBubble = true;
-    }
-};
-
-const generateRows = (nodes = [], rowRenderer = defaultRowRenderer) => {
-    return nodes.map(node => rowRenderer(node));
 };
 
 class InfiniteTree extends events.EventEmitter {
@@ -317,12 +325,12 @@ class InfiniteTree extends events.EventEmitter {
         this.state.openNodes = openNodes;
 
         const nodes = flatten(node.children, { openNodes: this.state.openNodes });
-        const rows = generateRows(nodes, rowRenderer);
+        const rows = nodes.map(node => rowRenderer(node));
 
         // Insert an array inside another array
         this.nodes.splice.apply(this.nodes, [nodeIndex + 1, 0].concat(nodes));
         this.rows.splice.apply(this.rows, [nodeIndex + 1, 0].concat(rows));
-        this.rows[nodeIndex] = generateRows([node], rowRenderer)[0];
+        this.rows[nodeIndex] = rowRenderer(node);
 
         // Emit the 'tree.open' event
         this.emit('tree.open', node);
