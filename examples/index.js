@@ -33,7 +33,7 @@ tree.on('selectNode', (node) => {
             id: node.id,
             label: node.label,
             children: node.children ? node.children.length : 0,
-            parent: node.parent ? node.parent.state.path : null,
+            parent: node.parent ? node.parent.id : null,
             state: node.state
         }, null, 2);
     } else {
