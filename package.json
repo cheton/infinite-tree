@@ -2,6 +2,7 @@
   "name": "infinite-tree",
   "version": "0.2.3",
   "description": "A browser-ready tree library that can efficiently display a large tree with smooth scrolling.",
+  "homepage": "https://github.com/cheton/infinite-tree",
   "main": "lib/index.js",
   "scripts": {
     "prepublish": "npm run lint && npm test && npm run build && npm run dist && npm run stylus",
