@@ -1,6 +1,7 @@
 import events from 'events';
 import Clusterize from 'clusterize.js';
 import { flatten } from 'flattree';
+import LookupTable from './lookup-table';
 import { defaultRowRenderer } from './renderer';
 import { stopPropagation, addEventListener, removeEventListener } from './polyfill';
 import { classNames } from './utils';
@@ -35,7 +36,7 @@ class InfiniteTree extends events.EventEmitter {
         selectedNode: null
     };
     clusterize = null;
-    nodebucket = {};
+    tblLookup = new LookupTable();
     nodes = [];
     rows = [];
     scrollElement = null;
@@ -59,6 +60,10 @@ class InfiniteTree extends events.EventEmitter {
 
             const id = itemTarget.getAttribute('aria-id');
             const node = this.getNodeById(id);
+
+            if (!node) {
+                return;
+            }
 
             // Click on the toggler to open/close a tree node
             if (handleToggler) {
@@ -133,7 +138,7 @@ class InfiniteTree extends events.EventEmitter {
     }
     clear() {
         this.clusterize.clear();
-        this.nodebucket = {};
+        this.tblLookup.clear();
         this.nodes = [];
         this.rows = [];
         this.state.openNodes = [];
@@ -205,11 +210,10 @@ class InfiniteTree extends events.EventEmitter {
         this.rows.splice.apply(this.rows, [newChildIndex, 0].concat(rows));
         this.rows[newChildIndex] = rowRenderer(newChild);
 
-        // Construct node bucket
+        // Add visible nodes to the lookup table
         nodes.forEach((node) => {
             if (node.id !== undefined) {
-                const nodebucket = this.nodebucket[node.id];
-                this.nodebucket[node.id] = nodebucket ? nodebucket.concat(node) : [node];
+                this.tblLookup.set(node.id, node);
             }
         });
 
@@ -307,8 +311,15 @@ class InfiniteTree extends events.EventEmitter {
     // Gets a node by its unique id. This assumes that you have given the nodes in the data a unique id.
     // @param {string|number} id An unique node id. A null value will be returned if the id doesn't match.
     getNodeById(id) {
-        const node = (this.nodebucket[id] || [])[0];
-        return (node !== undefined) ? node : null;
+        let node = this.tblLookup.get(id);
+        if (!node) {
+            node = this.nodes.filter((node) => (node.id === id))[0];
+            if (!node) {
+                return null;
+            }
+            this.tblLookup.set(node.id, node);
+        }
+        return node;
     }
     // Gets the selected node.
     getSelectedNode() {
@@ -338,12 +349,13 @@ class InfiniteTree extends events.EventEmitter {
 
         this.nodes = flatten(data, { openAllNodes: autoOpen });
 
-        // Construct node bucket
-        this.nodebucket = {};
+        // Clear lookup table
+        this.tblLookup.clear();
+
+        // Add visible nodes to the lookup table
         this.nodes.forEach((node) => {
             if (node.id !== undefined) {
-                const nodebucket = this.nodebucket[node.id];
-                this.nodebucket[node.id] = nodebucket ? nodebucket.concat(node) : [node];
+                this.tblLookup.set(node.id, node);
             }
         });
 
@@ -384,6 +396,15 @@ class InfiniteTree extends events.EventEmitter {
         this.nodes.splice.apply(this.nodes, [nodeIndex + 1, 0].concat(nodes));
         this.rows.splice.apply(this.rows, [nodeIndex + 1, 0].concat(rows));
         this.rows[nodeIndex] = rowRenderer(node);
+
+        // Add all child nodes to the lookup table if the first child does not exist in the lookup table
+        if ((nodes.length > 0) && !(this.tblLookup.get(nodes[0]))) {
+            nodes.forEach((node) => {
+                if (node.id !== undefined) {
+                    this.tblLookup.set(node.id, node);
+                }
+            });
+        }
 
         // Emit the 'openNode' event
         this.emit('openNode', node);
