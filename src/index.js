@@ -6,15 +6,22 @@ import { stopPropagation, addEventListener, removeEventListener } from './polyfi
 import { classNames } from './utils';
 
 const extend = (target, ...sources) => {
-    sources.forEach((source) => {
-        for (let key in source) {
-            if (source.hasOwnProperty(key)) {
-                target[key] = source[key];
+    if (target === undefined || target === null) {
+        throw new TypeError('Cannot convert undefined or null to object');
+    }
+
+    const output = Object(target);
+    for (let index = 0; index < sources.length; index++) {
+        const source = sources[index];
+        if (source !== undefined && source !== null) {
+            for (let key in source) {
+                if (source.hasOwnProperty(key)) {
+                    output[key] = source[key];
+                }
             }
         }
-    });
-
-    return target;
+    }
+    return output;
 };
 
 class InfiniteTree extends events.EventEmitter {
@@ -55,11 +62,7 @@ class InfiniteTree extends events.EventEmitter {
 
             // Click on the toggler to open/close a tree node
             if (handleToggler) {
-                if (this.state.openNodes.indexOf(node) >= 0) { // Close node
-                    this.closeNode(node);
-                } else {
-                    this.openNode(node);
-                }
+                this.toggleNode(node);
             } else {
                 this.selectNode(node);
             }
@@ -128,6 +131,14 @@ class InfiniteTree extends events.EventEmitter {
 
         addEventListener(this.contentElement, 'click', this.contentListener);
     }
+    clear() {
+        this.clusterize.clear();
+        this.nodebucket = {};
+        this.nodes = [];
+        this.rows = [];
+        this.state.openNodes = [];
+        this.state.selectedNode = null;
+    }
     destroy() {
         removeEventListener(this.contentElement, 'click', this.contentListener);
 
@@ -154,43 +165,39 @@ class InfiniteTree extends events.EventEmitter {
         this.contentElement = null;
         this.scrollElement = null;
     }
-    clear() {
-        this.clusterize.clear();
-        this.nodebucket = {};
-        this.nodes = [];
-        this.rows = [];
-        this.state.openNodes = [];
-        this.state.selectedNode = null;
-    }
     // Updates list with new data
     update() {
         this.clusterize.update(this.rows);
     }
-    // Add a new node after this existing node.
-    // @param {object} newNode
-    // @param {object} node
-    addNodeAfter(newNode, node) {
+    // Adds a child node to a node.
+    // @param {object} parent The object that defines the parent node.
+    // @param {object} newChild The object that defines the child node.
+    addChild(parent, newChild) {
         // TODO
     }
-    // Add a new node before this existing node.
-    // @param {object} newNode
-    // @param {object} node
-    addNodeBefore(newNode, node) {
+    // Adds a child node to a node at the specified index.
+    //   * If the parent is null or undefined, inserts the child at the specified index in the top-level.
+    //   * If the parent has children, the method adds the child to it at the specified index.
+    //   * If the parent does not have children, the method adds the child to the parent.
+    //   * If the index value is greater than or equal to the number of children in the parent, the method adds the child at the end of the children.
+    // @param {object} parent The object that defines the parent node.
+    // @param {object} newChild The object that defines the child node.
+    // @param {number} index The 0-based index of where to insert the child node.
+    addChildAt(parent, newChild, index) {
+    }
+    // Adds a new sibling node after the current node.
+    // @param {object} node The object that defines the current node.
+    // @param {object} newSibling The object that defines the sibling node.
+    addSiblingAfter(node, newSibling) {
         // TODO
     }
-    // Add a new node as parent of this existing node.
-    // @param {object} newNode
-    // @param {object} node
-    addParentNode(newNode, node) {
+    // Adds a new sibling node before the current node.
+    // @param {object} node The object that defines the current node.
+    // @param {object} newSibling The object that defines the sibling node.
+    addSiblingBefore(node, newSibling) {
         // TODO
     }
-    // Add a node to this parent node. If parentNode is empty, then the new node becomes a root node.
-    // @param {object} newNode The new node
-    // @param {object} parentNode The parent node
-    appendNode(newNode, parentNode) {
-        // TODO
-    }
-    // Close this node. The node must have child nodes.
+    // Closes a node to hide its children.
     // @param {object} node
     // @return {boolean} Returns true on success, false otherwise.
     closeNode(node) {
@@ -254,31 +261,35 @@ class InfiniteTree extends events.EventEmitter {
 
         return true;
     }
-    // Get a tree node by the unique node id. This assumes that you have given the nodes in the data a unique id.
-    // @param {string|number} id The unique node id. A null value will be returned if node.id not matched.
+    // Gets a node by its unique id. This assumes that you have given the nodes in the data a unique id.
+    // @param {string|number} id An unique node id. A null value will be returned if the id doesn't match.
     getNodeById(id) {
         const node = (this.nodebucket[id] || [])[0];
         return (node !== undefined) ? node : null;
     }
-    // Get the selected node. Returns the row data or null.
+    // Gets the selected node.
     getSelectedNode() {
         return this.state.selectedNode;
     }
-    // Get the state of the tree.
+    // Gets the state.
     // @return {object} Returns an object that contains the ids of open nodes and selected nodes
     getState() {
         // TODO
     }
-    // Get the root node of the tree.
-    getTree() {
-        let tree = (this.nodes.length > 0) ? this.nodes[0] : null;
-        while (tree && tree.parent !== null) {
-            tree = tree.parent;
+    // Returns a list of child nodes.
+    // @param {object} [node] The object that defines the node. If null, returns a list of top level nodes.
+    getChildren(node = null) {
+        if (node) {
+            return node.children || [];
         }
-        return tree;
+        node = (this.nodes.length > 0) ? this.nodes[0] : null;
+        while (node && node.parent !== null) {
+            node = node.parent;
+        }
+        return node.children || [];
     }
-    // Load data in the tree.
-    // @param {object|array} data The data is a node object or array of nodes
+    // Loads data in the tree.
+    // @param {object|array} data The data is an object or array of objects that defines the node.
     loadData(data = []) {
         const { autoOpen, rowRenderer } = this.options;
 
@@ -302,8 +313,8 @@ class InfiniteTree extends events.EventEmitter {
         // Updates list with new data
         this.update();
     }
-    // Open this node. The node must have child nodes.
-    // @param {object} node
+    // Opens a node to display its children.
+    // @param {object} node The object that defines the node.
     // @return {boolean} Returns true on success, false otherwise.
     openNode(node) {
         const { rowRenderer } = this.options;
@@ -339,13 +350,13 @@ class InfiniteTree extends events.EventEmitter {
 
         return true;
     }
-    // Remove node from the tree
-    // @param {object} node
+    // Removes a node.
+    // @param {object} node The object that defines the node.
     removeNode(node) {
         // TODO
     }
-    // Set the current scroll position to this node.
-    // @param {object} node
+    // Sets the current scroll position to this node.
+    // @param {object} node The object that defines the node.
     // @return {number} Returns the vertical scroll position, or -1 on error.
     scrollToNode(node) {
         // Retrieve node index
@@ -361,8 +372,8 @@ class InfiniteTree extends events.EventEmitter {
         const rowHeight = (firstChild && firstChild.offsetHeight) || 0;
         return this.scrollTop(nodeIndex * rowHeight);
     }
-    // Get/set the current vertical position of the scroll bar.
-    // @param {number} [value] An integer indicating the new position to set the scroll bar to.
+    // Gets (or sets) the current vertical position of the scroll bar.
+    // @param {number} [value] An integer that indicates the new position to set the scroll bar to.
     // @return {number} Returns the vertical scroll position.
     scrollTop(value) {
         if (!this.scrollElement) {
@@ -373,8 +384,8 @@ class InfiniteTree extends events.EventEmitter {
         }
         return this.scrollElement.scrollTop;
     }
-    // Select this node. You can deselect the current node by calling selectNode(null) or selectNode().
-    // @param {object} node
+    // Selects a node.
+    // @param {object} node The object that defines the node. If null or undefined, deselects the current node.
     // @return {boolean} Returns true on success, false otherwise.
     selectNode(node = null) {
         const { rowRenderer } = this.options;
@@ -438,27 +449,87 @@ class InfiniteTree extends events.EventEmitter {
 
         return true;
     }
-    // Set the state of the tree. See getState for more information.
-    // @param {object} state The state object
-    // @param {string} [state.openNodes] The ids of open nodes
-    // @param {string} [state.selectedNode] The id of selected node
+    // Sets the state. See getState for more information.
+    // @param {object} state The state object.
+    // @param {string} [state.openNodes] An array of ids containing the open nodes.
+    // @param {string} [state.selectedNode] The id of selected node.
     setState(state = {}) {
         // TODO
     }
-    // Open or close this node.
-    toggle(node) {
-        // TODO
+    // Toggles a node to display or hide its children.
+    // @param {object} node The object that defines the node.
+    toggleNode(node) {
+        if (this.state.openNodes.indexOf(node) >= 0) {
+            // close node
+            this.closeNode(node);
+        } else {
+            // open node
+            this.openNode(node);
+        }
     }
-    // Get the tree data as string.
-    toString() {
-        // TODO
+    // Serializes the current state of a node to a JSON string.
+    // @param {object} node The object that defines the node. If null, returns the whole tree.
+    // @param {object} [options] The options object.
+    // @param {boolean} [options.
+    toString(node = null, options) {
+        const traverse = (node) => {
+            let s = '[';
+            if (node && node.children) {
+                for (let i = 0; i < node.children.length; ++i) {
+                    let list = [];
+                    s = s + '{';
+                    Object.keys(node).forEach((key) => {
+                        let value = node[key];
+                        if (key === 'parent') { // ignore parent
+                            return;
+                        }
+                        if (key === 'children') { // traverse child nodes
+                            list.push('"' + key + '":' + traverse(node.children[i]));
+                            return;
+                        }
+                        if (typeof value === 'string' || typeof value === 'object') {
+                            list.push('"' + key + '":' + JSON.stringify(value));
+                        } else { // primitive types
+                            list.push('"' + key + '":' + value);
+                        }
+                    });
+                    s = s + list.join(',');
+                    s = s + '}' + ((i === node.children.length - 1) ? '' : ',');
+                }
+            }
+            s = s + ']';
+            return s;
+        };
+
+        if (!node) {
+            node = (this.nodes.length > 0) ? this.nodes[0] : null;
+            while (node && node.parent !== null) {
+                node = node.parent;
+            }
+        }
+
+        return traverse(node);
     }
-    // Update the title of a node. You can also update the data.
+    // Updates the data of a node.
     // @param {object} node
-    // @param {object} data The data object
-    // @param {object} [data.label] The title of a node
+    // @param {object} data The data object.
     updateNode(node, data) {
-        // TODO
+        const { rowRenderer } = this.options;
+
+        // Retrieve node index
+        const nodeIndex = this.nodes.indexOf(node);
+        if (nodeIndex < 0) {
+            throw new Error('Invalid node specified: node.id=' + JSON.stringify(node.id));
+        }
+
+        // The static attributes (i.e. children, parent, and state) are being protected
+        const { children, parent, state } = node;
+        node = extend(node, data, { children, parent, state });
+
+        this.rows[nodeIndex] = rowRenderer(node);
+
+        // Updates list with new data
+        this.update();
     }
 }
 
