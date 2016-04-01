@@ -171,9 +171,52 @@ class InfiniteTree extends events.EventEmitter {
     }
     // Adds a child node to a node.
     // @param {object} parent The object that defines the parent node.
-    // @param {object} newChild The object that defines the child node.
-    addChild(parent, newChild) {
-        // TODO
+    // @param {object} newChild The object that defines the new child node.
+    // @return {boolean} Returns true on success, false otherwise.
+    addChild(parent = null, newChild = null) {
+        const { rowRenderer } = this.options;
+
+        if (!newChild) {
+            return false;
+        }
+        if (!parent) {
+            // Traversing up through ancestors to find the root node.
+            parent = (this.nodes.length > 0) ? this.nodes[0] : null;
+            while (parent && parent.parent !== null) {
+                parent = parent.parent;
+            }
+        }
+        if (!newChild.parent) {
+            parent.children = parent.children || [];
+            parent.children.push(newChild);
+            newChild.parent = parent;
+        }
+
+        const total = parent.state.total;
+        const nodes = flatten(parent.children, { openNodes: this.state.openNodes }).slice(total);
+        const rows = nodes.map(node => rowRenderer(node));
+
+        // The newChildIndex will be equal to total if the parent node is the root.
+        // i.e. newChildIndex = -1 + total + 1 = total
+        const newChildIndex = (this.nodes.indexOf(parent) + total + 1);
+
+        // Insert an array inside another array
+        this.nodes.splice.apply(this.nodes, [newChildIndex, 0].concat(nodes));
+        this.rows.splice.apply(this.rows, [newChildIndex, 0].concat(rows));
+        this.rows[newChildIndex] = rowRenderer(newChild);
+
+        // Construct node bucket
+        nodes.forEach((node) => {
+            if (node.id !== undefined) {
+                const nodebucket = this.nodebucket[node.id];
+                this.nodebucket[node.id] = nodebucket ? nodebucket.concat(node) : [node];
+            }
+        });
+
+        // Updates list with new data
+        this.update();
+
+        return true;
     }
     // Adds a child node to a node at the specified index.
     //   * If the parent is null or undefined, inserts the child at the specified index in the top-level.
@@ -181,19 +224,19 @@ class InfiniteTree extends events.EventEmitter {
     //   * If the parent does not have children, the method adds the child to the parent.
     //   * If the index value is greater than or equal to the number of children in the parent, the method adds the child at the end of the children.
     // @param {object} parent The object that defines the parent node.
-    // @param {object} newChild The object that defines the child node.
+    // @param {object} newChild The object that defines the new child node.
     // @param {number} index The 0-based index of where to insert the child node.
     addChildAt(parent, newChild, index) {
     }
     // Adds a new sibling node after the current node.
     // @param {object} node The object that defines the current node.
-    // @param {object} newSibling The object that defines the sibling node.
+    // @param {object} newSibling The object that defines the new sibling node.
     addSiblingAfter(node, newSibling) {
         // TODO
     }
     // Adds a new sibling node before the current node.
     // @param {object} node The object that defines the current node.
-    // @param {object} newSibling The object that defines the sibling node.
+    // @param {object} newSibling The object that defines the new sibling node.
     addSiblingBefore(node, newSibling) {
         // TODO
     }
@@ -240,7 +283,7 @@ class InfiniteTree extends events.EventEmitter {
 
         const deleteCount = node.state.total;
 
-        { // Traversing up through ancestors to subtract node.state.total
+        { // Traversing up through ancestors to subtract node.state.total.
             let p = node;
             while (p) {
                 p.state.total = (p.state.total - deleteCount);
