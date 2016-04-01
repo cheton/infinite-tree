@@ -62,5 +62,15 @@ module.exports = {
         use: [nib()],
         // no need to have a '@import "nib"' in the stylesheet
         import: ['~nib/lib/nib/index.styl']
+    },
+    // https://webpack.github.io/docs/webpack-dev-server.html#additional-configuration-options
+    devServer: {
+        noInfo: false,
+        quite: false,
+        lazy: false,
+        // https://webpack.github.io/docs/node.js-api.html#compiler
+        watchOptions: {
+            poll: true // use polling instead of native watchers
+        }
     }
 };
