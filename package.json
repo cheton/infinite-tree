@@ -16,7 +16,7 @@
     "stylint": "stylint src/*.styl",
     "stylus": "stylus -u nib < src/index.styl > dist/infinite-tree.css",
     "coveralls": "./babel-tap --coverage --coverage-report=text-lcov test/*.js | node_modules/.bin/coveralls",
-    "webpack-dev-server": "cd examples; webpack-dev-server --hot --inline --host 0.0.0.0 --port 8080"
+    "webpack-dev-server": "cd examples; webpack-dev-server --hot --inline --host 0.0.0.0 --port 8000"
   },
   "author": "Cheton Wu <cheton@gmail.com>",
   "license": "MIT",
@@ -49,7 +49,7 @@
     "tap": "^5.7.0",
     "url-loader": "^0.5.7",
     "webpack": "^1.12.14",
-    "webpack-hot-middleware": "^2.10.0"
+    "webpack-dev-server": "^1.14.1"
   },
   "nyc": {
     "exclude": []
