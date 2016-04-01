@@ -1,8 +1,11 @@
 var path = require('path');
 var webpack = require('webpack');
-
+var pkg = require('./package.json');
+var banner = pkg.name + ' v' + pkg.version + ' | (c) ' + new Date().getFullYear() + ' ' + pkg.author + ' | ' + pkg.license + ' | ' + pkg.homepage;
 var env = process.env.BUILD_ENV;
-var plugins = [];
+var plugins = [
+    new webpack.BannerPlugin(banner)
+];
 
 if (env === 'dist') {
     plugins = plugins.concat([
