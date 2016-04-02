@@ -36,7 +36,7 @@ class InfiniteTree extends events.EventEmitter {
         selectedNode: null
     };
     clusterize = null;
-    tblLookup = new LookupTable();
+    tbl = new LookupTable();
     nodes = [];
     rows = [];
     scrollElement = null;
@@ -138,7 +138,7 @@ class InfiniteTree extends events.EventEmitter {
     }
     clear() {
         this.clusterize.clear();
-        this.tblLookup.clear();
+        this.tbl.clear();
         this.nodes = [];
         this.rows = [];
         this.state.openNodes = [];
@@ -178,7 +178,7 @@ class InfiniteTree extends events.EventEmitter {
     // @param {object} parent The object that defines the parent node.
     // @param {object} newChild The object that defines the new child node.
     // @return {boolean} Returns true on success, false otherwise.
-    addChild(parent = null, newChild = null) {
+    addChildNode(parent = null, newChild = null) {
         const { rowRenderer } = this.options;
 
         if (!newChild) {
@@ -210,10 +210,10 @@ class InfiniteTree extends events.EventEmitter {
         this.rows.splice.apply(this.rows, [newChildIndex, 0].concat(rows));
         this.rows[newChildIndex] = rowRenderer(newChild);
 
-        // Add visible nodes to the lookup table
+        // Add nodes to the lookup table
         nodes.forEach((node) => {
             if (node.id !== undefined) {
-                this.tblLookup.set(node.id, node);
+                this.tbl.set(node.id, node);
             }
         });
 
@@ -230,22 +230,22 @@ class InfiniteTree extends events.EventEmitter {
     // @param {object} parent The object that defines the parent node.
     // @param {object} newChild The object that defines the new child node.
     // @param {number} index The 0-based index of where to insert the child node.
-    addChildAt(parent, newChild, index) {
+    addChildNodeAt(parent, newChild, index) {
     }
     // Adds a new sibling node after the current node.
     // @param {object} node The object that defines the current node.
     // @param {object} newSibling The object that defines the new sibling node.
-    addSiblingAfter(node, newSibling) {
+    addSiblingNodeAfter(node, newSibling) {
         // TODO
     }
     // Adds a new sibling node before the current node.
     // @param {object} node The object that defines the current node.
     // @param {object} newSibling The object that defines the new sibling node.
-    addSiblingBefore(node, newSibling) {
+    addSiblingNodeBefore(node, newSibling) {
         // TODO
     }
     // Closes a node to hide its children.
-    // @param {object} node
+    // @param {object} node The object that defines the node.
     // @return {boolean} Returns true on success, false otherwise.
     closeNode(node) {
         const { rowRenderer } = this.options;
@@ -308,31 +308,10 @@ class InfiniteTree extends events.EventEmitter {
 
         return true;
     }
-    // Gets a node by its unique id. This assumes that you have given the nodes in the data a unique id.
-    // @param {string|number} id An unique node id. A null value will be returned if the id doesn't match.
-    getNodeById(id) {
-        let node = this.tblLookup.get(id);
-        if (!node) {
-            node = this.nodes.filter((node) => (node.id === id))[0];
-            if (!node) {
-                return null;
-            }
-            this.tblLookup.set(node.id, node);
-        }
-        return node;
-    }
-    // Gets the selected node.
-    getSelectedNode() {
-        return this.state.selectedNode;
-    }
-    // Gets the state.
-    // @return {object} Returns an object that contains the ids of open nodes and selected nodes
-    getState() {
-        // TODO
-    }
-    // Returns a list of child nodes.
+    // Gets a list of child nodes.
     // @param {object} [node] The object that defines the node. If null, returns a list of top level nodes.
-    getChildren(node = null) {
+    // @return {array} Returns an array of child nodes on success, null otherwise.
+    getChildNodes(node = null) {
         if (node) {
             return node.children || [];
         }
@@ -342,6 +321,79 @@ class InfiniteTree extends events.EventEmitter {
         }
         return node.children || [];
     }
+    // Gets the first child node.
+    // @param {object} [node] The object that defines the node.
+    // @return {object} Returns the first child node on success, null otherwise.
+    getFirstChildNode(node) {
+        if (node && node.children && node.children.length > 0) {
+            return node;
+        }
+        return null;
+    }
+    // Gets the next sibling node.
+    // @param {object} [node] The object that defines the node.
+    // @return {object} Returns the next sibling node on success, null otherwise.
+    getNextSiblingNode(node) {
+        if (node && node.parent && node.parent.children) {
+            const index = node.parent.children.indexOf(node);
+            if ((index >= 0) && (index < node.parent.children.length - 1)) {
+                node = node.parent.children[index + 1];
+                return node;
+            }
+        }
+        return null;
+    }
+    // Gets a node by its unique id. This assumes that you have given the nodes in the data a unique id.
+    // @param {string|number} id An unique node id. A null value will be returned if the id doesn't match.
+    // @return {object} Returns the node the matches the id, null otherwise.
+    getNodeById(id) {
+        let node = this.tbl.get(id);
+        if (!node) {
+            // Find the first node that matches the id
+            node = this.nodes.filter((node) => (node.id === id))[0];
+            if (!node) {
+                return null;
+            }
+            this.tbl.set(node.id, node);
+        }
+        return node;
+    }
+    // Gets the parent node.
+    // @param {object} [node] The object that defines the node.
+    // @return {object} Returns the parent node on success, null otherwise.
+    getParentNode(node) {
+        return (node && node.parent) || null;
+    }
+    // Gets previous sibling node.
+    // @param {object} [node] The object that defines the node.
+    // @return {object} Returns the previous sibling node on success, null otherwise.
+    getPreviousSiblingNode(node) {
+        if (node && node.parent && node.parent.children) {
+            const index = node.parent.children.indexOf(node);
+            if ((index > 0) && (index < node.parent.children.length)) {
+                node = node.parent.children[index - 1];
+                return node;
+            }
+        }
+        return null;
+    }
+    // Gets the selected node.
+    // @return {object} Returns the selected node, or null if not selected.
+    getSelectedNode() {
+        return this.state.selectedNode;
+    }
+    // Gets an array of open nodes.
+    // @return {array} Returns an array of open nodes.
+    getOpenNodes() {
+        // returns a shallow copy of an array into a new array object.
+        return this.state.openNodes.slice();
+    }
+    // Gets a boolean value indicating whether this node has any child nodes.
+    // @param {object} node The object that defines the node.
+    // @return {boolean} true if the node has child nodes; otherwise, false.
+    hasChildNodes(node) {
+        return !!(node && node.children && (node.children.length > 0));
+    }
     // Loads data in the tree.
     // @param {object|array} data The data is an object or array of objects that defines the node.
     loadData(data = []) {
@@ -350,12 +402,12 @@ class InfiniteTree extends events.EventEmitter {
         this.nodes = flatten(data, { openAllNodes: autoOpen });
 
         // Clear lookup table
-        this.tblLookup.clear();
+        this.tbl.clear();
 
-        // Add visible nodes to the lookup table
+        // Add nodes to the lookup table
         this.nodes.forEach((node) => {
             if (node.id !== undefined) {
-                this.tblLookup.set(node.id, node);
+                this.tbl.set(node.id, node);
             }
         });
 
@@ -398,10 +450,10 @@ class InfiniteTree extends events.EventEmitter {
         this.rows[nodeIndex] = rowRenderer(node);
 
         // Add all child nodes to the lookup table if the first child does not exist in the lookup table
-        if ((nodes.length > 0) && !(this.tblLookup.get(nodes[0]))) {
+        if ((nodes.length > 0) && !(this.tbl.get(nodes[0]))) {
             nodes.forEach((node) => {
                 if (node.id !== undefined) {
-                    this.tblLookup.set(node.id, node);
+                    this.tbl.set(node.id, node);
                 }
             });
         }
@@ -513,13 +565,6 @@ class InfiniteTree extends events.EventEmitter {
 
         return true;
     }
-    // Sets the state. See getState for more information.
-    // @param {object} state The state object.
-    // @param {string} [state.openNodes] An array of ids containing the open nodes.
-    // @param {string} [state.selectedNode] The id of selected node.
-    setState(state = {}) {
-        // TODO
-    }
     // Toggles a node to display or hide its children.
     // @param {object} node The object that defines the node.
     toggleNode(node) {
@@ -533,9 +578,7 @@ class InfiniteTree extends events.EventEmitter {
     }
     // Serializes the current state of a node to a JSON string.
     // @param {object} node The object that defines the node. If null, returns the whole tree.
-    // @param {object} [options] The options object.
-    // @param {boolean} [options.
-    toString(node = null, options) {
+    toString(node) {
         const traverse = (node) => {
             let s = '[';
             if (node && node.children) {
@@ -573,6 +616,33 @@ class InfiniteTree extends events.EventEmitter {
         }
 
         return traverse(node);
+    }
+    // Performs full tree traversal using child-parent link, and returns an array of nodes.
+    // This is the most elegant way of traversing a tree — no recursion or stack is involved.
+    // @param {object} rootNode The object that defines the root node.
+    // @return {array} Returns an array of nodes, including the root node.
+    traverse(rootNode) {
+        const list = [rootNode];
+
+        // Ignore root node
+        let node = this.getFirstChildNode(rootNode);
+        while (node) {
+            list.push(node);
+            if (this.hasChildNodes(node)) {
+                node = this.getFirstChildNode(node);
+            } else {
+                // find the parent level
+                while ((this.getNextSiblingNode(node) === null) && (node !== rootNode)) {
+                    // use child-parent link to get to the parent level
+                    node = this.getParentNode(node);
+                }
+
+                // Get next sibling
+                node = this.getNextSiblingNode(node);
+            }
+        }
+
+        return list;
     }
     // Updates the data of a node.
     // @param {object} node
