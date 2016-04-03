@@ -131,6 +131,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        };
 	        _this.state = {
 	            openNodes: [],
+	            rootNode: null,
 	            selectedNode: null
 	        };
 	        _this.clusterize = null;
@@ -238,6 +239,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            this.nodes = [];
 	            this.rows = [];
 	            this.state.openNodes = [];
+	            this.state.rootNode = null;
 	            this.state.selectedNode = null;
 	        }
 	    }, {
@@ -275,92 +277,110 @@ return /******/ (function(modules) { // webpackBootstrap
 	        value: function update() {
 	            this.clusterize.update(this.rows);
 	        }
-	        // Adds a child node to a node.
-	        // @param {object} parent The object that defines the parent node.
-	        // @param {object} newChild The object that defines the new child node.
+	        // Adds a node to the end of the list of children of a specified parent node.
+	        // * If the parent is null or undefined, inserts the child at the specified index in the top-level.
+	        // * If the parent has children, the method adds the child as the last child.
+	        // * If the parent does not have children, the method adds the child to the parent.
+	        // @param {object} newNode The object that defines the new child node.
+	        // @param {object} parentNode The object that defines the parent node.
 	        // @return {boolean} Returns true on success, false otherwise.
 
 	    }, {
-	        key: 'addChildNode',
-	        value: function addChildNode() {
+	        key: 'appendChildNode',
+	        value: function appendChildNode(newNode, parentNode) {
+	            var index = 0;
+
+	            // Defaults to rootNode if parentNode is not specified
+	            parentNode = parentNode || this.state.rootNode;
+
+	            if (parentNode && parentNode.hasChildren()) {
+	                index = parentNode.children.length;
+	            }
+
+	            return this.addChildNodeAt(newNode, index, parentNode);
+	        }
+	        // Inserts a new child node to a parent node at the specified index.
+	        // * If the parent is null or undefined, inserts the child at the specified index in the top-level.
+	        // * If the parent has children, the method adds the child to it at the specified index.
+	        // * If the parent does not have children, the method adds the child to the parent.
+	        // * If the index value is greater than or equal to the number of children in the parent, the method adds the child at the end of the children.
+	        // @param {object} newNode The object that defines the new child node.
+	        // @param {number} [index] The 0-based index of where to insert the child node. Defaults to 0.
+	        // @param {object} parentNode The object that defines the parent node.
+
+	    }, {
+	        key: 'addChildNodeAt',
+	        value: function addChildNodeAt(newNode, index, parentNode) {
 	            var _this3 = this;
 
-	            var parent = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
-	            var newChild = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
 	            var rowRenderer = this.options.rowRenderer;
 
 
-	            if (!newChild) {
+	            if (!newNode) {
 	                return false;
 	            }
-	            if (!parent) {
-	                // Traversing up through ancestors to find the root node.
-	                parent = this.nodes.length > 0 ? this.nodes[0] : null;
-	                while (parent && parent.parent !== null) {
-	                    parent = parent.parent;
-	                }
-	            }
-	            if (!newChild.parent) {
-	                parent.children = parent.children || [];
-	                parent.children.push(newChild);
-	                newChild.parent = parent;
+	            index = Number(index) || 0;
+	            if (index < 0) {
+	                index = 0;
 	            }
 
-	            var total = parent.state.total;
-	            var nodes = (0, _flattree.flatten)(parent.children, { openNodes: this.state.openNodes }).slice(total);
+	            // Defaults to rootNode if parentNode is not specified
+	            parentNode = parentNode || this.state.rootNode;
+
+	            // Inserts the new child at the specified index
+	            newNode.parent = parentNode;
+	            parentNode.children.splice(index, 0, newNode);
+
+	            var deleteCount = parentNode.state.total;
+
+	            // Update index
+	            index = parentNode.children.indexOf(newNode);
+
+	            var nodes = (0, _flattree.flatten)(parentNode.children, { openNodes: this.state.openNodes });
+
+	            // Update newNode
+	            newNode = parentNode.getChildAt(index);
+
+	            // Update nodes & rows
 	            var rows = nodes.map(function (node) {
 	                return rowRenderer(node);
 	            });
+	            var parentOffset = this.nodes.inexOf(parentNode);
+	            this.nodes.splice.apply(this.nodes, [parentOffset + 1, deleteCount].concat(nodes));
+	            this.rows.splice.apply(this.rows, [parentOffset + 1, deleteCount].concat(rows));
 
-	            // The newChildIndex will be equal to total if the parent node is the root.
-	            // i.e. newChildIndex = -1 + total + 1 = total
-	            var newChildIndex = this.nodes.indexOf(parent) + total + 1;
-
-	            // Insert an array inside another array
-	            this.nodes.splice.apply(this.nodes, [newChildIndex, 0].concat(nodes));
-	            this.rows.splice.apply(this.rows, [newChildIndex, 0].concat(rows));
-	            this.rows[newChildIndex] = rowRenderer(newChild);
-
-	            // Add nodes to the lookup table
-	            nodes.forEach(function (node) {
+	            // Update the lookup table with newly added nodes
+	            this.tbl.set(newNode.id, newNode);
+	            this.flatten(newNode).forEach(function (node) {
 	                if (node.id !== undefined) {
 	                    _this3.tbl.set(node.id, node);
 	                }
 	            });
+
+	            // Update the row corresponding to the parent node
+	            this.rows[parentOffset] = rowRenderer(parentNode);
 
 	            // Updates list with new data
 	            this.update();
 
 	            return true;
 	        }
-	        // Adds a child node to a node at the specified index.
-	        //   * If the parent is null or undefined, inserts the child at the specified index in the top-level.
-	        //   * If the parent has children, the method adds the child to it at the specified index.
-	        //   * If the parent does not have children, the method adds the child to the parent.
-	        //   * If the index value is greater than or equal to the number of children in the parent, the method adds the child at the end of the children.
-	        // @param {object} parent The object that defines the parent node.
-	        // @param {object} newChild The object that defines the new child node.
-	        // @param {number} index The 0-based index of where to insert the child node.
+	        // Inserts the specified node after the reference node.
+	        // @param {object} newNode The object that defines the new sibling node.
+	        // @param {object} referenceNode The object that defines the current node.
 
 	    }, {
-	        key: 'addChildNodeAt',
-	        value: function addChildNodeAt(parent, newChild, index) {}
-	        // Adds a new sibling node after the current node.
-	        // @param {object} node The object that defines the current node.
-	        // @param {object} newSibling The object that defines the new sibling node.
-
-	    }, {
-	        key: 'addSiblingNodeAfter',
-	        value: function addSiblingNodeAfter(node, newSibling) {}
+	        key: 'insertNodeAfter',
+	        value: function insertNodeAfter(newNode, referenceNode) {}
 	        // TODO
 
-	        // Adds a new sibling node before the current node.
-	        // @param {object} node The object that defines the current node.
-	        // @param {object} newSibling The object that defines the new sibling node.
+	        // Inserts the specified node before the reference node.
+	        // @param {object} newNode The object that defines the new sibling node.
+	        // @param {object} referenceNode The object that defines the current node.
 
 	    }, {
-	        key: 'addSiblingNodeBefore',
-	        value: function addSiblingNodeBefore(node, newSibling) {}
+	        key: 'insertNodeBefore',
+	        value: function insertNodeBefore(newNode, referenceNode) {}
 	        // TODO
 
 	        // Closes a node to hide its children.
@@ -406,7 +426,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            node.state.open = false; // Set node.state.open to false
 	            var openNodes = this.state.openNodes.filter(function (node) {
-	                return node.state.more && node.state.open;
+	                return node.hasChildren() && node.state.open;
 	            });
 	            this.state.openNodes = openNodes;
 
@@ -508,19 +528,28 @@ return /******/ (function(modules) { // webpackBootstrap
 	            // Clear lookup table
 	            this.tbl.clear();
 
-	            // Add nodes to the lookup table
-	            this.nodes.forEach(function (node) {
+	            this.state.openNodes = this.nodes.filter(function (node) {
+	                return node.hasChildren() && node.state.open;
+	            });
+	            this.state.rootNode = function () {
+	                var node = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
+
+	                // Finding the root node
+	                while (node && node.parent !== null) {
+	                    node = node.parent;
+	                }
+	                return node;
+	            }(this.nodes[0]);
+	            this.state.selectedNode = null;
+
+	            // Update the lookup table with newly added nodes
+	            this.flatten(this.state.rootNode).forEach(function (node) {
 	                if (node.id !== undefined) {
 	                    _this4.tbl.set(node.id, node);
 	                }
 	            });
 
-	            var openNodes = this.nodes.filter(function (node) {
-	                return node.state.more && node.state.open;
-	            });
-	            this.state.openNodes = openNodes;
-	            this.state.selectedNode = null;
-
+	            // Update rows
 	            this.rows = this.nodes.map(function (node) {
 	                return rowRenderer(node);
 	            });
@@ -714,7 +743,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    }, {
 	        key: 'toString',
-	        value: function toString(node) {
+	        value: function toString() {
+	            var node = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
+
 	            var traverse = function traverse(node) {
 	                var s = '[';
 	                if (node && node.children) {
@@ -752,40 +783,34 @@ return /******/ (function(modules) { // webpackBootstrap
 	            };
 
 	            if (!node) {
-	                node = this.nodes.length > 0 ? this.nodes[0] : null;
-	                while (node && node.parent !== null) {
-	                    node = node.parent;
-	                }
+	                node = this.state.rootNode;
 	            }
 
 	            return traverse(node);
 	        }
-	        // Performs full tree traversal using child-parent link, and returns an array of nodes.
-	        // This is the most elegant way of traversing a tree — no recursion or stack is involved.
-	        // @param {object} rootNode The object that defines the root node.
-	        // @return {array} Returns an array of nodes, not including the root node.
+	        // Flattens parent-child nodes by performing full tree traversal using child-parent link.
+	        // No recursion or stack is involved.
+	        // @param {object} parent The object that defines the parent node.
+	        // @return {array} Returns a flattened list of child nodes, not including the parent node.
 
 	    }, {
-	        key: 'traverse',
-	        value: function traverse(rootNode) {
+	        key: 'flatten',
+	        value: function flatten(parent) {
 	            var list = [];
 
-	            if (rootNode === undefined) {
-	                rootNode = this.nodes.length > 0 ? this.nodes[0] : null;
-	                while (rootNode && rootNode.parent !== null) {
-	                    rootNode = rootNode.parent;
-	                }
+	            if (parent === undefined) {
+	                parent = this.state.rootNode;
 	            }
 
-	            // Ignore root node
-	            var node = rootNode.getFirstChild();
+	            // Ignore parent node
+	            var node = parent.getFirstChild();
 	            while (node) {
 	                list.push(node);
 	                if (node.hasChildren()) {
 	                    node = node.getFirstChild();
 	                } else {
 	                    // find the parent level
-	                    while (node.getNextSibling() === null && node !== rootNode) {
+	                    while (node.getNextSibling() === null && node !== parent) {
 	                        // use child-parent link to get to the parent level
 	                        node = node.getParent();
 	                    }
@@ -1538,9 +1563,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            children: nodes,
 	            state: {
 	                depth: -1,
-	                lastChild: true,
-	                more: nodes.length > 0,
-	                open: nodes.length > 0,
+	                open: true, // always open
 	                path: '',
 	                prefixMask: '',
 	                total: 0
@@ -1555,13 +1578,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	            while (p) {
 	                var _p$state = p.state;
 	                var path = _p$state.path;
-	                var lastChild = _p$state.lastChild;
 	                var _p$state$total = _p$state.total;
 	                var total = _p$state$total === undefined ? 0 : _p$state$total;
 
 	                // Rebuild the lastChild pool
 
-	                if (path && lastChild) {
+	                if (p.isLastChild() && path) {
 	                    pool.lastChild[path] = true;
 	                }
 
@@ -1603,8 +1625,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            node.parent.children[index] = node;
 
 	            var path = current.state.path + '.' + index;
-	            var more = Object.keys(node.children).length > 0;
-	            var open = more && function () {
+	            var open = node.hasChildren() && function () {
 	                var openAllNodes = options.openAllNodes;
 	                var openNodes = options.openNodes;
 
@@ -1621,7 +1642,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	                }
 	                return false;
 	            }();
-	            var lastChild = index === current.children.length - 1;
 	            var prefixMask = function (prefix) {
 	                var mask = '';
 	                while (prefix.length > 0) {
@@ -1635,15 +1655,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	                return mask;
 	            }(path);
 
-	            if (lastChild) {
+	            if (node.isLastChild()) {
 	                pool.lastChild[path] = true;
 	            }
 
 	            // This allows you to put extra information to node.state
 	            node.state = (0, _extend2['default'])({}, node.state, {
 	                depth: depth + 1,
-	                lastChild: lastChild,
-	                more: more,
 	                open: open,
 	                path: path,
 	                prefixMask: prefixMask,
@@ -1678,7 +1696,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            ++index;
 
-	            if (more) {
+	            if (node.hasChildren()) {
 	                // Push back parent node to the stack that will be able to continue
 	                // the next iteration once all the child nodes of the current node
 	                // have been completely explored.
@@ -1763,17 +1781,30 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        this.children = this.children || [];
 	    }
-	    // Gets the child nodes.
-	    // @return {array} Returns an array of child nodes.
+	    // Gets a child node at the specified index.
+	    // @param {number} The index of the child node.
+	    // @return {object} Returns an object that defines the node, null otherwise.
 
 
 	    _createClass(Node, [{
+	        key: 'getChildAt',
+	        value: function getChildAt(index) {
+	            var node = null;
+	            if (this.children.length > 0 && index >= 0 && index < this.children.length) {
+	                node = this.children[index];
+	            }
+	            return node;
+	        }
+	        // Gets the child nodes.
+	        // @return {array} Returns an array of objects that define the nodes.
+
+	    }, {
 	        key: 'getChildren',
 	        value: function getChildren() {
 	            return this.children;
 	        }
 	        // Gets the first child node.
-	        // @return {object} Returns the first child node on success, null otherwise.
+	        // @return {object} Returns an object that defines the node, null otherwise.
 
 	    }, {
 	        key: 'getFirstChild',
@@ -1784,8 +1815,20 @@ return /******/ (function(modules) { // webpackBootstrap
 	            }
 	            return node;
 	        }
+	        // Gets the last child node.
+	        // @return {object} Returns an object that defines the node, null otherwise.
+
+	    }, {
+	        key: 'getLastChild',
+	        value: function getLastChild() {
+	            var node = null;
+	            if (this.children.length > 0) {
+	                node = this.children[this.children.length - 1];
+	            }
+	            return node;
+	        }
 	        // Gets the next sibling node.
-	        // @return {object} Returns the next sibling node on success, null otherwise.
+	        // @return {object} Returns an object that defines the node, null otherwise.
 
 	    }, {
 	        key: 'getNextSibling',
@@ -1800,15 +1843,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	            return node;
 	        }
 	        // Gets the parent node.
-	        // @return {object} Returns the parent node.
+	        // @return {object} Returns an object that defines the node, null otherwise.
 
 	    }, {
 	        key: 'getParent',
 	        value: function getParent() {
 	            return this.parent;
 	        }
-	        // Gets previous sibling node.
-	        // @return {object} Returns the previous sibling node on success, null otherwise.
+	        // Gets the previous sibling node.
+	        // @return {object} Returns an object that defines the node, null otherwise.
 
 	    }, {
 	        key: 'getPreviousSibling',
@@ -1829,6 +1872,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	        key: 'hasChildren',
 	        value: function hasChildren() {
 	            return this.children.length > 0;
+	        }
+	        // Checks whether this node is the last child of its parent.
+	        // @return {boolean} Returns true if the node is the last child of its parent, false otherwise.
+
+	    }, {
+	        key: 'isLastChild',
+	        value: function isLastChild() {
+	            var hasNextSibling = this.getNextSibling();
+	            return !hasNextSibling;
 	        }
 	    }]);
 
@@ -1903,7 +1955,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var children = node.children;
 	    var state = node.state;
 	    var depth = state.depth;
-	    var more = state.more;
 	    var open = state.open;
 	    var path = state.path;
 	    var total = state.total;
@@ -1911,6 +1962,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var selected = _state$selected === undefined ? false : _state$selected;
 
 	    var childrenLength = Object.keys(children).length;
+	    var more = node.hasChildren();
 
 	    var togglerContent = '';
 	    if (more && open) {
