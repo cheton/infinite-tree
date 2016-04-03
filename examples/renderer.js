@@ -2,8 +2,9 @@ import { buildHTML, classNames, quoteattr } from '../src/utils';
 
 const rowRenderer = (node) => {
     const { id, label, children, state } = node;
-    const { depth, more, open, path, total, selected = false } = state;
+    const { depth, open, path, total, selected = false } = state;
     const childrenLength = Object.keys(children).length;
+    const more = node.hasChildren();
 
     let toggler = '';
     if (more) {
