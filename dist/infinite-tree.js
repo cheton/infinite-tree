@@ -277,28 +277,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	        value: function update() {
 	            this.clusterize.update(this.rows);
 	        }
-	        // Adds a node to the end of the list of children of a specified parent node.
-	        // * If the parent is null or undefined, inserts the child at the specified index in the top-level.
-	        // * If the parent has children, the method adds the child as the last child.
-	        // * If the parent does not have children, the method adds the child to the parent.
-	        // @param {object} newNode The object that defines the new child node.
-	        // @param {object} parentNode The object that defines the parent node.
-	        // @return {boolean} Returns true on success, false otherwise.
-
-	    }, {
-	        key: 'appendChildNode',
-	        value: function appendChildNode(newNode, parentNode) {
-	            var index = 0;
-
-	            // Defaults to rootNode if parentNode is not specified
-	            parentNode = parentNode || this.state.rootNode;
-
-	            if (parentNode && parentNode.hasChildren()) {
-	                index = parentNode.children.length;
-	            }
-
-	            return this.addChildNodeAt(newNode, index, parentNode);
-	        }
 	        // Inserts a new child node to a parent node at the specified index.
 	        // * If the parent is null or undefined, inserts the child at the specified index in the top-level.
 	        // * If the parent has children, the method adds the child to it at the specified index.
@@ -313,6 +291,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	        value: function addChildNodeAt(newNode, index, parentNode) {
 	            var _this3 = this;
 
+	            // Defaults to rootNode if parentNode is not specified
+	            parentNode = parentNode || this.state.rootNode;
+	            if (!(parentNode instanceof _flattree.Node)) {
+	                throw new Error('The parent node must be a Node object.');
+	            }
+
 	            var rowRenderer = this.options.rowRenderer;
 
 
@@ -323,9 +307,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	            if (index < 0) {
 	                index = 0;
 	            }
-
-	            // Defaults to rootNode if parentNode is not specified
-	            parentNode = parentNode || this.state.rootNode;
 
 	            // Inserts the new child at the specified index
 	            newNode.parent = parentNode;
@@ -345,7 +326,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var rows = nodes.map(function (node) {
 	                return rowRenderer(node);
 	            });
-	            var parentOffset = this.nodes.inexOf(parentNode);
+	            var parentOffset = this.nodes.indexOf(parentNode);
 	            this.nodes.splice.apply(this.nodes, [parentOffset + 1, deleteCount].concat(nodes));
 	            this.rows.splice.apply(this.rows, [parentOffset + 1, deleteCount].concat(rows));
 
@@ -365,24 +346,56 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            return true;
 	        }
+	        // Adds a node to the end of the list of children of a specified parent node.
+	        // * If the parent is null or undefined, inserts the child at the specified index in the top-level.
+	        // * If the parent has children, the method adds the child as the last child.
+	        // * If the parent does not have children, the method adds the child to the parent.
+	        // @param {object} newNode The object that defines the new child node.
+	        // @param {object} parentNode The object that defines the parent node.
+	        // @return {boolean} Returns true on success, false otherwise.
+
+	    }, {
+	        key: 'appendChildNode',
+	        value: function appendChildNode(newNode, parentNode) {
+	            // Defaults to rootNode if parentNode is not specified
+	            parentNode = parentNode || this.state.rootNode;
+	            if (!(parentNode instanceof _flattree.Node)) {
+	                throw new Error('The parent node must be a Node object.');
+	            }
+
+	            var index = parentNode.children.length;
+	            return this.addChildNodeAt(newNode, index, parentNode);
+	        }
 	        // Inserts the specified node after the reference node.
 	        // @param {object} newNode The object that defines the new sibling node.
 	        // @param {object} referenceNode The object that defines the current node.
 
 	    }, {
 	        key: 'insertNodeAfter',
-	        value: function insertNodeAfter(newNode, referenceNode) {}
-	        // TODO
+	        value: function insertNodeAfter(newNode, referenceNode) {
+	            if (!(referenceNode instanceof _flattree.Node)) {
+	                throw new Error('The reference node must be a Node object.');
+	            }
 
+	            var parentNode = referenceNode.getParent();
+	            var index = parentNode.children.indexOf(referenceNode) + 1;
+	            return this.addChildNodeAt(newNode, index, parentNode);
+	        }
 	        // Inserts the specified node before the reference node.
 	        // @param {object} newNode The object that defines the new sibling node.
 	        // @param {object} referenceNode The object that defines the current node.
 
 	    }, {
 	        key: 'insertNodeBefore',
-	        value: function insertNodeBefore(newNode, referenceNode) {}
-	        // TODO
+	        value: function insertNodeBefore(newNode, referenceNode) {
+	            if (!(referenceNode instanceof _flattree.Node)) {
+	                throw new Error('The reference node must be a Node object.');
+	            }
 
+	            var parentNode = referenceNode.getParent();
+	            var index = parentNode.children.indexOf(referenceNode);
+	            return this.addChildNodeAt(newNode, index, parentNode);
+	        }
 	        // Closes a node to hide its children.
 	        // @param {object} node The object that defines the node.
 	        // @return {boolean} Returns true on success, false otherwise.
@@ -790,27 +803,27 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	        // Flattens parent-child nodes by performing full tree traversal using child-parent link.
 	        // No recursion or stack is involved.
-	        // @param {object} parent The object that defines the parent node.
+	        // @param {object} parentNode The object that defines the parent node.
 	        // @return {array} Returns a flattened list of child nodes, not including the parent node.
 
 	    }, {
 	        key: 'flatten',
-	        value: function flatten(parent) {
+	        value: function flatten(parentNode) {
 	            var list = [];
 
-	            if (parent === undefined) {
-	                parent = this.state.rootNode;
+	            if (parentNode === undefined) {
+	                parentNode = this.state.rootNode;
 	            }
 
 	            // Ignore parent node
-	            var node = parent.getFirstChild();
+	            var node = parentNode.getFirstChild();
 	            while (node) {
 	                list.push(node);
 	                if (node.hasChildren()) {
 	                    node = node.getFirstChild();
 	                } else {
 	                    // find the parent level
-	                    while (node.getNextSibling() === null && node !== parent) {
+	                    while (node.getNextSibling() === null && node.parent !== parentNode) {
 	                        // use child-parent link to get to the parent level
 	                        node = node.getParent();
 	                    }
@@ -1504,11 +1517,16 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _flatten2 = _interopRequireDefault(_flatten);
 
+	var _node = __webpack_require__(6);
+
+	var _node2 = _interopRequireDefault(_node);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 	// IE8 compatibility output
 	module.exports = {
-	    flatten: _flatten2['default']
+	    flatten: _flatten2['default'],
+	    Node: _node2['default']
 	};
 
 /***/ },
