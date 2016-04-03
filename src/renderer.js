@@ -34,7 +34,7 @@ const defaultRowRenderer = (node) => {
     });
     const treeNode = buildHTML('div', toggler + title, {
         'class': 'tree-node',
-        'style': 'margin-left: ' + depth * 12 + 'px'
+        'style': 'margin-left: ' + depth * 18 + 'px'
     });
     const treeItem = buildHTML('div', treeNode, {
         'aria-id': id,
