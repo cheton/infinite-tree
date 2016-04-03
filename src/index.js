@@ -176,25 +176,6 @@ class InfiniteTree extends events.EventEmitter {
     update() {
         this.clusterize.update(this.rows);
     }
-    // Adds a node to the end of the list of children of a specified parent node.
-    // * If the parent is null or undefined, inserts the child at the specified index in the top-level.
-    // * If the parent has children, the method adds the child as the last child.
-    // * If the parent does not have children, the method adds the child to the parent.
-    // @param {object} newNode The object that defines the new child node.
-    // @param {object} parentNode The object that defines the parent node.
-    // @return {boolean} Returns true on success, false otherwise.
-    appendChildNode(newNode, parentNode) {
-        let index = 0;
-
-        // Defaults to rootNode if parentNode is not specified
-        parentNode = parentNode || this.state.rootNode;
-
-        if (parentNode && parentNode.hasChildren()) {
-            index = parentNode.children.length;
-        }
-
-        return this.addChildNodeAt(newNode, index, parentNode);
-    }
     // Inserts a new child node to a parent node at the specified index.
     // * If the parent is null or undefined, inserts the child at the specified index in the top-level.
     // * If the parent has children, the method adds the child to it at the specified index.
@@ -204,6 +185,12 @@ class InfiniteTree extends events.EventEmitter {
     // @param {number} [index] The 0-based index of where to insert the child node. Defaults to 0.
     // @param {object} parentNode The object that defines the parent node.
     addChildNodeAt(newNode, index, parentNode) {
+        // Defaults to rootNode if parentNode is not specified
+        parentNode = parentNode || this.state.rootNode;
+        if (!(parentNode instanceof Node)) {
+            throw new Error('The parent node must be a Node object.');
+        }
+
         const { rowRenderer } = this.options;
 
         if (!newNode) {
@@ -213,9 +200,6 @@ class InfiniteTree extends events.EventEmitter {
         if (index < 0) {
             index = 0;
         }
-
-        // Defaults to rootNode if parentNode is not specified
-        parentNode = parentNode || this.state.rootNode;
 
         // Inserts the new child at the specified index
         newNode.parent = parentNode;
@@ -253,17 +237,46 @@ class InfiniteTree extends events.EventEmitter {
 
         return true;
     }
+    // Adds a node to the end of the list of children of a specified parent node.
+    // * If the parent is null or undefined, inserts the child at the specified index in the top-level.
+    // * If the parent has children, the method adds the child as the last child.
+    // * If the parent does not have children, the method adds the child to the parent.
+    // @param {object} newNode The object that defines the new child node.
+    // @param {object} parentNode The object that defines the parent node.
+    // @return {boolean} Returns true on success, false otherwise.
+    appendChildNode(newNode, parentNode) {
+        // Defaults to rootNode if parentNode is not specified
+        parentNode = parentNode || this.state.rootNode;
+        if (!(parentNode instanceof Node)) {
+            throw new Error('The parent node must be a Node object.');
+        }
+
+        const index = parentNode.children.length;
+        return this.addChildNodeAt(newNode, index, parentNode);
+    }
     // Inserts the specified node after the reference node.
     // @param {object} newNode The object that defines the new sibling node.
     // @param {object} referenceNode The object that defines the current node.
     insertNodeAfter(newNode, referenceNode) {
-        // TODO
+        if (!(referenceNode instanceof Node)) {
+            throw new Error('The reference node must be a Node object.');
+        }
+
+        const parentNode = referenceNode.getParent();
+        const index = parentNode.children.indexOf(referenceNode) + 1;
+        return this.addChildNodeAt(newNode, index, parentNode);
     }
     // Inserts the specified node before the reference node.
     // @param {object} newNode The object that defines the new sibling node.
     // @param {object} referenceNode The object that defines the current node.
     insertNodeBefore(newNode, referenceNode) {
-        // TODO
+        if (!(referenceNode instanceof Node)) {
+            throw new Error('The reference node must be a Node object.');
+        }
+
+        const parentNode = referenceNode.getParent();
+        const index = parentNode.children.indexOf(referenceNode);
+        return this.addChildNodeAt(newNode, index, parentNode);
     }
     // Closes a node to hide its children.
     // @param {object} node The object that defines the node.
