@@ -2143,9 +2143,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	'use strict';
 
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
 	var preventDefault = function preventDefault(e) {
 	    if (typeof e.preventDefault !== 'undefined') {
 	        e.preventDefault();
@@ -2186,10 +2183,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	};
 
-	exports.preventDefault = preventDefault;
-	exports.stopPropagation = stopPropagation;
-	exports.addEventListener = addEventListener;
-	exports.removeEventListener = removeEventListener;
+	// IE8 compatibility output
+	module.exports = {
+	    preventDefault: preventDefault,
+	    stopPropagation: stopPropagation,
+	    addEventListener: addEventListener,
+	    removeEventListener: removeEventListener
+	};
 
 /***/ }
 /******/ ])
