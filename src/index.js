@@ -600,7 +600,7 @@ class InfiniteTree extends events.EventEmitter {
     // @param {object} parentNode The object that defines the parent node.
     // @return {array} Returns a flattened list of child nodes, not including the parent node.
     flatten(parentNode) {
-        const List = [];
+        const list = [];
 
         if (parentNode === undefined) {
             parentNode = this.state.rootNode;
