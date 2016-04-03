@@ -1,4 +1,4 @@
-/*! infinite-tree v0.2.4 | (c) 2016 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
+/*! infinite-tree v0.3.0 | (c) 2016 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -868,6 +868,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    return InfiniteTree;
 	}(_events2['default'].EventEmitter);
+
+	// IE8 compatibility output
+
 
 	module.exports = InfiniteTree;
 
@@ -1916,10 +1919,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	"use strict";
 
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -1952,18 +1951,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return LookupTable;
 	}();
 
-	exports["default"] = LookupTable;
+	// IE8 compatibility output
+
+
+	module.exports = LookupTable;
 
 /***/ },
 /* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	exports.defaultRowRenderer = undefined;
 
 	var _utils = __webpack_require__(9);
 
@@ -2005,7 +2002,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    });
 	    var treeNode = (0, _utils.buildHTML)('div', toggler + title, {
 	        'class': 'tree-node',
-	        'style': 'margin-left: ' + depth * 12 + 'px'
+	        'style': 'margin-left: ' + depth * 18 + 'px'
 	    });
 	    var treeItem = (0, _utils.buildHTML)('div', treeNode, {
 	        'aria-id': id,
@@ -2021,17 +2018,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return treeItem;
 	};
 
-	exports.defaultRowRenderer = defaultRowRenderer;
+	// IE8 compatibility output
+	module.exports = {
+	    defaultRowRenderer: defaultRowRenderer
+	};
 
 /***/ },
 /* 9 */
 /***/ function(module, exports) {
 
 	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
 
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
@@ -2134,9 +2130,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	    .replace(/[\r\n]/g, preserveCR);
 	};
 
-	exports.buildHTML = buildHTML;
-	exports.classNames = classNames;
-	exports.quoteattr = quoteattr;
+	// IE8 compatibility output
+	module.exports = {
+	    buildHTML: buildHTML,
+	    classNames: classNames,
+	    quoteattr: quoteattr
+	};
 
 /***/ },
 /* 10 */
