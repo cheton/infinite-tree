@@ -309,8 +309,8 @@ class InfiniteTree extends events.EventEmitter {
         return true;
     }
     // Gets a list of child nodes.
-    // @param {object} [node] The object that defines the node. If null, returns a list of top level nodes.
-    // @return {array} Returns an array of child nodes on success, null otherwise.
+    // @param {object} [node] The object that defines the node. If null or undefined, returns a list of top level nodes.
+    // @return {array} Returns an array of child nodes.
     getChildNodes(node = null) {
         if (node) {
             return node.children || [];
@@ -319,29 +319,7 @@ class InfiniteTree extends events.EventEmitter {
         while (node && node.parent !== null) {
             node = node.parent;
         }
-        return node.children || [];
-    }
-    // Gets the first child node.
-    // @param {object} [node] The object that defines the node.
-    // @return {object} Returns the first child node on success, null otherwise.
-    getFirstChildNode(node) {
-        if (node && node.children && node.children.length > 0) {
-            return node;
-        }
-        return null;
-    }
-    // Gets the next sibling node.
-    // @param {object} [node] The object that defines the node.
-    // @return {object} Returns the next sibling node on success, null otherwise.
-    getNextSiblingNode(node) {
-        if (node && node.parent && node.parent.children) {
-            const index = node.parent.children.indexOf(node);
-            if ((index >= 0) && (index < node.parent.children.length - 1)) {
-                node = node.parent.children[index + 1];
-                return node;
-            }
-        }
-        return null;
+        return (node && node.children) || [];
     }
     // Gets a node by its unique id. This assumes that you have given the nodes in the data a unique id.
     // @param {string|number} id An unique node id. A null value will be returned if the id doesn't match.
@@ -358,25 +336,6 @@ class InfiniteTree extends events.EventEmitter {
         }
         return node;
     }
-    // Gets the parent node.
-    // @param {object} [node] The object that defines the node.
-    // @return {object} Returns the parent node on success, null otherwise.
-    getParentNode(node) {
-        return (node && node.parent) || null;
-    }
-    // Gets previous sibling node.
-    // @param {object} [node] The object that defines the node.
-    // @return {object} Returns the previous sibling node on success, null otherwise.
-    getPreviousSiblingNode(node) {
-        if (node && node.parent && node.parent.children) {
-            const index = node.parent.children.indexOf(node);
-            if ((index > 0) && (index < node.parent.children.length)) {
-                node = node.parent.children[index - 1];
-                return node;
-            }
-        }
-        return null;
-    }
     // Gets the selected node.
     // @return {object} Returns the selected node, or null if not selected.
     getSelectedNode() {
@@ -387,12 +346,6 @@ class InfiniteTree extends events.EventEmitter {
     getOpenNodes() {
         // returns a shallow copy of an array into a new array object.
         return this.state.openNodes.slice();
-    }
-    // Gets a boolean value indicating whether this node has any child nodes.
-    // @param {object} node The object that defines the node.
-    // @return {boolean} true if the node has child nodes; otherwise, false.
-    hasChildNodes(node) {
-        return !!(node && node.children && (node.children.length > 0));
     }
     // Loads data in the tree.
     // @param {object|array} data The data is an object or array of objects that defines the node.
@@ -620,25 +573,32 @@ class InfiniteTree extends events.EventEmitter {
     // Performs full tree traversal using child-parent link, and returns an array of nodes.
     // This is the most elegant way of traversing a tree — no recursion or stack is involved.
     // @param {object} rootNode The object that defines the root node.
-    // @return {array} Returns an array of nodes, including the root node.
+    // @return {array} Returns an array of nodes, not including the root node.
     traverse(rootNode) {
-        const list = [rootNode];
+        const list = [];
+
+        if (rootNode === undefined) {
+            rootNode = (this.nodes.length > 0) ? this.nodes[0] : null;
+            while (rootNode && rootNode.parent !== null) {
+                rootNode = rootNode.parent;
+            }
+        }
 
         // Ignore root node
-        let node = this.getFirstChildNode(rootNode);
+        let node = rootNode.getFirstChild();
         while (node) {
             list.push(node);
-            if (this.hasChildNodes(node)) {
-                node = this.getFirstChildNode(node);
+            if (node.hasChildren()) {
+                node = node.getFirstChild();
             } else {
                 // find the parent level
-                while ((this.getNextSiblingNode(node) === null) && (node !== rootNode)) {
+                while ((node.getNextSibling() === null) && (node !== rootNode)) {
                     // use child-parent link to get to the parent level
-                    node = this.getParentNode(node);
+                    node = node.getParent();
                 }
 
                 // Get next sibling
-                node = this.getNextSiblingNode(node);
+                node = node.getNextSibling();
             }
         }
 
