@@ -1,6 +1,6 @@
 import events from 'events';
 import Clusterize from 'clusterize.js';
-import { flatten } from 'flattree';
+import { flatten, Node } from 'flattree';
 import LookupTable from './lookup-table';
 import { defaultRowRenderer } from './renderer';
 import { stopPropagation, addEventListener, removeEventListener } from './polyfill';
