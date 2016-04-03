@@ -10,19 +10,10 @@ var plugins = [
 if (env === 'dist') {
     plugins = plugins.concat([
         new webpack.optimize.UglifyJsPlugin({
-            minimize: true,
             compress: {
                 warnings: false
-            }
-        })
-    ]);
-} else {
-    plugins = plugins.concat([
-        new webpack.optimize.UglifyJsPlugin({
-            mangle: false,
-            compress: {
-                warnings: false
-            }
+            },
+            mangle: false
         })
     ]);
 }
