@@ -53,6 +53,7 @@ const defaultRowRenderer = (node) => {
     return treeItem;
 };
 
-export {
+// IE8 compatibility output
+module.exports = {
     defaultRowRenderer
 };

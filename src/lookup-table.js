@@ -13,4 +13,5 @@ class LookupTable {
     }
 }
 
-export default LookupTable;
+// IE8 compatibility output
+module.exports = LookupTable;

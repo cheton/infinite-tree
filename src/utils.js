@@ -95,7 +95,8 @@ const quoteattr = (s, preserveCR) => {
         .replace(/[\r\n]/g, preserveCR);
 };
 
-export {
+// IE8 compatibility output
+module.exports = {
     buildHTML,
     classNames,
     quoteattr

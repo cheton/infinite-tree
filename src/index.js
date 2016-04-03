@@ -662,4 +662,5 @@ class InfiniteTree extends events.EventEmitter {
     }
 }
 
+// IE8 compatibility output
 module.exports = InfiniteTree;

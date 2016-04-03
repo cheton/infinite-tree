@@ -34,7 +34,8 @@ const removeEventListener = (target, type, listener) => {
     }
 };
 
-export {
+// IE8 compatibility output
+module.exports = {
     preventDefault,
     stopPropagation,
     addEventListener,
