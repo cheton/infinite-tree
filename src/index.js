@@ -176,7 +176,7 @@ class InfiniteTree extends events.EventEmitter {
     update() {
         this.clusterize.update(this.rows);
     }
-    // Adds a node to the end of the list of children of a specified parent node. 
+    // Adds a node to the end of the list of children of a specified parent node.
     // * If the parent is null or undefined, inserts the child at the specified index in the top-level.
     // * If the parent has children, the method adds the child as the last child.
     // * If the parent does not have children, the method adds the child to the parent.
@@ -233,9 +233,9 @@ class InfiniteTree extends events.EventEmitter {
 
         // Update nodes & rows
         const rows = nodes.map(node => rowRenderer(node));
-        const parentOffset = this.nodes.inexOf(parentNode);
+        const parentOffset = this.nodes.indexOf(parentNode);
         this.nodes.splice.apply(this.nodes, [parentOffset + 1, deleteCount].concat(nodes));
-        this.rows.splice.apply(this.rows, [parentOffset+ 1, deleteCount].concat(rows));
+        this.rows.splice.apply(this.rows, [parentOffset + 1, deleteCount].concat(rows));
 
         // Update the lookup table with newly added nodes
         this.tbl.set(newNode.id, newNode);
@@ -597,24 +597,24 @@ class InfiniteTree extends events.EventEmitter {
     }
     // Flattens parent-child nodes by performing full tree traversal using child-parent link.
     // No recursion or stack is involved.
-    // @param {object} parent The object that defines the parent node.
+    // @param {object} parentNode The object that defines the parent node.
     // @return {array} Returns a flattened list of child nodes, not including the parent node.
-    flatten(parent) {
-        const list = [];
+    flatten(parentNode) {
+        const List = [];
 
-        if (parent === undefined) {
-            parent = this.state.rootNode;
+        if (parentNode === undefined) {
+            parentNode = this.state.rootNode;
         }
 
         // Ignore parent node
-        let node = parent.getFirstChild();
+        let node = parentNode.getFirstChild();
         while (node) {
             list.push(node);
             if (node.hasChildren()) {
                 node = node.getFirstChild();
             } else {
                 // find the parent level
-                while ((node.getNextSibling() === null) && (node !== parent)) {
+                while ((node.getNextSibling() === null) && (node.parent !== parentNode)) {
                     // use child-parent link to get to the parent level
                     node = node.getParent();
                 }
