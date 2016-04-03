@@ -33,6 +33,7 @@ class InfiniteTree extends events.EventEmitter {
     };
     state = {
         openNodes: [],
+        rootNode: null,
         selectedNode: null
     };
     clusterize = null;
@@ -142,6 +143,7 @@ class InfiniteTree extends events.EventEmitter {
         this.nodes = [];
         this.rows = [];
         this.state.openNodes = [];
+        this.state.rootNode = null;
         this.state.selectedNode = null;
     }
     destroy() {
@@ -174,74 +176,93 @@ class InfiniteTree extends events.EventEmitter {
     update() {
         this.clusterize.update(this.rows);
     }
-    // Adds a child node to a node.
-    // @param {object} parent The object that defines the parent node.
-    // @param {object} newChild The object that defines the new child node.
+    // Adds a node to the end of the list of children of a specified parent node. 
+    // * If the parent is null or undefined, inserts the child at the specified index in the top-level.
+    // * If the parent has children, the method adds the child as the last child.
+    // * If the parent does not have children, the method adds the child to the parent.
+    // @param {object} newNode The object that defines the new child node.
+    // @param {object} parentNode The object that defines the parent node.
     // @return {boolean} Returns true on success, false otherwise.
-    addChildNode(parent = null, newChild = null) {
+    appendChildNode(newNode, parentNode) {
+        let index = 0;
+
+        // Defaults to rootNode if parentNode is not specified
+        parentNode = parentNode || this.state.rootNode;
+
+        if (parentNode && parentNode.hasChildren()) {
+            index = parentNode.children.length;
+        }
+
+        return this.addChildNodeAt(newNode, index, parentNode);
+    }
+    // Inserts a new child node to a parent node at the specified index.
+    // * If the parent is null or undefined, inserts the child at the specified index in the top-level.
+    // * If the parent has children, the method adds the child to it at the specified index.
+    // * If the parent does not have children, the method adds the child to the parent.
+    // * If the index value is greater than or equal to the number of children in the parent, the method adds the child at the end of the children.
+    // @param {object} newNode The object that defines the new child node.
+    // @param {number} [index] The 0-based index of where to insert the child node. Defaults to 0.
+    // @param {object} parentNode The object that defines the parent node.
+    addChildNodeAt(newNode, index, parentNode) {
         const { rowRenderer } = this.options;
 
-        if (!newChild) {
+        if (!newNode) {
             return false;
         }
-        if (!parent) {
-            // Traversing up through ancestors to find the root node.
-            parent = (this.nodes.length > 0) ? this.nodes[0] : null;
-            while (parent && parent.parent !== null) {
-                parent = parent.parent;
-            }
-        }
-        if (!newChild.parent) {
-            parent.children = parent.children || [];
-            parent.children.push(newChild);
-            newChild.parent = parent;
+        index = Number(index) || 0;
+        if (index < 0) {
+            index = 0;
         }
 
-        const total = parent.state.total;
-        const nodes = flatten(parent.children, { openNodes: this.state.openNodes }).slice(total);
+        // Defaults to rootNode if parentNode is not specified
+        parentNode = parentNode || this.state.rootNode;
+
+        // Inserts the new child at the specified index
+        newNode.parent = parentNode;
+        parentNode.children.splice(index, 0, newNode);
+
+        const deleteCount = parentNode.state.total;
+
+        // Update index
+        index = parentNode.children.indexOf(newNode);
+
+        const nodes = flatten(parentNode.children, { openNodes: this.state.openNodes });
+
+        // Update newNode
+        newNode = parentNode.getChildAt(index);
+
+        // Update nodes & rows
         const rows = nodes.map(node => rowRenderer(node));
+        const parentOffset = this.nodes.inexOf(parentNode);
+        this.nodes.splice.apply(this.nodes, [parentOffset + 1, deleteCount].concat(nodes));
+        this.rows.splice.apply(this.rows, [parentOffset+ 1, deleteCount].concat(rows));
 
-        // The newChildIndex will be equal to total if the parent node is the root.
-        // i.e. newChildIndex = -1 + total + 1 = total
-        const newChildIndex = (this.nodes.indexOf(parent) + total + 1);
-
-        // Insert an array inside another array
-        this.nodes.splice.apply(this.nodes, [newChildIndex, 0].concat(nodes));
-        this.rows.splice.apply(this.rows, [newChildIndex, 0].concat(rows));
-        this.rows[newChildIndex] = rowRenderer(newChild);
-
-        // Add nodes to the lookup table
-        nodes.forEach((node) => {
+        // Update the lookup table with newly added nodes
+        this.tbl.set(newNode.id, newNode);
+        this.flatten(newNode).forEach((node) => {
             if (node.id !== undefined) {
                 this.tbl.set(node.id, node);
             }
         });
+
+        // Update the row corresponding to the parent node
+        this.rows[parentOffset] = rowRenderer(parentNode);
 
         // Updates list with new data
         this.update();
 
         return true;
     }
-    // Adds a child node to a node at the specified index.
-    //   * If the parent is null or undefined, inserts the child at the specified index in the top-level.
-    //   * If the parent has children, the method adds the child to it at the specified index.
-    //   * If the parent does not have children, the method adds the child to the parent.
-    //   * If the index value is greater than or equal to the number of children in the parent, the method adds the child at the end of the children.
-    // @param {object} parent The object that defines the parent node.
-    // @param {object} newChild The object that defines the new child node.
-    // @param {number} index The 0-based index of where to insert the child node.
-    addChildNodeAt(parent, newChild, index) {
-    }
-    // Adds a new sibling node after the current node.
-    // @param {object} node The object that defines the current node.
-    // @param {object} newSibling The object that defines the new sibling node.
-    addSiblingNodeAfter(node, newSibling) {
+    // Inserts the specified node after the reference node.
+    // @param {object} newNode The object that defines the new sibling node.
+    // @param {object} referenceNode The object that defines the current node.
+    insertNodeAfter(newNode, referenceNode) {
         // TODO
     }
-    // Adds a new sibling node before the current node.
-    // @param {object} node The object that defines the current node.
-    // @param {object} newSibling The object that defines the new sibling node.
-    addSiblingNodeBefore(node, newSibling) {
+    // Inserts the specified node before the reference node.
+    // @param {object} newNode The object that defines the new sibling node.
+    // @param {object} referenceNode The object that defines the current node.
+    insertNodeBefore(newNode, referenceNode) {
         // TODO
     }
     // Closes a node to hide its children.
@@ -282,7 +303,7 @@ class InfiniteTree extends events.EventEmitter {
         }
 
         node.state.open = false; // Set node.state.open to false
-        const openNodes = this.state.openNodes.filter((node) => (node.state.more && node.state.open));
+        const openNodes = this.state.openNodes.filter((node) => (node.hasChildren() && node.state.open));
         this.state.openNodes = openNodes;
 
         const deleteCount = node.state.total;
@@ -357,17 +378,24 @@ class InfiniteTree extends events.EventEmitter {
         // Clear lookup table
         this.tbl.clear();
 
-        // Add nodes to the lookup table
-        this.nodes.forEach((node) => {
+        this.state.openNodes = this.nodes.filter((node) => (node.hasChildren() && node.state.open));
+        this.state.rootNode = ((node = null) => {
+            // Finding the root node
+            while (node && node.parent !== null) {
+                node = node.parent;
+            }
+            return node;
+        })(this.nodes[0]);
+        this.state.selectedNode = null;
+
+        // Update the lookup table with newly added nodes
+        this.flatten(this.state.rootNode).forEach((node) => {
             if (node.id !== undefined) {
                 this.tbl.set(node.id, node);
             }
         });
 
-        const openNodes = this.nodes.filter((node) => (node.state.more && node.state.open));
-        this.state.openNodes = openNodes;
-        this.state.selectedNode = null;
-
+        // Update rows
         this.rows = this.nodes.map(node => rowRenderer(node));
 
         // Updates list with new data
@@ -531,7 +559,7 @@ class InfiniteTree extends events.EventEmitter {
     }
     // Serializes the current state of a node to a JSON string.
     // @param {object} node The object that defines the node. If null, returns the whole tree.
-    toString(node) {
+    toString(node = null) {
         const traverse = (node) => {
             let s = '[';
             if (node && node.children) {
@@ -562,37 +590,31 @@ class InfiniteTree extends events.EventEmitter {
         };
 
         if (!node) {
-            node = (this.nodes.length > 0) ? this.nodes[0] : null;
-            while (node && node.parent !== null) {
-                node = node.parent;
-            }
+            node = this.state.rootNode;
         }
 
         return traverse(node);
     }
-    // Performs full tree traversal using child-parent link, and returns an array of nodes.
-    // This is the most elegant way of traversing a tree — no recursion or stack is involved.
-    // @param {object} rootNode The object that defines the root node.
-    // @return {array} Returns an array of nodes, not including the root node.
-    traverse(rootNode) {
+    // Flattens parent-child nodes by performing full tree traversal using child-parent link.
+    // No recursion or stack is involved.
+    // @param {object} parent The object that defines the parent node.
+    // @return {array} Returns a flattened list of child nodes, not including the parent node.
+    flatten(parent) {
         const list = [];
 
-        if (rootNode === undefined) {
-            rootNode = (this.nodes.length > 0) ? this.nodes[0] : null;
-            while (rootNode && rootNode.parent !== null) {
-                rootNode = rootNode.parent;
-            }
+        if (parent === undefined) {
+            parent = this.state.rootNode;
         }
 
-        // Ignore root node
-        let node = rootNode.getFirstChild();
+        // Ignore parent node
+        let node = parent.getFirstChild();
         while (node) {
             list.push(node);
             if (node.hasChildren()) {
                 node = node.getFirstChild();
             } else {
                 // find the parent level
-                while ((node.getNextSibling() === null) && (node !== rootNode)) {
+                while ((node.getNextSibling() === null) && (node !== parent)) {
                     // use child-parent link to get to the parent level
                     node = node.getParent();
                 }
