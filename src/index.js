@@ -44,7 +44,7 @@ class InfiniteTree extends events.EventEmitter {
         selectedNode: null
     };
     clusterize = null;
-    tbl = new LookupTable();
+    nodeTable = new LookupTable();
     nodes = [];
     rows = [];
     scrollElement = null;
@@ -82,6 +82,7 @@ class InfiniteTree extends events.EventEmitter {
         }
     };
 
+    // Creates new InfiniteTree object.
     constructor(options = {}) {
         super();
 
@@ -146,7 +147,7 @@ class InfiniteTree extends events.EventEmitter {
     }
     clear() {
         this.clusterize.clear();
-        this.tbl.clear();
+        nodeTable.clear();
         this.nodes = [];
         this.rows = [];
         this.state.openNodes = [];
@@ -179,13 +180,6 @@ class InfiniteTree extends events.EventEmitter {
         this.contentElement = null;
         this.scrollElement = null;
     }
-    // Updates list with new data
-    update() {
-        this.clusterize.update(this.rows);
-
-        // Emit the 'update' event
-        this.emit('update');
-    }
     // Inserts a new child node to a parent node at the specified index.
     // * If the parent is null or undefined, inserts the child at the specified index in the top-level.
     // * If the parent has children, the method adds the child to it at the specified index.
@@ -194,6 +188,7 @@ class InfiniteTree extends events.EventEmitter {
     // @param {object} newNode The new child node.
     // @param {number} [index] The 0-based index of where to insert the child node. Defaults to 0.
     // @param {object} parentNode The parent Node object.
+    // @return {boolean} Returns true on success, false otherwise.
     addChildNodeAt(newNode, index, parentNode) {
         // Defaults to rootNode if the parentNode is not specified
         parentNode = parentNode || this.state.rootNode;
@@ -232,7 +227,7 @@ class InfiniteTree extends events.EventEmitter {
         // Update the lookup table with newly added nodes
         this.flattenNode(newNode).forEach((node) => {
             if (node.id !== undefined) {
-                this.tbl.set(node.id, node);
+                nodeTable.set(node.id, node);
             }
         });
 
@@ -373,16 +368,21 @@ class InfiniteTree extends events.EventEmitter {
     // @param {string|number} id An unique node id. A null value will be returned if the id doesn't match.
     // @return {object} Returns the node the matches the id, null otherwise.
     getNodeById(id) {
-        let node = this.tbl.get(id);
+        let node = nodeTable.get(id);
         if (!node) {
             // Find the first node that matches the id
             node = this.nodes.filter((node) => (node.id === id))[0];
             if (!node) {
                 return null;
             }
-            this.tbl.set(node.id, node);
+            nodeTable.set(node.id, node);
         }
         return node;
+    }
+    // Gets the root node.
+    // @return {object} Returns the root node, or null if empty.
+    getRootNode() {
+        return this.state.rootNode;
     }
     // Gets the selected node.
     // @return {object} Returns the selected node, or null if not selected.
@@ -419,7 +419,7 @@ class InfiniteTree extends events.EventEmitter {
         this.nodes = flatten(data, { openAllNodes: this.options.autoOpen });
 
         // Clear lookup table
-        this.tbl.clear();
+        nodeTable.clear();
 
         this.state.openNodes = this.nodes.filter((node) => (node.hasChildren() && node.state.open));
         this.state.rootNode = ((node = null) => {
@@ -434,7 +434,7 @@ class InfiniteTree extends events.EventEmitter {
         // Update the lookup table with newly added nodes
         this.flattenChildNodes(this.state.rootNode).forEach((node) => {
             if (node.id !== undefined) {
-                this.tbl.set(node.id, node);
+                nodeTable.set(node.id, node);
             }
         });
 
@@ -476,10 +476,10 @@ class InfiniteTree extends events.EventEmitter {
         this.rows[nodeIndex] = this.options.rowRenderer(node);
 
         // Add all child nodes to the lookup table if the first child does not exist in the lookup table
-        if ((nodes.length > 0) && !(this.tbl.get(nodes[0]))) {
+        if ((nodes.length > 0) && !(nodeTable.get(nodes[0]))) {
             nodes.forEach((node) => {
                 if (node.id !== undefined) {
-                    this.tbl.set(node.id, node);
+                    nodeTable.set(node.id, node);
                 }
             });
         }
@@ -549,7 +549,7 @@ class InfiniteTree extends events.EventEmitter {
             });
 
             childNodes.forEach((node) => {
-                this.tbl.unset(node.id);
+                nodeTable.unset(node.id);
             });
         }
 
@@ -625,7 +625,7 @@ class InfiniteTree extends events.EventEmitter {
             });
 
             nodes.forEach((node) => {
-                this.tbl.unset(node.id);
+                nodeTable.unset(node.id);
             });
         }
 
@@ -780,6 +780,13 @@ class InfiniteTree extends events.EventEmitter {
         }
 
         return traverse(node);
+    }
+    // Updates list with new data
+    update() {
+        this.clusterize.update(this.rows);
+
+        // Emit the 'update' event
+        this.emit('update');
     }
     // Updates the data of a node.
     // @param {object} node
