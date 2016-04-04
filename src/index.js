@@ -785,8 +785,9 @@ class InfiniteTree extends events.EventEmitter {
 
         return traverse(node);
     }
-    // Updates the tree with new data.
+    // Updates the tree.
     update() {
+        // Update the list with new data
         this.clusterize.update(this.rows);
 
         // Emit the 'update' event
