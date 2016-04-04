@@ -176,7 +176,7 @@ class InfiniteTree extends events.EventEmitter {
     // * If the parent has children, the method adds the child to it at the specified index.
     // * If the parent does not have children, the method adds the child to the parent.
     // * If the index value is greater than or equal to the number of children in the parent, the method adds the child at the end of the children.
-    // @param {object} newNode The new child node.
+    // @param {Object} newNode The new child node.
     // @param {number} index The 0-based index of where to insert the child node. Defaults to 0 for negative index.
     // @param {Node} parentNode The Node object that defines the parent node.
     // @return {boolean} Returns true on success, false otherwise.
@@ -234,7 +234,7 @@ class InfiniteTree extends events.EventEmitter {
     // * If the parent is null or undefined, inserts the child at the specified index in the top-level.
     // * If the parent has children, the method adds the child as the last child.
     // * If the parent does not have children, the method adds the child to the parent.
-    // @param {object} newNode The new child node.
+    // @param {Object} newNode The new child node.
     // @param {Node} parentNode The Node object that defines the parent node.
     // @return {boolean} Returns true on success, false otherwise.
     appendChildNode(newNode, parentNode) {
@@ -397,7 +397,7 @@ class InfiniteTree extends events.EventEmitter {
         return this.state.selectedNode;
     }
     // Inserts the specified node after the reference node.
-    // @param {object} newNode The new sibling node.
+    // @param {Object} newNode The new sibling node.
     // @param {Node} referenceNode The Node object that defines the reference node.
     // @return {boolean} Returns true on success, false otherwise.
     insertNodeAfter(newNode, referenceNode) {
@@ -407,7 +407,7 @@ class InfiniteTree extends events.EventEmitter {
         return this.addChildNodeAt(newNode, index, parentNode);
     }
     // Inserts the specified node before the reference node.
-    // @param {object} newNode The new sibling node.
+    // @param {Object} newNode The new sibling node.
     // @param {Node} referenceNode The Node object that defines the reference node.
     // @return {boolean} Returns true on success, false otherwise.
     insertNodeBefore(newNode, referenceNode) {
@@ -795,7 +795,7 @@ class InfiniteTree extends events.EventEmitter {
     }
     // Updates the data of a node.
     // @param {Node} node The Node object.
-    // @param {object} data The data object.
+    // @param {Object} data The data object.
     updateNode(node, data) {
         ensureNodeInstance(node);
 
