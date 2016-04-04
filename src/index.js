@@ -182,6 +182,9 @@ class InfiniteTree extends events.EventEmitter {
     // Updates list with new data
     update() {
         this.clusterize.update(this.rows);
+
+        // Emit the 'update' event
+        this.emit('update');
     }
     // Inserts a new child node to a parent node at the specified index.
     // * If the parent is null or undefined, inserts the child at the specified index in the top-level.
@@ -503,7 +506,7 @@ class InfiniteTree extends events.EventEmitter {
 
         // Update selected node
         if ((parentNodeIndex >= 0) && this.state.selectedNode) {
-            // row #0 - node.0         => parent node (total=4) - remove all child nodes
+            // row #0 - node.0         => parent node (total=4)
             // row #1   - node.0.0
             // row #2       node.0.0.0 => current selected node
             // row #3       node.0.0.1
