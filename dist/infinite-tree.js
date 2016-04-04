@@ -89,6 +89,13 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+	var ensureNodeInstance = function ensureNodeInstance(node) {
+	    if (!(node instanceof _flattree.Node)) {
+	        throw new Error('The node must be a Node object.');
+	    }
+	    return true;
+	};
+
 	var extend = function extend(target) {
 	    for (var _len = arguments.length, sources = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
 	        sources[_key - 1] = arguments[_key];
@@ -291,14 +298,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	        value: function addChildNodeAt(newNode, index, parentNode) {
 	            var _this3 = this;
 
-	            // Defaults to rootNode if parentNode is not specified
+	            // Defaults to rootNode if the parentNode is not specified
 	            parentNode = parentNode || this.state.rootNode;
-	            if (!(parentNode instanceof _flattree.Node)) {
-	                throw new Error('The parent node must be a Node object.');
-	            }
 
-	            var rowRenderer = this.options.rowRenderer;
-
+	            ensureNodeInstance(parentNode);
 
 	            if (!newNode) {
 	                return false;
@@ -324,7 +327,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            // Update nodes & rows
 	            var rows = nodes.map(function (node) {
-	                return rowRenderer(node);
+	                return _this3.options.rowRenderer(node);
 	            });
 	            var parentOffset = this.nodes.indexOf(parentNode);
 	            this.nodes.splice.apply(this.nodes, [parentOffset + 1, deleteCount].concat(nodes));
@@ -332,14 +335,14 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            // Update the lookup table with newly added nodes
 	            this.tbl.set(newNode.id, newNode);
-	            this.flatten(newNode).forEach(function (node) {
+	            this.flattenChildNodes(newNode).forEach(function (node) {
 	                if (node.id !== undefined) {
 	                    _this3.tbl.set(node.id, node);
 	                }
 	            });
 
 	            // Update the row corresponding to the parent node
-	            this.rows[parentOffset] = rowRenderer(parentNode);
+	            this.rows[parentOffset] = this.options.rowRenderer(parentNode);
 
 	            // Updates list with new data
 	            this.update();
@@ -357,43 +360,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }, {
 	        key: 'appendChildNode',
 	        value: function appendChildNode(newNode, parentNode) {
-	            // Defaults to rootNode if parentNode is not specified
+	            // Defaults to rootNode if the parentNode is not specified
 	            parentNode = parentNode || this.state.rootNode;
-	            if (!(parentNode instanceof _flattree.Node)) {
-	                throw new Error('The parent node must be a Node object.');
-	            }
+
+	            ensureNodeInstance(parentNode);
 
 	            var index = parentNode.children.length;
-	            return this.addChildNodeAt(newNode, index, parentNode);
-	        }
-	        // Inserts the specified node after the reference node.
-	        // @param {object} newNode The object that defines the new sibling node.
-	        // @param {object} referenceNode The object that defines the current node.
-
-	    }, {
-	        key: 'insertNodeAfter',
-	        value: function insertNodeAfter(newNode, referenceNode) {
-	            if (!(referenceNode instanceof _flattree.Node)) {
-	                throw new Error('The reference node must be a Node object.');
-	            }
-
-	            var parentNode = referenceNode.getParent();
-	            var index = parentNode.children.indexOf(referenceNode) + 1;
-	            return this.addChildNodeAt(newNode, index, parentNode);
-	        }
-	        // Inserts the specified node before the reference node.
-	        // @param {object} newNode The object that defines the new sibling node.
-	        // @param {object} referenceNode The object that defines the current node.
-
-	    }, {
-	        key: 'insertNodeBefore',
-	        value: function insertNodeBefore(newNode, referenceNode) {
-	            if (!(referenceNode instanceof _flattree.Node)) {
-	                throw new Error('The reference node must be a Node object.');
-	            }
-
-	            var parentNode = referenceNode.getParent();
-	            var index = parentNode.children.indexOf(referenceNode);
 	            return this.addChildNodeAt(newNode, index, parentNode);
 	        }
 	        // Closes a node to hide its children.
@@ -403,13 +375,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }, {
 	        key: 'closeNode',
 	        value: function closeNode(node) {
-	            var rowRenderer = this.options.rowRenderer;
+	            ensureNodeInstance(node);
 
 	            // Retrieve node index
-
 	            var nodeIndex = this.nodes.indexOf(node);
 	            if (nodeIndex < 0) {
-	                throw new Error('Invalid node specified: node.id=' + JSON.stringify(node.id));
+	                throw new Error('Invalid node index');
 	            }
 
 	            // Check if the closeNode action can be performed
@@ -419,15 +390,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            // Keep selected node unchanged if "node" is equal to "this.state.selectedNode"
 	            if (this.state.selectedNode && this.state.selectedNode !== node) {
-	                // Action:
-	                //   close "node.0.0"
-	                //
-	                // Tree:
-	                // [0] - node.0
-	                // [1]  - node.0.0      => next selected node (index=1, total=2)
-	                // [2]      node.0.0.0  => last selected node (index=2, total=0)
-	                // [3]      node.0.0.1
-	                // [4]    node.0.1
+	                // row #0 - node.0         => parent node (total=4)
+	                // row #1   - node.0.0     => close this node; next selected node (total=2)
+	                // row #2       node.0.0.0 => selected node (total=0)
+	                // row #3       node.0.0.1
+	                // row #4     node.0.1
 	                var selectedIndex = this.nodes.indexOf(this.state.selectedNode);
 	                var rangeFrom = nodeIndex + 1;
 	                var rangeTo = nodeIndex + node.state.total;
@@ -437,7 +404,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                }
 	            }
 
-	            node.state.open = false; // Set node.state.open to false
+	            node.state.open = false; // Set the open state to false
 	            var openNodes = this.state.openNodes.filter(function (node) {
 	                return node.hasChildren() && node.state.open;
 	            });
@@ -445,19 +412,15 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            var deleteCount = node.state.total;
 
-	            {
-	                // Traversing up through ancestors to subtract node.state.total.
-	                var p = node;
-	                while (p) {
-	                    p.state.total = p.state.total - deleteCount;
-	                    p = p.parent;
-	                }
+	            // Subtract the deleteCount for all ancestors (parent, grandparent, etc.) of the current node
+	            for (var p = node; p !== null; p = p.parent) {
+	                p.state.total = p.state.total - deleteCount;
 	            }
 
 	            // Remove elements from an array
 	            this.nodes.splice(nodeIndex + 1, deleteCount);
 	            this.rows.splice(nodeIndex + 1, deleteCount);
-	            this.rows[nodeIndex] = rowRenderer(node);
+	            this.rows[nodeIndex] = this.options.rowRenderer(node);
 
 	            // Emit the 'closeNode' event
 	            this.emit('closeNode', node);
@@ -467,23 +430,54 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            return true;
 	        }
+	        // Flattens child nodes by performing full tree traversal using child-parent link.
+	        // No recursion or stack is involved.
+	        // @param {object} parentNode The object that defines the parent node.
+	        // @return {array} Returns a flattened list of child nodes, not including the parent node.
+
+	    }, {
+	        key: 'flattenChildNodes',
+	        value: function flattenChildNodes(parentNode) {
+	            // Defaults to rootNode if the parentNode is not specified
+	            parentNode = parentNode || this.state.rootNode;
+
+	            ensureNodeInstance(parentNode);
+
+	            var list = [];
+
+	            // Ignore parent node
+	            var node = parentNode.getFirstChild();
+	            while (node) {
+	                list.push(node);
+	                if (node.hasChildren()) {
+	                    node = node.getFirstChild();
+	                } else {
+	                    // find the parent level
+	                    while (node.getNextSibling() === null && node.parent !== parentNode) {
+	                        // use child-parent link to get to the parent level
+	                        node = node.getParent();
+	                    }
+
+	                    // Get next sibling
+	                    node = node.getNextSibling();
+	                }
+	            }
+
+	            return list;
+	        }
 	        // Gets a list of child nodes.
-	        // @param {object} [node] The object that defines the node. If null or undefined, returns a list of top level nodes.
+	        // @param {object} [parentNode] The object that defines the node. If null or undefined, returns a list of top level nodes.
 	        // @return {array} Returns an array of child nodes.
 
 	    }, {
 	        key: 'getChildNodes',
-	        value: function getChildNodes() {
-	            var node = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
+	        value: function getChildNodes(parentNode) {
+	            // Defaults to rootNode if the parentNode is not specified
+	            parentNode = parentNode || this.state.rootNode;
 
-	            if (node) {
-	                return node.children || [];
-	            }
-	            node = this.nodes.length > 0 ? this.nodes[0] : null;
-	            while (node && node.parent !== null) {
-	                node = node.parent;
-	            }
-	            return node && node.children || [];
+	            ensureNodeInstance(parentNode);
+
+	            return parentNode.children;
 	        }
 	        // Gets a node by its unique id. This assumes that you have given the nodes in the data a unique id.
 	        // @param {string|number} id An unique node id. A null value will be returned if the id doesn't match.
@@ -522,6 +516,30 @@ return /******/ (function(modules) { // webpackBootstrap
 	            // returns a shallow copy of an array into a new array object.
 	            return this.state.openNodes.slice();
 	        }
+	        // Inserts the specified node after the reference node.
+	        // @param {object} newNode The object that defines the new sibling node.
+	        // @param {object} referenceNode The object that defines the current node.
+
+	    }, {
+	        key: 'insertNodeAfter',
+	        value: function insertNodeAfter(newNode, referenceNode) {
+	            ensureNodeInstance(referenceNode);
+	            var parentNode = referenceNode.getParent();
+	            var index = parentNode.children.indexOf(referenceNode) + 1;
+	            return this.addChildNodeAt(newNode, index, parentNode);
+	        }
+	        // Inserts the specified node before the reference node.
+	        // @param {object} newNode The object that defines the new sibling node.
+	        // @param {object} referenceNode The object that defines the current node.
+
+	    }, {
+	        key: 'insertNodeBefore',
+	        value: function insertNodeBefore(newNode, referenceNode) {
+	            ensureNodeInstance(referenceNode);
+	            var parentNode = referenceNode.getParent();
+	            var index = parentNode.children.indexOf(referenceNode);
+	            return this.addChildNodeAt(newNode, index, parentNode);
+	        }
 	        // Loads data in the tree.
 	        // @param {object|array} data The data is an object or array of objects that defines the node.
 
@@ -531,12 +549,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var _this4 = this;
 
 	            var data = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
-	            var _options = this.options;
-	            var autoOpen = _options.autoOpen;
-	            var rowRenderer = _options.rowRenderer;
 
-
-	            this.nodes = (0, _flattree.flatten)(data, { openAllNodes: autoOpen });
+	            this.nodes = (0, _flattree.flatten)(data, { openAllNodes: this.options.autoOpen });
 
 	            // Clear lookup table
 	            this.tbl.clear();
@@ -556,7 +570,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            this.state.selectedNode = null;
 
 	            // Update the lookup table with newly added nodes
-	            this.flatten(this.state.rootNode).forEach(function (node) {
+	            this.flattenChildNodes(this.state.rootNode).forEach(function (node) {
 	                if (node.id !== undefined) {
 	                    _this4.tbl.set(node.id, node);
 	                }
@@ -564,7 +578,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            // Update rows
 	            this.rows = this.nodes.map(function (node) {
-	                return rowRenderer(node);
+	                return _this4.options.rowRenderer(node);
 	            });
 
 	            // Updates list with new data
@@ -579,13 +593,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	        value: function openNode(node) {
 	            var _this5 = this;
 
-	            var rowRenderer = this.options.rowRenderer;
+	            ensureNodeInstance(node);
 
 	            // Retrieve node index
-
 	            var nodeIndex = this.nodes.indexOf(node);
 	            if (nodeIndex < 0) {
-	                throw new Error('Invalid node specified: node.id=' + JSON.stringify(node.id));
+	                throw new Error('Invalid node index');
 	            }
 
 	            // Check if the openNode action can be performed
@@ -599,13 +612,13 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            var nodes = (0, _flattree.flatten)(node.children, { openNodes: this.state.openNodes });
 	            var rows = nodes.map(function (node) {
-	                return rowRenderer(node);
+	                return _this5.options.rowRenderer(node);
 	            });
 
 	            // Insert an array inside another array
 	            this.nodes.splice.apply(this.nodes, [nodeIndex + 1, 0].concat(nodes));
 	            this.rows.splice.apply(this.rows, [nodeIndex + 1, 0].concat(rows));
-	            this.rows[nodeIndex] = rowRenderer(node);
+	            this.rows[nodeIndex] = this.options.rowRenderer(node);
 
 	            // Add all child nodes to the lookup table if the first child does not exist in the lookup table
 	            if (nodes.length > 0 && !this.tbl.get(nodes[0])) {
@@ -624,14 +637,87 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            return true;
 	        }
-	        // Removes a node.
+	        // Removes a node and all of its child nodes.
 	        // @param {object} node The object that defines the node.
+	        // @return {boolean} Returns true on success, false otherwise.
 
 	    }, {
 	        key: 'removeNode',
-	        value: function removeNode(node) {}
-	        // TODO
+	        value: function removeNode(node) {
+	            var _this6 = this;
 
+	            ensureNodeInstance(node);
+
+	            var parentNode = node.parent;
+	            if (!parentNode) {
+	                return false;
+	            }
+
+	            // Retrieve node index
+	            var nodeIndex = this.nodes.indexOf(node);
+	            if (nodeIndex >= 0) {
+	                this.nodes.splice(nodeIndex, node.state.total + 1);
+	                this.rows.splice(nodeIndex, node.state.total + 1);
+
+	                // Handle selected node
+	                if (this.state.selectedNode) {
+	                    // row #0 - node.0         => parent node (total=4)
+	                    // row #1   - node.0.0     => remove this node (total=2)
+	                    // row #2       node.0.0.0 => current selected node (total=0)
+	                    // row #3       node.0.0.1
+	                    // row #4     node.0.1     => next selected node (total=0)
+	                    var selectedIndex = this.nodes.indexOf(this.state.selectedNode);
+	                    var rangeFrom = nodeIndex;
+	                    var rangeTo = nodeIndex + node.state.total + 1;
+
+	                    if (rangeFrom <= selectedIndex && selectedIndex <= rangeTo) {
+	                        // Change the selected node to its next sibling node, previous
+	                        // sibling node, or parent node
+	                        var selectedNode = node.getNextSibling() || node.getPreviousSibling() || node.getParent();
+	                        this.selectNode(selectedNode);
+	                    }
+	                }
+	            }
+
+	            // Remove the node from its parent node
+	            parentNode.children.splice(parentNode.children.indexOf(node), 1);
+
+	            // Get the number of child nodes to be removed, plus the node
+	            var deleteCount = node.state.total + 1;
+
+	            // Subtract the deleteCount for all ancestors (parent, grandparent, etc.) of the current node
+	            for (var p = parentNode; p !== null; p = p.parent) {
+	                p.state.total = p.state.total - deleteCount;
+	            }
+
+	            {
+	                (function () {
+	                    // Remove the node and all of its child nodes from open nodes and lookup table
+	                    var list = [node].concat(_this6.flattenChildNodes(node));
+
+	                    // open nodes
+	                    _this6.state.openNodes = _this6.state.openNodes.filter(function (node) {
+	                        return list.indexOf(node) < 0;
+	                    });
+
+	                    // lookup table
+	                    list.forEach(function (node) {
+	                        _this6.tbl.unset(node.id);
+	                    });
+	                })();
+	            }
+
+	            // Update the row corresponding to the parent node
+	            var parentNodeIndex = this.nodes.indexOf(parentNode);
+	            if (parentNodeIndex >= 0) {
+	                this.nodes[parentNodeIndex] = this.options.rowRenderer(parentNode);
+	            }
+
+	            // Updates list with new data
+	            this.update();
+
+	            return true;
+	        }
 	        // Sets the current scroll position to this node.
 	        // @param {object} node The object that defines the node.
 	        // @return {number} Returns the vertical scroll position, or -1 on error.
@@ -639,6 +725,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }, {
 	        key: 'scrollToNode',
 	        value: function scrollToNode(node) {
+	            ensureNodeInstance(node);
+
 	            // Retrieve node index
 	            var nodeIndex = this.nodes.indexOf(node);
 	            if (nodeIndex < 0) {
@@ -647,7 +735,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            if (!this.contentElement) {
 	                return -1;
 	            }
-	            // Get the offset height of the first child element that contains the "tree-item" class.
+	            // Get the offset height of the first child element that contains the "tree-item" class
 	            var firstChild = this.contentElement.querySelectorAll('.tree-item')[0];
 	            var rowHeight = firstChild && firstChild.offsetHeight || 0;
 	            return this.scrollTop(nodeIndex * rowHeight);
@@ -675,8 +763,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	        key: 'selectNode',
 	        value: function selectNode() {
 	            var node = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
-	            var rowRenderer = this.options.rowRenderer;
-
 
 	            if (node === null) {
 	                // Deselect the current node
@@ -685,7 +771,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    var selectedIndex = this.nodes.indexOf(selectedNode);
 
 	                    selectedNode.state.selected = false;
-	                    this.rows[selectedIndex] = rowRenderer(selectedNode);
+	                    this.rows[selectedIndex] = this.options.rowRenderer(selectedNode);
 	                    this.state.selectedNode = null;
 
 	                    // Emit the 'selectNode' event
@@ -700,16 +786,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	                return false;
 	            }
 
+	            ensureNodeInstance(node);
+
 	            // Retrieve node index
 	            var nodeIndex = this.nodes.indexOf(node);
 	            if (nodeIndex < 0) {
-	                throw new Error('Invalid node specified: node.id=' + JSON.stringify(node.id));
+	                throw new Error('Invalid node index');
 	            }
 
 	            // Select this node
 	            if (this.state.selectedNode !== node) {
 	                node.state.selected = true;
-	                this.rows[nodeIndex] = rowRenderer(node);
+	                this.rows[nodeIndex] = this.options.rowRenderer(node);
 	            }
 
 	            // Deselect the current node
@@ -717,7 +805,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                var _selectedNode = this.state.selectedNode;
 	                var _selectedIndex = this.nodes.indexOf(_selectedNode);
 	                _selectedNode.state.selected = false;
-	                this.rows[_selectedIndex] = rowRenderer(_selectedNode);
+	                this.rows[_selectedIndex] = this.options.rowRenderer(_selectedNode);
 	            }
 
 	            if (this.state.selectedNode !== node) {
@@ -801,40 +889,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            return traverse(node);
 	        }
-	        // Flattens parent-child nodes by performing full tree traversal using child-parent link.
-	        // No recursion or stack is involved.
-	        // @param {object} parentNode The object that defines the parent node.
-	        // @return {array} Returns a flattened list of child nodes, not including the parent node.
-
-	    }, {
-	        key: 'flatten',
-	        value: function flatten(parentNode) {
-	            var list = [];
-
-	            if (parentNode === undefined) {
-	                parentNode = this.state.rootNode;
-	            }
-
-	            // Ignore parent node
-	            var node = parentNode.getFirstChild();
-	            while (node) {
-	                list.push(node);
-	                if (node.hasChildren()) {
-	                    node = node.getFirstChild();
-	                } else {
-	                    // find the parent level
-	                    while (node.getNextSibling() === null && node.parent !== parentNode) {
-	                        // use child-parent link to get to the parent level
-	                        node = node.getParent();
-	                    }
-
-	                    // Get next sibling
-	                    node = node.getNextSibling();
-	                }
-	            }
-
-	            return list;
-	        }
 	        // Updates the data of a node.
 	        // @param {object} node
 	        // @param {object} data The data object.
@@ -842,14 +896,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }, {
 	        key: 'updateNode',
 	        value: function updateNode(node, data) {
-	            var rowRenderer = this.options.rowRenderer;
-
-	            // Retrieve node index
-
-	            var nodeIndex = this.nodes.indexOf(node);
-	            if (nodeIndex < 0) {
-	                throw new Error('Invalid node specified: node.id=' + JSON.stringify(node.id));
-	            }
+	            ensureNodeInstance(node);
 
 	            // The static attributes (i.e. children, parent, and state) are being protected
 	            var _node = node;
@@ -859,10 +906,15 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            node = extend(node, data, { children: children, parent: parent, state: state });
 
-	            this.rows[nodeIndex] = rowRenderer(node);
+	            // Retrieve node index
+	            var nodeIndex = this.nodes.indexOf(node);
+	            if (nodeIndex >= 0) {
+	                // Update the row
+	                this.rows[nodeIndex] = this.options.rowRenderer(node);
 
-	            // Updates list with new data
-	            this.update();
+	                // Updates list with new data
+	                this.update();
+	            }
 	        }
 	    }]);
 
@@ -1936,15 +1988,27 @@ return /******/ (function(modules) { // webpackBootstrap
 	            this.data = {};
 	        }
 	    }, {
+	        key: "get",
+	        value: function get(key) {
+	            return this.data[key];
+	        }
+	    }, {
+	        key: "has",
+	        value: function has(key) {
+	            return this.data[key] !== undefined;
+	        }
+	    }, {
 	        key: "set",
 	        value: function set(key, value) {
 	            this.data[key] = value;
 	            return value;
 	        }
 	    }, {
-	        key: "get",
-	        value: function get(key) {
-	            return this.data[key];
+	        key: "unset",
+	        value: function unset(key) {
+	            if (this.data[key] !== undefined) {
+	                delete this.data[key];
+	            }
 	        }
 	    }]);
 
