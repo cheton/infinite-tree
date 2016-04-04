@@ -24,6 +24,14 @@
     "type": "git",
     "url": "git+https://github.com/cheton/infinite-tree.git"
   },
+  "keywords": [
+    "flat",
+    "flatten",
+    "flattree",
+    "large",
+    "scroll",
+    "tree"
+  ],
   "dependencies": {
     "clusterize.js": "^0.16.0",
     "flattree": "^0.8.1"
