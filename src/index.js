@@ -219,15 +219,15 @@ class InfiniteTree extends events.EventEmitter {
         // Update newNode
         newNode = parentNode.getChildAt(index);
 
-        // Update nodes & rows
         const rows = nodes.map(node => this.options.rowRenderer(node));
         const parentOffset = this.nodes.indexOf(parentNode);
+
+        // Update nodes & rows
         this.nodes.splice.apply(this.nodes, [parentOffset + 1, deleteCount].concat(nodes));
         this.rows.splice.apply(this.rows, [parentOffset + 1, deleteCount].concat(rows));
 
         // Update the lookup table with newly added nodes
-        this.tbl.set(newNode.id, newNode);
-        this.flattenChildNodes(newNode).forEach((node) => {
+        this.flattenNode(newNode).forEach((node) => {
             if (node.id !== undefined) {
                 this.tbl.set(node.id, node);
             }
@@ -301,9 +301,11 @@ class InfiniteTree extends events.EventEmitter {
             p.state.total = p.state.total - deleteCount;
         }
 
-        // Remove elements from an array
+        // Update nodes & rows
         this.nodes.splice(nodeIndex + 1, deleteCount);
         this.rows.splice(nodeIndex + 1, deleteCount);
+
+        // Update the row corresponding to the node
         this.rows[nodeIndex] = this.options.rowRenderer(node);
 
         // Emit the 'closeNode' event
@@ -314,7 +316,7 @@ class InfiniteTree extends events.EventEmitter {
 
         return true;
     }
-    // Flattens child nodes by performing full tree traversal using child-parent link.
+    // Flattens all child nodes of a parent node by performing full tree traversal using child-parent link.
     // No recursion or stack is involved.
     // @param {object} parentNode The parent Node object.
     // @return {array} Returns a flattened list of child nodes, not including the parent node.
@@ -345,6 +347,13 @@ class InfiniteTree extends events.EventEmitter {
         }
 
         return list;
+    }
+    // Flattens a node by performing full tree traversal using child-parent link.
+    // No recursion or stack is involved.
+    // @param {object} node The Node object.
+    // @return {array} Returns a flattened list of nodes.
+    flattenNode(node) {
+        return [node].concat(this.flattenChildNodes(node));
     }
     // Gets a list of child nodes.
     // @param {object} [parentNode] The parent Node object. If null or undefined, returns a list of top level nodes.
@@ -456,9 +465,11 @@ class InfiniteTree extends events.EventEmitter {
         const nodes = flatten(node.children, { openNodes: this.state.openNodes });
         const rows = nodes.map(node => this.options.rowRenderer(node));
 
-        // Insert an array inside another array
+        // Update nodes & rows
         this.nodes.splice.apply(this.nodes, [nodeIndex + 1, 0].concat(nodes));
         this.rows.splice.apply(this.rows, [nodeIndex + 1, 0].concat(rows));
+
+        // Update the row corresponding to the node
         this.rows[nodeIndex] = this.options.rowRenderer(node);
 
         // Add all child nodes to the lookup table if the first child does not exist in the lookup table
@@ -482,6 +493,66 @@ class InfiniteTree extends events.EventEmitter {
     // @param {object} parentNode The parent Node object.
     // @return {boolean} Returns true on success, false otherwise.
     removeChildNodes(parentNode) {
+        ensureNodeInstance(parentNode);
+
+        if (parentNode.children.length === 0) {
+            return false;
+        }
+
+        const parentNodeIndex = this.nodes.indexOf(parentNode);
+
+        // Handle selected node
+        if ((parentNodeIndex >= 0) && this.state.selectedNode) {
+            // row #0 - node.0         => parent node (total=4) - remove all child nodes
+            // row #1   - node.0.0
+            // row #2       node.0.0.0 => current selected node
+            // row #3       node.0.0.1
+            // row #4     node.0.1
+            const selectedIndex = this.nodes.indexOf(this.state.selectedNode);
+            const rangeFrom = parentNodeIndex + 1;
+            const rangeTo = parentNodeIndex + parentNode.state.total;
+
+            if ((rangeFrom <= selectedIndex) && (selectedIndex <= rangeTo)) {
+                this.selectNode(parentNode);
+            }
+        }
+
+        // Remove all child nodes
+        parentNode.children = [];
+
+        // Get the number of nodes to be removed
+        const deleteCount = parentNode.state.total;
+
+        // Subtract the deleteCount for all ancestors (parent, grandparent, etc.) of the current node
+        for (let p = parentNode; p !== null; p = p.parent) {
+            p.state.total = p.state.total - deleteCount;
+        }
+
+        { // Update open nodes and lookup table
+            const childNodes = this.flattenChildNodes(parentNode);
+
+            this.state.openNodes = this.state.openNodes.filter((node) => {
+                return childNodes.indexOf(node) < 0;
+            });
+
+            childNodes.forEach((node) => {
+                this.tbl.unset(node.id);
+            });
+        }
+
+        if (parentNodeIndex >= 0) {
+            // Update nodes & rows
+            this.nodes.splice(parentNodeIndex + 1, parentNode.state.total);
+            this.rows.splice(parentNodeIndex + 1, parentNode.state.total);
+
+            // Update the row corresponding to the parent node
+            this.rows[parentNodeIndex] = this.options.rowRenderer(parentNode);
+        }
+
+        // Updates list with new data
+        this.update();
+
+        return true;
     }
     // Removes a node and all of its child nodes.
     // @param {object} node The Node object.
@@ -496,60 +567,59 @@ class InfiniteTree extends events.EventEmitter {
 
         // Retrieve node index
         const nodeIndex = this.nodes.indexOf(node);
-        if (nodeIndex >= 0) {
-            // Handle selected node
-            if (this.state.selectedNode) {
-                // row #0 - node.0         => parent node (total=4)
-                // row #1   - node.0.0     => remove this node (total=2)
-                // row #2       node.0.0.0 => current selected node (total=0)
-                // row #3       node.0.0.1
-                // row #4     node.0.1     => next selected node (total=0)
-                const selectedIndex = this.nodes.indexOf(this.state.selectedNode);
-                const rangeFrom = nodeIndex;
-                const rangeTo = nodeIndex + node.state.total + 1;
+        const parentNodeIndex = this.nodes.indexOf(parentNode);
 
-                if ((rangeFrom <= selectedIndex) && (selectedIndex <= rangeTo)) {
-                    // Change the selected node in the following order:
-                    // 1. next sibling node
-                    // 2. previous sibling node
-                    // 3. parent node
-                    const selectedNode = node.getNextSibling() || node.getPreviousSibling() || node.getParent();
-                    this.selectNode(selectedNode);
-                }
+        // Handle selected node
+        if ((nodeIndex >= 0) && this.state.selectedNode) {
+            // row #0 - node.0         => parent node (total=4)
+            // row #1   - node.0.0     => remove this node (total=2)
+            // row #2       node.0.0.0 => current selected node (total=0)
+            // row #3       node.0.0.1
+            // row #4     node.0.1     => next selected node (total=0)
+            const selectedIndex = this.nodes.indexOf(this.state.selectedNode);
+            const rangeFrom = nodeIndex;
+            const rangeTo = nodeIndex + node.state.total + 1;
+
+            if ((rangeFrom <= selectedIndex) && (selectedIndex <= rangeTo)) {
+                // Change the selected node in the following order:
+                // 1. next sibling node
+                // 2. previous sibling node
+                // 3. parent node
+                const selectedNode = node.getNextSibling() || node.getPreviousSibling() || node.getParent();
+                this.selectNode(selectedNode);
             }
-
-            // Remove the node from this.nodes and this.rows
-            this.nodes.splice(nodeIndex, node.state.total + 1);
-            this.rows.splice(nodeIndex, node.state.total + 1);
         }
-
-        // Get the number of child nodes to be removed, plus the node
-        const deleteCount = node.state.total + 1;
 
         // Remove the node from its parent node
         parentNode.children.splice(parentNode.children.indexOf(node), 1);
+
+        // Get the number of nodes to be removed
+        const deleteCount = node.state.total + 1;
 
         // Subtract the deleteCount for all ancestors (parent, grandparent, etc.) of the current node
         for (let p = parentNode; p !== null; p = p.parent) {
             p.state.total = p.state.total - deleteCount;
         }
 
-        { // Remove the node and all of its child nodes from open nodes and lookup table
-            const list = [node].concat(this.flattenChildNodes(node));
+        { // Update open nodes and lookup table
+            const nodes = this.flattenNode(node);
 
-            // open nodes
             this.state.openNodes = this.state.openNodes.filter((node) => {
-                return list.indexOf(node) < 0;
+                return nodes.indexOf(node) < 0;
             });
 
-            // lookup table
-            list.forEach((node) => {
+            nodes.forEach((node) => {
                 this.tbl.unset(node.id);
             });
         }
 
+        if (nodeIndex >= 0) {
+            // Update nodes & rows
+            this.nodes.splice(nodeIndex, node.state.total + 1);
+            this.rows.splice(nodeIndex, node.state.total + 1);
+        }
+
         // Update the row corresponding to the parent node
-        const parentNodeIndex = this.nodes.indexOf(parentNode);
         if (parentNodeIndex >= 0) {
             this.rows[parentNodeIndex] = this.options.rowRenderer(parentNode);
         }
@@ -627,6 +697,8 @@ class InfiniteTree extends events.EventEmitter {
         // Select this node
         if (this.state.selectedNode !== node) {
             node.state.selected = true;
+
+            // Update the row corresponding to the node
             this.rows[nodeIndex] = this.options.rowRenderer(node);
         }
 
@@ -717,7 +789,7 @@ class InfiniteTree extends events.EventEmitter {
         // Retrieve node index
         const nodeIndex = this.nodes.indexOf(node);
         if (nodeIndex >= 0) {
-            // Update the row
+            // Update the row corresponding to the node
             this.rows[nodeIndex] = this.options.rowRenderer(node);
 
             // Updates list with new data
