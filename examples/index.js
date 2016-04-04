@@ -15,19 +15,8 @@ const tree = new InfiniteTree({
     rowRenderer: rowRenderer
 });
 
-tree.on('scrollProgress', (progress) => {
-    document.querySelector('#scrolling-progress').style = 'width: ' + progress + '%';
-});
-
-tree.on('openNode', (node) => {
-    console.log('openNode', node);
-});
-tree.on('closeNode', (node) => {
-    console.log('closeNode', node);
-});
-tree.on('selectNode', (node) => {
+const updatePreview = (node) => {
     const el = document.querySelector('#preview');
-
     if (node) {
         el.innerHTML = JSON.stringify({
             id: node.id,
@@ -39,6 +28,23 @@ tree.on('selectNode', (node) => {
     } else {
         el.innerHTML = '';
     }
+};
+
+tree.on('scrollProgress', (progress) => {
+    document.querySelector('#scrolling-progress').style = 'width: ' + progress + '%';
+});
+tree.on('update', () => {
+    const node = tree.getSelectedNode();
+    updatePreview(node);
+});
+tree.on('openNode', (node) => {
+    console.log('openNode', node);
+});
+tree.on('closeNode', (node) => {
+    console.log('closeNode', node);
+});
+tree.on('selectNode', (node) => {
+    updatePreview(node);
 });
 
 tree.loadData(data);
