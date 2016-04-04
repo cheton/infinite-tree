@@ -122,6 +122,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	var InfiniteTree = function (_events$EventEmitter) {
 	    _inherits(InfiniteTree, _events$EventEmitter);
 
+	    // Creates new InfiniteTree object.
+
 	    function InfiniteTree() {
 	        var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
@@ -142,7 +144,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            selectedNode: null
 	        };
 	        _this.clusterize = null;
-	        _this.tbl = new _lookupTable2['default']();
+	        _this.nodeTable = new _lookupTable2['default']();
 	        _this.nodes = [];
 	        _this.rows = [];
 	        _this.scrollElement = null;
@@ -242,7 +244,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        key: 'clear',
 	        value: function clear() {
 	            this.clusterize.clear();
-	            this.tbl.clear();
+	            this.nodeTable.clear();
 	            this.nodes = [];
 	            this.rows = [];
 	            this.state.openNodes = [];
@@ -277,13 +279,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	            this.contentElement = null;
 	            this.scrollElement = null;
 	        }
-	        // Updates list with new data
-
-	    }, {
-	        key: 'update',
-	        value: function update() {
-	            this.clusterize.update(this.rows);
-	        }
 	        // Inserts a new child node to a parent node at the specified index.
 	        // * If the parent is null or undefined, inserts the child at the specified index in the top-level.
 	        // * If the parent has children, the method adds the child to it at the specified index.
@@ -292,6 +287,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        // @param {object} newNode The new child node.
 	        // @param {number} [index] The 0-based index of where to insert the child node. Defaults to 0.
 	        // @param {object} parentNode The parent Node object.
+	        // @return {boolean} Returns true on success, false otherwise.
 
 	    }, {
 	        key: 'addChildNodeAt',
@@ -337,7 +333,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            // Update the lookup table with newly added nodes
 	            this.flattenNode(newNode).forEach(function (node) {
 	                if (node.id !== undefined) {
-	                    _this3.tbl.set(node.id, node);
+	                    _this3.nodeTable.set(node.id, node);
 	                }
 	            });
 
@@ -498,7 +494,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }, {
 	        key: 'getNodeById',
 	        value: function getNodeById(id) {
-	            var node = this.tbl.get(id);
+	            var node = this.nodeTable.get(id);
 	            if (!node) {
 	                // Find the first node that matches the id
 	                node = this.nodes.filter(function (node) {
@@ -507,9 +503,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	                if (!node) {
 	                    return null;
 	                }
-	                this.tbl.set(node.id, node);
+	                this.nodeTable.set(node.id, node);
 	            }
 	            return node;
+	        }
+	        // Gets the root node.
+	        // @return {object} Returns the root node, or null if empty.
+
+	    }, {
+	        key: 'getRootNode',
+	        value: function getRootNode() {
+	            return this.state.rootNode;
 	        }
 	        // Gets the selected node.
 	        // @return {object} Returns the selected node, or null if not selected.
@@ -565,7 +569,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            this.nodes = (0, _flattree.flatten)(data, { openAllNodes: this.options.autoOpen });
 
 	            // Clear lookup table
-	            this.tbl.clear();
+	            this.nodeTable.clear();
 
 	            this.state.openNodes = this.nodes.filter(function (node) {
 	                return node.hasChildren() && node.state.open;
@@ -584,7 +588,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            // Update the lookup table with newly added nodes
 	            this.flattenChildNodes(this.state.rootNode).forEach(function (node) {
 	                if (node.id !== undefined) {
-	                    _this4.tbl.set(node.id, node);
+	                    _this4.nodeTable.set(node.id, node);
 	                }
 	            });
 
@@ -635,10 +639,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	            this.rows[nodeIndex] = this.options.rowRenderer(node);
 
 	            // Add all child nodes to the lookup table if the first child does not exist in the lookup table
-	            if (nodes.length > 0 && !this.tbl.get(nodes[0])) {
+	            if (nodes.length > 0 && !this.nodeTable.get(nodes[0])) {
 	                nodes.forEach(function (node) {
 	                    if (node.id !== undefined) {
-	                        _this5.tbl.set(node.id, node);
+	                        _this5.nodeTable.set(node.id, node);
 	                    }
 	                });
 	            }
@@ -670,7 +674,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            // Update selected node
 	            if (parentNodeIndex >= 0 && this.state.selectedNode) {
-	                // row #0 - node.0         => parent node (total=4) - remove all child nodes
+	                // row #0 - node.0         => parent node (total=4)
 	                // row #1   - node.0.0
 	                // row #2       node.0.0.0 => current selected node
 	                // row #3       node.0.0.1
@@ -715,7 +719,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    });
 
 	                    childNodes.forEach(function (node) {
-	                        _this6.tbl.unset(node.id);
+	                        _this6.nodeTable.unset(node.id);
 	                    });
 	                })();
 	            }
@@ -799,7 +803,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    });
 
 	                    nodes.forEach(function (node) {
-	                        _this7.tbl.unset(node.id);
+	                        _this7.nodeTable.unset(node.id);
 	                    });
 	                })();
 	            }
@@ -981,6 +985,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	            }
 
 	            return traverse(node);
+	        }
+	        // Updates list with new data
+
+	    }, {
+	        key: 'update',
+	        value: function update() {
+	            this.clusterize.update(this.rows);
+
+	            // Emit the 'update' event
+	            this.emit('update');
 	        }
 	        // Updates the data of a node.
 	        // @param {object} node
