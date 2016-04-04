@@ -745,6 +745,7 @@ class InfiniteTree extends events.EventEmitter {
     }
     // Serializes the current state of a node to a JSON string.
     // @param {object} node The Node object. If null, returns the whole tree.
+    // @return {string} Returns a JSON string represented the tree.
     toString(node = null) {
         const traverse = (node) => {
             let s = '[';
@@ -781,7 +782,7 @@ class InfiniteTree extends events.EventEmitter {
 
         return traverse(node);
     }
-    // Updates list with new data
+    // Updates list with new data.
     update() {
         this.clusterize.update(this.rows);
 
@@ -789,7 +790,7 @@ class InfiniteTree extends events.EventEmitter {
         this.emit('update');
     }
     // Updates the data of a node.
-    // @param {object} node
+    // @param {object} node The Node object.
     // @param {object} data The data object.
     updateNode(node, data) {
         ensureNodeInstance(node);
