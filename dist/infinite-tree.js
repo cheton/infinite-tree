@@ -668,7 +668,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            var parentNodeIndex = this.nodes.indexOf(parentNode);
 
-	            // Handle selected node
+	            // Update selected node
 	            if (parentNodeIndex >= 0 && this.state.selectedNode) {
 	                // row #0 - node.0         => parent node (total=4) - remove all child nodes
 	                // row #1   - node.0.0
@@ -684,8 +684,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	                }
 	            }
 
-	            // Remove all child nodes
+	            // Update parent node
 	            parentNode.children = [];
+	            parentNode.state.open = parentNode.state.open && parentNode.children.length > 0;
 
 	            // Get the number of nodes to be removed
 	            var deleteCount = parentNode.state.total;
@@ -693,6 +694,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	            // Subtract the deleteCount for all ancestors (parent, grandparent, etc.) of the current node
 	            for (var p = parentNode; p !== null; p = p.parent) {
 	                p.state.total = p.state.total - deleteCount;
+	            }
+
+	            if (parentNodeIndex >= 0) {
+	                // Update nodes & rows
+	                this.nodes.splice(parentNodeIndex + 1, deleteCount);
+	                this.rows.splice(parentNodeIndex + 1, deleteCount);
+
+	                // Update the row corresponding to the parent node
+	                this.rows[parentNodeIndex] = this.options.rowRenderer(parentNode);
 	            }
 
 	            {
@@ -708,15 +718,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	                        _this6.tbl.unset(node.id);
 	                    });
 	                })();
-	            }
-
-	            if (parentNodeIndex >= 0) {
-	                // Update nodes & rows
-	                this.nodes.splice(parentNodeIndex + 1, parentNode.state.total);
-	                this.rows.splice(parentNodeIndex + 1, parentNode.state.total);
-
-	                // Update the row corresponding to the parent node
-	                this.rows[parentNodeIndex] = this.options.rowRenderer(parentNode);
 	            }
 
 	            // Updates list with new data
@@ -744,7 +745,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var nodeIndex = this.nodes.indexOf(node);
 	            var parentNodeIndex = this.nodes.indexOf(parentNode);
 
-	            // Handle selected node
+	            // Update selected node
 	            if (nodeIndex >= 0 && this.state.selectedNode) {
 	                // row #0 - node.0         => parent node (total=4)
 	                // row #1   - node.0.0     => remove this node (total=2)
@@ -765,8 +766,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	                }
 	            }
 
-	            // Remove the node from its parent node
+	            // Update parent node
 	            parentNode.children.splice(parentNode.children.indexOf(node), 1);
+	            parentNode.state.open = parentNode.state.open && parentNode.children.length > 0;
 
 	            // Get the number of nodes to be removed
 	            var deleteCount = node.state.total + 1;
@@ -774,6 +776,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	            // Subtract the deleteCount for all ancestors (parent, grandparent, etc.) of the current node
 	            for (var p = parentNode; p !== null; p = p.parent) {
 	                p.state.total = p.state.total - deleteCount;
+	            }
+
+	            if (nodeIndex >= 0) {
+	                // Update nodes & rows
+	                this.nodes.splice(nodeIndex, deleteCount);
+	                this.rows.splice(nodeIndex, deleteCount);
+	            }
+
+	            // Update the row corresponding to the parent node
+	            if (parentNodeIndex >= 0) {
+	                this.rows[parentNodeIndex] = this.options.rowRenderer(parentNode);
 	            }
 
 	            {
@@ -789,17 +802,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	                        _this7.tbl.unset(node.id);
 	                    });
 	                })();
-	            }
-
-	            if (nodeIndex >= 0) {
-	                // Update nodes & rows
-	                this.nodes.splice(nodeIndex, node.state.total + 1);
-	                this.rows.splice(nodeIndex, node.state.total + 1);
-	            }
-
-	            // Update the row corresponding to the parent node
-	            if (parentNodeIndex >= 0) {
-	                this.rows[parentNodeIndex] = this.options.rowRenderer(parentNode);
 	            }
 
 	            // Updates list with new data
