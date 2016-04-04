@@ -5,10 +5,7 @@ A browser-ready tree library that can efficiently display a large tree with smoo
 
 View [demo](http://cheton.github.io/infinite-tree) at http://cheton.github.io/infinite-tree.
 
-[![IMAGE ALT TEXT](https://raw.githubusercontent.com/cheton/infinite-tree/master/media/infinite-tree.gif)](http://cheton.github.io/infinite-tree)
-
-#### The project is under heavy development and a lot of things are changing. Stay tuned for more information later.
-
+[![infinite-tree](https://raw.githubusercontent.com/cheton/infinite-tree/master/media/infinite-tree.gif)](http://cheton.github.io/infinite-tree)
 
 ## Installation
 ```bash
@@ -41,6 +38,9 @@ const tree = new InfiniteTree({
     // tree data
     data: data
 });
+tree.on('update', () => {
+    console.log(tree.getSelectedNode());
+});
 tree.on('openNode', (node) => {
 });
 tree.on('closeNode', (node) => {
@@ -50,6 +50,9 @@ tree.on('selectNode', (node) => {
 tree.on('scrollProgress', (progress) => {
 });
 ```
+
+## API Documentation
+Check out [Wiki](https://github.com/cheton/infinite-tree/wiki) for [API Documentation](https://github.com/cheton/infinite-tree/wiki/API-Documentation).
 
 ## Options
 Below are the configuration options with their default values:
