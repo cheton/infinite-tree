@@ -492,7 +492,7 @@ class InfiniteTree extends events.EventEmitter {
 
         return true;
     }
-    // Removes all child nodes from a parent node
+    // Removes all child nodes from a parent node.
     // @param {object} parentNode The parent Node object.
     // @return {boolean} Returns true on success, false otherwise.
     removeChildNodes(parentNode) {
