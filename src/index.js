@@ -398,6 +398,7 @@ class InfiniteTree extends events.EventEmitter {
     // Inserts the specified node after the reference node.
     // @param {object} newNode The new sibling node.
     // @param {object} referenceNode The reference Node object.
+    // @return {boolean} Returns true on success, false otherwise.
     insertNodeAfter(newNode, referenceNode) {
         ensureNodeInstance(referenceNode);
         const parentNode = referenceNode.getParent();
@@ -407,6 +408,7 @@ class InfiniteTree extends events.EventEmitter {
     // Inserts the specified node before the reference node.
     // @param {object} newNode The new sibling node.
     // @param {object} referenceNode The reference Node object.
+    // @return {boolean} Returns true on success, false otherwise.
     insertNodeBefore(newNode, referenceNode) {
         ensureNodeInstance(referenceNode);
         const parentNode = referenceNode.getParent();
