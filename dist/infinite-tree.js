@@ -1,4 +1,4 @@
-/*! infinite-tree v0.3.0 | (c) 2016 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
+/*! infinite-tree v0.4.0 | (c) 2016 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -241,17 +241,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	            (0, _polyfill.addEventListener)(this.contentElement, 'click', this.contentListener);
 	        }
 	    }, {
-	        key: 'clear',
-	        value: function clear() {
-	            this.clusterize.clear();
-	            this.nodeTable.clear();
-	            this.nodes = [];
-	            this.rows = [];
-	            this.state.openNodes = [];
-	            this.state.rootNode = null;
-	            this.state.selectedNode = null;
-	        }
-	    }, {
 	        key: 'destroy',
 	        value: function destroy() {
 	            (0, _polyfill.removeEventListener)(this.contentElement, 'click', this.contentListener);
@@ -284,9 +273,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	        // * If the parent has children, the method adds the child to it at the specified index.
 	        // * If the parent does not have children, the method adds the child to the parent.
 	        // * If the index value is greater than or equal to the number of children in the parent, the method adds the child at the end of the children.
-	        // @param {object} newNode The new child node.
-	        // @param {number} [index] The 0-based index of where to insert the child node. Defaults to 0.
-	        // @param {object} parentNode The parent Node object.
+	        // @param {Object} newNode The new child node.
+	        // @param {number} index The 0-based index of where to insert the child node. Defaults to 0 for negative index.
+	        // @param {Node} parentNode The Node object that defines the parent node.
 	        // @return {boolean} Returns true on success, false otherwise.
 
 	    }, {
@@ -349,8 +338,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        // * If the parent is null or undefined, inserts the child at the specified index in the top-level.
 	        // * If the parent has children, the method adds the child as the last child.
 	        // * If the parent does not have children, the method adds the child to the parent.
-	        // @param {object} newNode The new child node.
-	        // @param {object} parentNode The parent Node object.
+	        // @param {Object} newNode The new child node.
+	        // @param {Node} parentNode The Node object that defines the parent node.
 	        // @return {boolean} Returns true on success, false otherwise.
 
 	    }, {
@@ -364,8 +353,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var index = parentNode.children.length;
 	            return this.addChildNodeAt(newNode, index, parentNode);
 	        }
+	        // Clears the tree.
+
+	    }, {
+	        key: 'clear',
+	        value: function clear() {
+	            this.clusterize.clear();
+	            this.nodeTable.clear();
+	            this.nodes = [];
+	            this.rows = [];
+	            this.state.openNodes = [];
+	            this.state.rootNode = null;
+	            this.state.selectedNode = null;
+	        }
 	        // Closes a node to hide its children.
-	        // @param {object} node The Node object.
+	        // @param {Node} node The Node object.
 	        // @return {boolean} Returns true on success, false otherwise.
 
 	    }, {
@@ -430,8 +432,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	        // Flattens all child nodes of a parent node by performing full tree traversal using child-parent link.
 	        // No recursion or stack is involved.
-	        // @param {object} parentNode The parent Node object.
-	        // @return {array} Returns a flattened list of child nodes, not including the parent node.
+	        // @param {Node} parentNode The Node object that defines the parent node.
+	        // @return {array} Returns an array of Node objects containing all the child nodes of the parent node.
 
 	    }, {
 	        key: 'flattenChildNodes',
@@ -465,8 +467,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	        // Flattens a node by performing full tree traversal using child-parent link.
 	        // No recursion or stack is involved.
-	        // @param {object} node The Node object.
-	        // @return {array} Returns a flattened list of nodes.
+	        // @param {Node} node The Node object.
+	        // @return {array} Returns a flattened list of Node objects.
 
 	    }, {
 	        key: 'flattenNode',
@@ -474,8 +476,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	            return [node].concat(this.flattenChildNodes(node));
 	        }
 	        // Gets a list of child nodes.
-	        // @param {object} [parentNode] The parent Node object. If null or undefined, returns a list of top level nodes.
-	        // @return {array} Returns an array of child nodes.
+	        // @param {Node} [parentNode] The Node object that defines the parent node. If null or undefined, returns a list of top level nodes.
+	        // @return {array} Returns an array of Node objects containing all the child nodes of the parent node.
 
 	    }, {
 	        key: 'getChildNodes',
@@ -489,7 +491,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	        // Gets a node by its unique id. This assumes that you have given the nodes in the data a unique id.
 	        // @param {string|number} id An unique node id. A null value will be returned if the id doesn't match.
-	        // @return {object} Returns the node the matches the id, null otherwise.
+	        // @return {Node} Returns a node the matches the id, null otherwise.
 
 	    }, {
 	        key: 'getNodeById',
@@ -507,24 +509,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	            }
 	            return node;
 	        }
-	        // Gets the root node.
-	        // @return {object} Returns the root node, or null if empty.
-
-	    }, {
-	        key: 'getRootNode',
-	        value: function getRootNode() {
-	            return this.state.rootNode;
-	        }
-	        // Gets the selected node.
-	        // @return {object} Returns the selected node, or null if not selected.
-
-	    }, {
-	        key: 'getSelectedNode',
-	        value: function getSelectedNode() {
-	            return this.state.selectedNode;
-	        }
 	        // Gets an array of open nodes.
-	        // @return {array} Returns an array of open nodes.
+	        // @return {array} Returns an array of Node objects containing open nodes.
 
 	    }, {
 	        key: 'getOpenNodes',
@@ -532,9 +518,26 @@ return /******/ (function(modules) { // webpackBootstrap
 	            // returns a shallow copy of an array into a new array object.
 	            return this.state.openNodes.slice();
 	        }
+	        // Gets the root node.
+	        // @return {Node} Returns the root node, or null if empty.
+
+	    }, {
+	        key: 'getRootNode',
+	        value: function getRootNode() {
+	            return this.state.rootNode;
+	        }
+	        // Gets the selected node.
+	        // @return {Node} Returns the selected node, or null if not selected.
+
+	    }, {
+	        key: 'getSelectedNode',
+	        value: function getSelectedNode() {
+	            return this.state.selectedNode;
+	        }
 	        // Inserts the specified node after the reference node.
-	        // @param {object} newNode The new sibling node.
-	        // @param {object} referenceNode The reference Node object.
+	        // @param {Object} newNode The new sibling node.
+	        // @param {Node} referenceNode The Node object that defines the reference node.
+	        // @return {boolean} Returns true on success, false otherwise.
 
 	    }, {
 	        key: 'insertNodeAfter',
@@ -545,8 +548,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	            return this.addChildNodeAt(newNode, index, parentNode);
 	        }
 	        // Inserts the specified node before the reference node.
-	        // @param {object} newNode The new sibling node.
-	        // @param {object} referenceNode The reference Node object.
+	        // @param {Object} newNode The new sibling node.
+	        // @param {Node} referenceNode The Node object that defines the reference node.
+	        // @return {boolean} Returns true on success, false otherwise.
 
 	    }, {
 	        key: 'insertNodeBefore',
@@ -601,7 +605,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            this.update();
 	        }
 	        // Opens a node to display its children.
-	        // @param {object} node The Node object.
+	        // @param {Node} node The Node object.
 	        // @return {boolean} Returns true on success, false otherwise.
 
 	    }, {
@@ -655,8 +659,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            return true;
 	        }
-	        // Removes all child nodes from a parent node
-	        // @param {object} parentNode The parent Node object.
+	        // Removes all child nodes from a parent node.
+	        // @param {Node} parentNode The Node object that defines the parent node.
 	        // @return {boolean} Returns true on success, false otherwise.
 
 	    }, {
@@ -730,7 +734,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            return true;
 	        }
 	        // Removes a node and all of its child nodes.
-	        // @param {object} node The Node object.
+	        // @param {Node} node The Node object.
 	        // @return {boolean} Returns true on success, false otherwise.
 
 	    }, {
@@ -814,7 +818,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            return true;
 	        }
 	        // Sets the current scroll position to this node.
-	        // @param {object} node The Node object.
+	        // @param {Node} node The Node object.
 	        // @return {number} Returns the vertical scroll position, or -1 on error.
 
 	    }, {
@@ -851,7 +855,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            return this.scrollElement.scrollTop;
 	        }
 	        // Selects a node.
-	        // @param {object} node The Node object. If null or undefined, deselects the current node.
+	        // @param {Node} node The Node object. If null or undefined, deselects the current node.
 	        // @return {boolean} Returns true on success, false otherwise.
 
 	    }, {
@@ -923,7 +927,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            return true;
 	        }
 	        // Toggles a node to display or hide its children.
-	        // @param {object} node The Node object.
+	        // @param {Node} node The Node object.
 
 	    }, {
 	        key: 'toggleNode',
@@ -937,7 +941,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	            }
 	        }
 	        // Serializes the current state of a node to a JSON string.
-	        // @param {object} node The Node object. If null, returns the whole tree.
+	        // @param {Node} node The Node object. If null, returns the whole tree.
+	        // @return {string} Returns a JSON string represented the tree.
 
 	    }, {
 	        key: 'toString',
@@ -986,19 +991,20 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            return traverse(node);
 	        }
-	        // Updates list with new data
+	        // Updates the tree.
 
 	    }, {
 	        key: 'update',
 	        value: function update() {
+	            // Update the list with new data
 	            this.clusterize.update(this.rows);
 
 	            // Emit the 'update' event
 	            this.emit('update');
 	        }
 	        // Updates the data of a node.
-	        // @param {object} node
-	        // @param {object} data The data object.
+	        // @param {Node} node The Node object.
+	        // @param {Object} data The data object.
 
 	    }, {
 	        key: 'updateNode',
