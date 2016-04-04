@@ -147,7 +147,7 @@ class InfiniteTree extends events.EventEmitter {
     }
     clear() {
         this.clusterize.clear();
-        nodeTable.clear();
+        this.nodeTable.clear();
         this.nodes = [];
         this.rows = [];
         this.state.openNodes = [];
@@ -227,7 +227,7 @@ class InfiniteTree extends events.EventEmitter {
         // Update the lookup table with newly added nodes
         this.flattenNode(newNode).forEach((node) => {
             if (node.id !== undefined) {
-                nodeTable.set(node.id, node);
+                this.nodeTable.set(node.id, node);
             }
         });
 
@@ -368,14 +368,14 @@ class InfiniteTree extends events.EventEmitter {
     // @param {string|number} id An unique node id. A null value will be returned if the id doesn't match.
     // @return {object} Returns the node the matches the id, null otherwise.
     getNodeById(id) {
-        let node = nodeTable.get(id);
+        let node = this.nodeTable.get(id);
         if (!node) {
             // Find the first node that matches the id
             node = this.nodes.filter((node) => (node.id === id))[0];
             if (!node) {
                 return null;
             }
-            nodeTable.set(node.id, node);
+            this.nodeTable.set(node.id, node);
         }
         return node;
     }
@@ -419,7 +419,7 @@ class InfiniteTree extends events.EventEmitter {
         this.nodes = flatten(data, { openAllNodes: this.options.autoOpen });
 
         // Clear lookup table
-        nodeTable.clear();
+        this.nodeTable.clear();
 
         this.state.openNodes = this.nodes.filter((node) => (node.hasChildren() && node.state.open));
         this.state.rootNode = ((node = null) => {
@@ -434,7 +434,7 @@ class InfiniteTree extends events.EventEmitter {
         // Update the lookup table with newly added nodes
         this.flattenChildNodes(this.state.rootNode).forEach((node) => {
             if (node.id !== undefined) {
-                nodeTable.set(node.id, node);
+                this.nodeTable.set(node.id, node);
             }
         });
 
@@ -476,10 +476,10 @@ class InfiniteTree extends events.EventEmitter {
         this.rows[nodeIndex] = this.options.rowRenderer(node);
 
         // Add all child nodes to the lookup table if the first child does not exist in the lookup table
-        if ((nodes.length > 0) && !(nodeTable.get(nodes[0]))) {
+        if ((nodes.length > 0) && !(this.nodeTable.get(nodes[0]))) {
             nodes.forEach((node) => {
                 if (node.id !== undefined) {
-                    nodeTable.set(node.id, node);
+                    this.nodeTable.set(node.id, node);
                 }
             });
         }
@@ -549,7 +549,7 @@ class InfiniteTree extends events.EventEmitter {
             });
 
             childNodes.forEach((node) => {
-                nodeTable.unset(node.id);
+                this.nodeTable.unset(node.id);
             });
         }
 
@@ -625,7 +625,7 @@ class InfiniteTree extends events.EventEmitter {
             });
 
             nodes.forEach((node) => {
-                nodeTable.unset(node.id);
+                this.nodeTable.unset(node.id);
             });
         }
 
