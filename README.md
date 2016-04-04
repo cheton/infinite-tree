@@ -52,7 +52,8 @@ tree.on('scrollProgress', (progress) => {
 ```
 
 ## API Documentation
-Check out [Wiki](https://github.com/cheton/infinite-tree/wiki) for [API Documentation](https://github.com/cheton/infinite-tree/wiki/API-Documentation).
+* [Tree API](https://github.com/cheton/infinite-tree/wiki/API-Documentation:-Tree-API)
+* [Node API](https://github.com/cheton/infinite-tree/wiki/API-Documentation:-Node-API)
 
 ## Options
 Below are the configuration options with their default values:
