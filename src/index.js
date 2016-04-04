@@ -188,9 +188,9 @@ class InfiniteTree extends events.EventEmitter {
     // * If the parent has children, the method adds the child to it at the specified index.
     // * If the parent does not have children, the method adds the child to the parent.
     // * If the index value is greater than or equal to the number of children in the parent, the method adds the child at the end of the children.
-    // @param {object} newNode The object that defines the new child node.
+    // @param {object} newNode The new child node.
     // @param {number} [index] The 0-based index of where to insert the child node. Defaults to 0.
-    // @param {object} parentNode The object that defines the parent node.
+    // @param {object} parentNode The parent Node object.
     addChildNodeAt(newNode, index, parentNode) {
         // Defaults to rootNode if the parentNode is not specified
         parentNode = parentNode || this.state.rootNode;
@@ -245,8 +245,8 @@ class InfiniteTree extends events.EventEmitter {
     // * If the parent is null or undefined, inserts the child at the specified index in the top-level.
     // * If the parent has children, the method adds the child as the last child.
     // * If the parent does not have children, the method adds the child to the parent.
-    // @param {object} newNode The object that defines the new child node.
-    // @param {object} parentNode The object that defines the parent node.
+    // @param {object} newNode The new child node.
+    // @param {object} parentNode The parent Node object.
     // @return {boolean} Returns true on success, false otherwise.
     appendChildNode(newNode, parentNode) {
         // Defaults to rootNode if the parentNode is not specified
@@ -258,7 +258,7 @@ class InfiniteTree extends events.EventEmitter {
         return this.addChildNodeAt(newNode, index, parentNode);
     }
     // Closes a node to hide its children.
-    // @param {object} node The object that defines the node.
+    // @param {object} node The Node object.
     // @return {boolean} Returns true on success, false otherwise.
     closeNode(node) {
         ensureNodeInstance(node);
@@ -316,7 +316,7 @@ class InfiniteTree extends events.EventEmitter {
     }
     // Flattens child nodes by performing full tree traversal using child-parent link.
     // No recursion or stack is involved.
-    // @param {object} parentNode The object that defines the parent node.
+    // @param {object} parentNode The parent Node object.
     // @return {array} Returns a flattened list of child nodes, not including the parent node.
     flattenChildNodes(parentNode) {
         // Defaults to rootNode if the parentNode is not specified
@@ -347,7 +347,7 @@ class InfiniteTree extends events.EventEmitter {
         return list;
     }
     // Gets a list of child nodes.
-    // @param {object} [parentNode] The object that defines the node. If null or undefined, returns a list of top level nodes.
+    // @param {object} [parentNode] The parent Node object. If null or undefined, returns a list of top level nodes.
     // @return {array} Returns an array of child nodes.
     getChildNodes(parentNode) {
         // Defaults to rootNode if the parentNode is not specified
@@ -384,8 +384,8 @@ class InfiniteTree extends events.EventEmitter {
         return this.state.openNodes.slice();
     }
     // Inserts the specified node after the reference node.
-    // @param {object} newNode The object that defines the new sibling node.
-    // @param {object} referenceNode The object that defines the current node.
+    // @param {object} newNode The new sibling node.
+    // @param {object} referenceNode The reference Node object.
     insertNodeAfter(newNode, referenceNode) {
         ensureNodeInstance(referenceNode);
         const parentNode = referenceNode.getParent();
@@ -393,8 +393,8 @@ class InfiniteTree extends events.EventEmitter {
         return this.addChildNodeAt(newNode, index, parentNode);
     }
     // Inserts the specified node before the reference node.
-    // @param {object} newNode The object that defines the new sibling node.
-    // @param {object} referenceNode The object that defines the current node.
+    // @param {object} newNode The new sibling node.
+    // @param {object} referenceNode The reference Node object.
     insertNodeBefore(newNode, referenceNode) {
         ensureNodeInstance(referenceNode);
         const parentNode = referenceNode.getParent();
@@ -433,7 +433,7 @@ class InfiniteTree extends events.EventEmitter {
         this.update();
     }
     // Opens a node to display its children.
-    // @param {object} node The object that defines the node.
+    // @param {object} node The Node object.
     // @return {boolean} Returns true on success, false otherwise.
     openNode(node) {
         ensureNodeInstance(node);
@@ -478,8 +478,13 @@ class InfiniteTree extends events.EventEmitter {
 
         return true;
     }
+    // Removes all child nodes from a parent node
+    // @param {object} parentNode The parent Node object.
+    // @return {boolean} Returns true on success, false otherwise.
+    removeChildNodes(parentNode) {
+    }
     // Removes a node and all of its child nodes.
-    // @param {object} node The object that defines the node.
+    // @param {object} node The Node object.
     // @return {boolean} Returns true on success, false otherwise.
     removeNode(node) {
         ensureNodeInstance(node);
@@ -555,7 +560,7 @@ class InfiniteTree extends events.EventEmitter {
         return true;
     }
     // Sets the current scroll position to this node.
-    // @param {object} node The object that defines the node.
+    // @param {object} node The Node object.
     // @return {number} Returns the vertical scroll position, or -1 on error.
     scrollToNode(node) {
         ensureNodeInstance(node);
@@ -586,7 +591,7 @@ class InfiniteTree extends events.EventEmitter {
         return this.scrollElement.scrollTop;
     }
     // Selects a node.
-    // @param {object} node The object that defines the node. If null or undefined, deselects the current node.
+    // @param {object} node The Node object. If null or undefined, deselects the current node.
     // @return {boolean} Returns true on success, false otherwise.
     selectNode(node = null) {
         if (node === null) {
@@ -651,7 +656,7 @@ class InfiniteTree extends events.EventEmitter {
         return true;
     }
     // Toggles a node to display or hide its children.
-    // @param {object} node The object that defines the node.
+    // @param {object} node The Node object.
     toggleNode(node) {
         if (this.state.openNodes.indexOf(node) >= 0) {
             // close node
@@ -662,7 +667,7 @@ class InfiniteTree extends events.EventEmitter {
         }
     }
     // Serializes the current state of a node to a JSON string.
-    // @param {object} node The object that defines the node. If null, returns the whole tree.
+    // @param {object} node The Node object. If null, returns the whole tree.
     toString(node = null) {
         const traverse = (node) => {
             let s = '[';
