@@ -177,7 +177,7 @@ class InfiniteTree extends events.EventEmitter {
     // * If the parent does not have children, the method adds the child to the parent.
     // * If the index value is greater than or equal to the number of children in the parent, the method adds the child at the end of the children.
     // @param {object} newNode The new child node.
-    // @param {number} index The 0-based index of where to insert the child node. Defaults to 0.
+    // @param {number} index The 0-based index of where to insert the child node. Defaults to 0 for negative index.
     // @param {Node} parentNode The Node object that defines the parent node.
     // @return {boolean} Returns true on success, false otherwise.
     addChildNodeAt(newNode, index, parentNode) {
