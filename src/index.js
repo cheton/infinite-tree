@@ -501,7 +501,7 @@ class InfiniteTree extends events.EventEmitter {
 
         const parentNodeIndex = this.nodes.indexOf(parentNode);
 
-        // Handle selected node
+        // Update selected node
         if ((parentNodeIndex >= 0) && this.state.selectedNode) {
             // row #0 - node.0         => parent node (total=4) - remove all child nodes
             // row #1   - node.0.0
@@ -517,8 +517,9 @@ class InfiniteTree extends events.EventEmitter {
             }
         }
 
-        // Remove all child nodes
+        // Update parent node
         parentNode.children = [];
+        parentNode.state.open = parentNode.state.open && (parentNode.children.length > 0);
 
         // Get the number of nodes to be removed
         const deleteCount = parentNode.state.total;
@@ -526,6 +527,15 @@ class InfiniteTree extends events.EventEmitter {
         // Subtract the deleteCount for all ancestors (parent, grandparent, etc.) of the current node
         for (let p = parentNode; p !== null; p = p.parent) {
             p.state.total = p.state.total - deleteCount;
+        }
+
+        if (parentNodeIndex >= 0) {
+            // Update nodes & rows
+            this.nodes.splice(parentNodeIndex + 1, deleteCount);
+            this.rows.splice(parentNodeIndex + 1, deleteCount);
+
+            // Update the row corresponding to the parent node
+            this.rows[parentNodeIndex] = this.options.rowRenderer(parentNode);
         }
 
         { // Update open nodes and lookup table
@@ -538,15 +548,6 @@ class InfiniteTree extends events.EventEmitter {
             childNodes.forEach((node) => {
                 this.tbl.unset(node.id);
             });
-        }
-
-        if (parentNodeIndex >= 0) {
-            // Update nodes & rows
-            this.nodes.splice(parentNodeIndex + 1, parentNode.state.total);
-            this.rows.splice(parentNodeIndex + 1, parentNode.state.total);
-
-            // Update the row corresponding to the parent node
-            this.rows[parentNodeIndex] = this.options.rowRenderer(parentNode);
         }
 
         // Updates list with new data
@@ -569,7 +570,7 @@ class InfiniteTree extends events.EventEmitter {
         const nodeIndex = this.nodes.indexOf(node);
         const parentNodeIndex = this.nodes.indexOf(parentNode);
 
-        // Handle selected node
+        // Update selected node
         if ((nodeIndex >= 0) && this.state.selectedNode) {
             // row #0 - node.0         => parent node (total=4)
             // row #1   - node.0.0     => remove this node (total=2)
@@ -590,8 +591,9 @@ class InfiniteTree extends events.EventEmitter {
             }
         }
 
-        // Remove the node from its parent node
+        // Update parent node
         parentNode.children.splice(parentNode.children.indexOf(node), 1);
+        parentNode.state.open = parentNode.state.open && (parentNode.children.length > 0);
 
         // Get the number of nodes to be removed
         const deleteCount = node.state.total + 1;
@@ -599,6 +601,17 @@ class InfiniteTree extends events.EventEmitter {
         // Subtract the deleteCount for all ancestors (parent, grandparent, etc.) of the current node
         for (let p = parentNode; p !== null; p = p.parent) {
             p.state.total = p.state.total - deleteCount;
+        }
+
+        if (nodeIndex >= 0) {
+            // Update nodes & rows
+            this.nodes.splice(nodeIndex, deleteCount);
+            this.rows.splice(nodeIndex, deleteCount);
+        }
+
+        // Update the row corresponding to the parent node
+        if (parentNodeIndex >= 0) {
+            this.rows[parentNodeIndex] = this.options.rowRenderer(parentNode);
         }
 
         { // Update open nodes and lookup table
@@ -611,17 +624,6 @@ class InfiniteTree extends events.EventEmitter {
             nodes.forEach((node) => {
                 this.tbl.unset(node.id);
             });
-        }
-
-        if (nodeIndex >= 0) {
-            // Update nodes & rows
-            this.nodes.splice(nodeIndex, node.state.total + 1);
-            this.rows.splice(nodeIndex, node.state.total + 1);
-        }
-
-        // Update the row corresponding to the parent node
-        if (parentNodeIndex >= 0) {
-            this.rows[parentNodeIndex] = this.options.rowRenderer(parentNode);
         }
 
         // Updates list with new data
