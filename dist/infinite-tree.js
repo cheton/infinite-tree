@@ -2308,7 +2308,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var evt = document.createEvent('Event');
 	    evt.initEvent(eventType, true, true); // can bubble, and is cancellable
 	    el.dispatchEvent(evt);
-	    console.log('dispatchEvent', el, eventType);
 	};
 
 	// https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener#Compatibility
