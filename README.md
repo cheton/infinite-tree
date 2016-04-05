@@ -49,6 +49,8 @@ tree.on('selectNode', (node) => {
 });
 tree.on('scrollProgress', (progress) => {
 });
+tree.on('drop', (node, e) => {
+});
 ```
 
 ## API Documentation
