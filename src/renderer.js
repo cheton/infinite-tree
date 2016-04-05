@@ -1,4 +1,4 @@
-import { buildHTML, classNames, quoteattr } from './utils';
+import { buildHTML, classNames, quoteattr } from './helper';
 
 const defaultRowRenderer = (node) => {
     const { id, label, children, state } = node;
@@ -16,15 +16,10 @@ const defaultRowRenderer = (node) => {
     const toggler = buildHTML('a', togglerContent, {
         'class': (() => {
             if (more && open) {
-                return classNames(
-                    'tree-toggler'
-                );
+                return classNames('tree-toggler');
             }
             if (more && !open) {
-                return classNames(
-                    'tree-toggler',
-                    'tree-closed'
-                );
+                return classNames('tree-toggler', 'tree-closed');
             }
             return '';
         })()
@@ -36,7 +31,8 @@ const defaultRowRenderer = (node) => {
         'class': 'tree-node',
         'style': 'margin-left: ' + depth * 18 + 'px'
     });
-    const treeItem = buildHTML('div', treeNode, {
+
+    return buildHTML('div', treeNode, {
         'aria-id': id,
         'aria-expanded': more && open,
         'aria-depth': depth,
@@ -47,10 +43,9 @@ const defaultRowRenderer = (node) => {
         'class': classNames(
             'tree-item',
             { 'tree-selected': selected }
-        )
+        ),
+        'droppable': true
     });
-
-    return treeItem;
 };
 
 // IE8 compatibility output

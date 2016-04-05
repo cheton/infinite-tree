@@ -3,8 +3,15 @@ import Clusterize from 'clusterize.js';
 import { flatten, Node } from 'flattree';
 import LookupTable from './lookup-table';
 import { defaultRowRenderer } from './renderer';
-import { stopPropagation, addEventListener, removeEventListener } from './polyfill';
-import { classNames } from './utils';
+import {
+    preventDefault,
+    stopPropagation,
+    addEventListener,
+    removeEventListener,
+    classNames,
+    addClass,
+    removeClass
+} from './helper';
 
 const ensureNodeInstance = (node) => {
     if (!(node instanceof Node)) {
@@ -49,35 +56,104 @@ class InfiniteTree extends events.EventEmitter {
     rows = [];
     scrollElement = null;
     contentElement = null;
+    dragoverElement = null;
 
-    contentListener = (evt) => {
-        let { target, currentTarget } = evt;
+    contentListener = {
+        'click': (e) => {
+            const { target, currentTarget } = e;
 
-        stopPropagation(evt);
+            stopPropagation(e);
 
-        if (target !== currentTarget) {
-            let itemTarget = target;
-            let handleToggler = false;
+            if (target !== currentTarget) {
+                let itemTarget = target;
+                let handleToggler = false;
 
-            while (itemTarget && itemTarget.parentElement !== currentTarget) {
-                if (itemTarget.className.indexOf('tree-toggler') >= 0) {
-                    handleToggler = true;
+                while (itemTarget && itemTarget.parentElement !== currentTarget) {
+                    if (itemTarget.className.indexOf('tree-toggler') >= 0) {
+                        handleToggler = true;
+                    }
+                    itemTarget = itemTarget.parentElement;
                 }
-                itemTarget = itemTarget.parentElement;
+
+                const id = itemTarget.getAttribute('aria-id');
+                const node = this.getNodeById(id);
+
+                if (!node) {
+                    return;
+                }
+
+                // Click on the toggler to open/close a tree node
+                if (handleToggler) {
+                    this.toggleNode(node);
+                } else {
+                    this.selectNode(node);
+                }
             }
+        },
+        'dragenter': (e) => {
+            const { target, currentTarget } = e;
 
-            const id = itemTarget.getAttribute('aria-id');
-            const node = this.getNodeById(id);
+            if (target !== currentTarget) {
+                let itemTarget = target;
+                while (itemTarget && itemTarget.parentElement !== currentTarget) {
+                    itemTarget = itemTarget.parentElement;
+                }
 
-            if (!node) {
-                return;
+                if (!(itemTarget.hasAttribute('droppable'))) {
+                    return;
+                }
+
+                const canDrop = !(itemTarget.getAttribute('droppable').match(/false/i));
+                if (canDrop) {
+                    addClass(itemTarget, 'highlight');
+                    this.dragoverElement = itemTarget;
+                }
             }
+        },
+        'dragleave': (e) => {
+            const { target, currentTarget } = e;
 
-            // Click on the toggler to open/close a tree node
-            if (handleToggler) {
-                this.toggleNode(node);
-            } else {
-                this.selectNode(node);
+            if (target !== currentTarget) {
+                let itemTarget = target;
+                while (itemTarget && itemTarget.parentElement !== currentTarget) {
+                    itemTarget = itemTarget.parentElement;
+                }
+
+                if (this.dragoverElement !== itemTarget) {
+                    removeClass(itemTarget, 'highlight');
+                    this.dragoverElement = null;
+                }
+            }
+        },
+        'dragover': (e) => {
+            preventDefault(e);
+            e.dataTransfer.dropEffect = 'move';
+            return false;
+        },
+        'drop': (e) => {
+            const { target, currentTarget } = e;
+
+            // Call preventDefault() to prevent the browser default handling of the data
+            // (default is open as link on drop)
+            preventDefault(e);
+
+            if (target !== currentTarget) {
+                let itemTarget = target;
+                while (itemTarget && itemTarget.parentElement !== currentTarget) {
+                    itemTarget = itemTarget.parentElement;
+                }
+
+                if (!(itemTarget.hasAttribute('droppable'))) {
+                    return;
+                }
+
+                removeClass(itemTarget, 'highlight');
+                this.dragoverElement = null;
+
+                const id = itemTarget.getAttribute('aria-id');
+                const node = this.getNodeById(id);
+
+                this.emit('drop', node, e);
             }
         }
     };
@@ -143,10 +219,18 @@ class InfiniteTree extends events.EventEmitter {
         this.scrollElement = scrollElement;
         this.contentElement = contentElement;
 
-        addEventListener(this.contentElement, 'click', this.contentListener);
+        addEventListener(this.contentElement, 'click', this.contentListener.click);
+        addEventListener(this.contentElement, 'dragenter', this.contentListener.dragenter);
+        addEventListener(this.contentElement, 'dragleave', this.contentListener.dragleave);
+        addEventListener(this.contentElement, 'dragover', this.contentListener.dragover);
+        addEventListener(this.contentElement, 'drop', this.contentListener.drop);
     }
     destroy() {
         removeEventListener(this.contentElement, 'click', this.contentListener);
+        removeEventListener(this.contentElement, 'dragenter', this.contentListener.dragenter);
+        removeEventListener(this.contentElement, 'dragleave', this.contentListener.dragleave);
+        removeEventListener(this.contentElement, 'dragover', this.contentListener.dragover);
+        removeEventListener(this.contentElement, 'drop', this.contentListener.drop);
 
         this.clear();
 
