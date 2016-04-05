@@ -16,6 +16,10 @@
 .infinite-tree-content .tree-item:hover {
   background: #f2fdff;
 }
+.infinite-tree-content .tree-item.highlight {
+  border: 1px dotted #ccc;
+  background-color: #f5f6f7;
+}
 .infinite-tree-content .tree-node {
   position: relative;
 }

@@ -1,4 +1,4 @@
-/*! infinite-tree v0.4.0 | (c) 2016 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
+/*! infinite-tree v0.5.0 | (c) 2016 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -77,9 +77,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _renderer = __webpack_require__(8);
 
-	var _polyfill = __webpack_require__(10);
-
-	var _utils = __webpack_require__(9);
+	var _helper = __webpack_require__(9);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -149,41 +147,114 @@ return /******/ (function(modules) { // webpackBootstrap
 	        _this.rows = [];
 	        _this.scrollElement = null;
 	        _this.contentElement = null;
+	        _this.dragoverElement = null;
+	        _this.contentListener = {
+	            'click': function click(e) {
+	                var target = e.target;
+	                var currentTarget = e.currentTarget;
 
-	        _this.contentListener = function (evt) {
-	            var target = evt.target;
-	            var currentTarget = evt.currentTarget;
 
+	                (0, _helper.stopPropagation)(e);
 
-	            (0, _polyfill.stopPropagation)(evt);
+	                if (target !== currentTarget) {
+	                    var itemTarget = target;
+	                    var handleToggler = false;
 
-	            if (target !== currentTarget) {
-	                var itemTarget = target;
-	                var handleToggler = false;
-
-	                while (itemTarget && itemTarget.parentElement !== currentTarget) {
-	                    if (itemTarget.className.indexOf('tree-toggler') >= 0) {
-	                        handleToggler = true;
+	                    while (itemTarget && itemTarget.parentElement !== currentTarget) {
+	                        if (itemTarget.className.indexOf('tree-toggler') >= 0) {
+	                            handleToggler = true;
+	                        }
+	                        itemTarget = itemTarget.parentElement;
 	                    }
-	                    itemTarget = itemTarget.parentElement;
+
+	                    var id = itemTarget.getAttribute('aria-id');
+	                    var node = _this.getNodeById(id);
+
+	                    if (!node) {
+	                        return;
+	                    }
+
+	                    // Click on the toggler to open/close a tree node
+	                    if (handleToggler) {
+	                        _this.toggleNode(node);
+	                    } else {
+	                        _this.selectNode(node);
+	                    }
 	                }
+	            },
+	            'dragenter': function dragenter(e) {
+	                var target = e.target;
+	                var currentTarget = e.currentTarget;
 
-	                var id = itemTarget.getAttribute('aria-id');
-	                var node = _this.getNodeById(id);
 
-	                if (!node) {
-	                    return;
+	                if (target !== currentTarget) {
+	                    var itemTarget = target;
+	                    while (itemTarget && itemTarget.parentElement !== currentTarget) {
+	                        itemTarget = itemTarget.parentElement;
+	                    }
+
+	                    if (!itemTarget.hasAttribute('droppable')) {
+	                        return;
+	                    }
+
+	                    var canDrop = !itemTarget.getAttribute('droppable').match(/false/i);
+	                    if (canDrop) {
+	                        (0, _helper.addClass)(itemTarget, 'highlight');
+	                        _this.dragoverElement = itemTarget;
+	                    }
 	                }
+	            },
+	            'dragleave': function dragleave(e) {
+	                var target = e.target;
+	                var currentTarget = e.currentTarget;
 
-	                // Click on the toggler to open/close a tree node
-	                if (handleToggler) {
-	                    _this.toggleNode(node);
-	                } else {
-	                    _this.selectNode(node);
+
+	                if (target !== currentTarget) {
+	                    var itemTarget = target;
+	                    while (itemTarget && itemTarget.parentElement !== currentTarget) {
+	                        itemTarget = itemTarget.parentElement;
+	                    }
+
+	                    if (_this.dragoverElement !== itemTarget) {
+	                        (0, _helper.removeClass)(itemTarget, 'highlight');
+	                        _this.dragoverElement = null;
+	                    }
+	                }
+	            },
+	            'dragover': function dragover(e) {
+	                (0, _helper.preventDefault)(e);
+	                e.dataTransfer.dropEffect = 'move';
+	                return false;
+	            },
+	            'drop': function drop(e) {
+	                var target = e.target;
+	                var currentTarget = e.currentTarget;
+
+	                // Call preventDefault() to prevent the browser default handling of the data
+	                // (default is open as link on drop)
+
+	                (0, _helper.preventDefault)(e);
+
+	                if (target !== currentTarget) {
+	                    var itemTarget = target;
+	                    while (itemTarget && itemTarget.parentElement !== currentTarget) {
+	                        itemTarget = itemTarget.parentElement;
+	                    }
+
+	                    if (!itemTarget.hasAttribute('droppable')) {
+	                        return;
+	                    }
+
+	                    (0, _helper.removeClass)(itemTarget, 'highlight');
+	                    _this.dragoverElement = null;
+
+	                    var id = itemTarget.getAttribute('aria-id');
+	                    var node = _this.getNodeById(id);
+
+	                    _this.emit('drop', node, e);
 	                }
 	            }
 	        };
-
 	        _this.options = extend({}, _this.options, options);
 
 	        if (!_this.options.el) {
@@ -210,9 +281,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	            }
 
 	            var scrollElement = document.createElement('div');
-	            scrollElement.className = (0, _utils.classNames)('infinite-tree', 'infinite-tree-scroll');
+	            scrollElement.className = (0, _helper.classNames)('infinite-tree', 'infinite-tree-scroll');
 	            var contentElement = document.createElement('div');
-	            contentElement.className = (0, _utils.classNames)('infinite-tree', 'infinite-tree-content');
+	            contentElement.className = (0, _helper.classNames)('infinite-tree', 'infinite-tree-content');
 
 	            scrollElement.appendChild(contentElement);
 	            this.options.el.appendChild(scrollElement);
@@ -238,12 +309,20 @@ return /******/ (function(modules) { // webpackBootstrap
 	            this.scrollElement = scrollElement;
 	            this.contentElement = contentElement;
 
-	            (0, _polyfill.addEventListener)(this.contentElement, 'click', this.contentListener);
+	            (0, _helper.addEventListener)(this.contentElement, 'click', this.contentListener.click);
+	            (0, _helper.addEventListener)(this.contentElement, 'dragenter', this.contentListener.dragenter);
+	            (0, _helper.addEventListener)(this.contentElement, 'dragleave', this.contentListener.dragleave);
+	            (0, _helper.addEventListener)(this.contentElement, 'dragover', this.contentListener.dragover);
+	            (0, _helper.addEventListener)(this.contentElement, 'drop', this.contentListener.drop);
 	        }
 	    }, {
 	        key: 'destroy',
 	        value: function destroy() {
-	            (0, _polyfill.removeEventListener)(this.contentElement, 'click', this.contentListener);
+	            (0, _helper.removeEventListener)(this.contentElement, 'click', this.contentListener);
+	            (0, _helper.removeEventListener)(this.contentElement, 'dragenter', this.contentListener.dragenter);
+	            (0, _helper.removeEventListener)(this.contentElement, 'dragleave', this.contentListener.dragleave);
+	            (0, _helper.removeEventListener)(this.contentElement, 'dragover', this.contentListener.dragover);
+	            (0, _helper.removeEventListener)(this.contentElement, 'drop', this.contentListener.drop);
 
 	            this.clear();
 
@@ -2139,7 +2218,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	'use strict';
 
-	var _utils = __webpack_require__(9);
+	var _helper = __webpack_require__(9);
 
 	var defaultRowRenderer = function defaultRowRenderer(node) {
 	    var id = node.id;
@@ -2163,25 +2242,26 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (more && !open) {
 	        togglerContent = '►';
 	    }
-	    var toggler = (0, _utils.buildHTML)('a', togglerContent, {
+	    var toggler = (0, _helper.buildHTML)('a', togglerContent, {
 	        'class': function () {
 	            if (more && open) {
-	                return (0, _utils.classNames)('tree-toggler');
+	                return (0, _helper.classNames)('tree-toggler');
 	            }
 	            if (more && !open) {
-	                return (0, _utils.classNames)('tree-toggler', 'tree-closed');
+	                return (0, _helper.classNames)('tree-toggler', 'tree-closed');
 	            }
 	            return '';
 	        }()
 	    });
-	    var title = (0, _utils.buildHTML)('span', (0, _utils.quoteattr)(label), {
-	        'class': (0, _utils.classNames)('tree-title')
+	    var title = (0, _helper.buildHTML)('span', (0, _helper.quoteattr)(label), {
+	        'class': (0, _helper.classNames)('tree-title')
 	    });
-	    var treeNode = (0, _utils.buildHTML)('div', toggler + title, {
+	    var treeNode = (0, _helper.buildHTML)('div', toggler + title, {
 	        'class': 'tree-node',
 	        'style': 'margin-left: ' + depth * 18 + 'px'
 	    });
-	    var treeItem = (0, _utils.buildHTML)('div', treeNode, {
+
+	    return (0, _helper.buildHTML)('div', treeNode, {
 	        'aria-id': id,
 	        'aria-expanded': more && open,
 	        'aria-depth': depth,
@@ -2189,10 +2269,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	        'aria-selected': selected,
 	        'aria-children': childrenLength,
 	        'aria-total': total,
-	        'class': (0, _utils.classNames)('tree-item', { 'tree-selected': selected })
+	        'class': (0, _helper.classNames)('tree-item', { 'tree-selected': selected }),
+	        'droppable': true
 	    });
-
-	    return treeItem;
 	};
 
 	// IE8 compatibility output
@@ -2207,6 +2286,135 @@ return /******/ (function(modules) { // webpackBootstrap
 	'use strict';
 
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
+	var preventDefault = function preventDefault(e) {
+	    if (typeof e.preventDefault !== 'undefined') {
+	        e.preventDefault();
+	    } else {
+	        e.returnValue = false;
+	    }
+	};
+
+	var stopPropagation = function stopPropagation(e) {
+	    if (typeof e.stopPropagation !== 'undefined') {
+	        e.stopPropagation();
+	    } else {
+	        e.cancelBubble = true;
+	    }
+	};
+
+	// http://blog.garstasio.com/you-dont-need-jquery/events/#sending-custom-events
+	var dispatchEvent = function dispatchEvent(el, eventType) {
+	    var evt = document.createEvent('Event');
+	    evt.initEvent(eventType, true, true); // can bubble, and is cancellable
+	    el.dispatchEvent(evt);
+	    console.log('dispatchEvent', el, eventType);
+	};
+
+	// https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener#Compatibility
+	var addEventListener = function addEventListener(target, type, listener) {
+	    if (target.addEventListener) {
+	        // Standard
+	        target.addEventListener(type, listener, false);
+	    } else if (target.attachEvent) {
+	        // IE8
+	        // In Internet Explorer versions before IE 9, you have to use attachEvent rather than the standard addEventListener.
+	        target.attachEvent('on' + type, listener);
+	    }
+	};
+
+	// https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/removeEventListener
+	var removeEventListener = function removeEventListener(target, type, listener) {
+	    if (target.removeEventListener) {
+	        // Standard
+	        target.removeEventListener(type, listener, false);
+	    } else if (target.detachEvent) {
+	        // IE8
+	        // In Internet Explorer versions before IE 9, you have to use detachEvent rather than the standard removeEventListener.
+	        target.detachEvent('on' + type, listener);
+	    }
+	};
+
+	var hasClass = function hasClass(el, className) {
+	    if (!el) {
+	        return false;
+	    }
+	    var classes = el.className.split(' ');
+	    return classes.indexOf(className) >= 0;
+	};
+
+	var addClass = function addClass(el, className) {
+	    if (!el) {
+	        return '';
+	    }
+	    if (!hasClass(el, className)) {
+	        var classes = el.className.split(' ');
+	        el.className = classes.concat(className).join(' ');
+	    }
+	    return el.className;
+	};
+
+	var removeClass = function removeClass(el, className) {
+	    if (!el) {
+	        return '';
+	    }
+	    if (hasClass(el, className)) {
+	        var classes = el.className.split(' ');
+	        el.className = classes.filter(function (c) {
+	            return c !== className;
+	        }).join(' ');
+	    }
+	    return el.className;
+	};
+
+	var toggleClass = function toggleClass(el, className) {
+	    if (!el) {
+	        return;
+	    }
+	    if (hasClass(el, className)) {
+	        removeClass(el, className);
+	    } else {
+	        addClass(el, className);
+	    }
+	};
+
+	var classNames = function classNames() {
+	    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+	        args[_key] = arguments[_key];
+	    }
+
+	    var classNames = [];
+	    args.forEach(function (arg) {
+	        if (Array.isArray(arg)) {
+	            classNames = classNames.concat(arg);
+	        } else if ((typeof arg === 'undefined' ? 'undefined' : _typeof(arg)) === 'object') {
+	            Object.keys(arg).forEach(function (className) {
+	                var ok = arg[className];
+	                if (!!ok) {
+	                    classNames.push(className);
+	                }
+	            });
+	        } else {
+	            classNames.push(arg);
+	        }
+	    });
+	    return classNames.join(' ');
+	};
+
+	var quoteattr = function quoteattr(s, preserveCR) {
+	    preserveCR = preserveCR ? '&#13;' : '\n';
+	    return ('' + s). /* Forces the conversion to string. */
+	    replace(/&/g, '&amp;') /* This MUST be the 1st replacement. */
+	    .replace(/'/g, '&apos;') /* The 4 other predefined entities, required. */
+	    .replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+	    /*
+	     * You may add other replacements here for HTML only
+	     * (but it's not necessary).
+	     * Or for XML, only if the named entities are defined in its DTD.
+	     */
+	    .replace(/\r\n/g, preserveCR) /* Must be before the next replacement. */
+	    .replace(/[\r\n]/g, preserveCR);
+	};
 
 	/**
 	 * Example #1:
@@ -2266,106 +2474,20 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return h;
 	};
 
-	var classNames = function classNames() {
-	    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-	        args[_key] = arguments[_key];
-	    }
-
-	    var classNames = [];
-	    args.forEach(function (arg) {
-	        if (Array.isArray(arg)) {
-	            classNames = classNames.concat(arg);
-	        } else if ((typeof arg === 'undefined' ? 'undefined' : _typeof(arg)) === 'object') {
-	            Object.keys(arg).forEach(function (className) {
-	                var ok = arg[className];
-	                if (!!ok) {
-	                    classNames.push(className);
-	                }
-	            });
-	        } else {
-	            classNames.push(arg);
-	        }
-	    });
-	    return classNames.join(' ');
-	};
-
-	/**
-	 * The quoteattr() function is used in a context, where the result will not be evaluated by javascript but must be interpreted by an XML or HTML parser, and it must absolutely avoid breaking the syntax of an element attribute.
-	 */
-	var quoteattr = function quoteattr(s, preserveCR) {
-	    preserveCR = preserveCR ? '&#13;' : '\n';
-	    return ('' + s). /* Forces the conversion to string. */
-	    replace(/&/g, '&amp;') /* This MUST be the 1st replacement. */
-	    .replace(/'/g, '&apos;') /* The 4 other predefined entities, required. */
-	    .replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-	    /*
-	     * You may add other replacements here for HTML only
-	     * (but it's not necessary).
-	     * Or for XML, only if the named entities are defined in its DTD.
-	     */
-	    .replace(/\r\n/g, preserveCR) /* Must be before the next replacement. */
-	    .replace(/[\r\n]/g, preserveCR);
-	};
-
-	// IE8 compatibility output
-	module.exports = {
-	    buildHTML: buildHTML,
-	    classNames: classNames,
-	    quoteattr: quoteattr
-	};
-
-/***/ },
-/* 10 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	var preventDefault = function preventDefault(e) {
-	    if (typeof e.preventDefault !== 'undefined') {
-	        e.preventDefault();
-	    } else {
-	        e.returnValue = false;
-	    }
-	};
-
-	var stopPropagation = function stopPropagation(e) {
-	    if (typeof e.stopPropagation !== 'undefined') {
-	        e.stopPropagation();
-	    } else {
-	        e.cancelBubble = true;
-	    }
-	};
-
-	// https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener#Compatibility
-	var addEventListener = function addEventListener(target, type, listener) {
-	    if (target.addEventListener) {
-	        // Standard
-	        target.addEventListener(type, listener, false);
-	    } else if (target.attachEvent) {
-	        // IE8
-	        // In Internet Explorer versions before IE 9, you have to use attachEvent rather than the standard addEventListener.
-	        target.attachEvent('on' + type, listener);
-	    }
-	};
-
-	// https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/removeEventListener
-	var removeEventListener = function removeEventListener(target, type, listener) {
-	    if (target.removeEventListener) {
-	        // Standard
-	        target.removeEventListener(type, listener, false);
-	    } else if (target.detachEvent) {
-	        // IE8
-	        // In Internet Explorer versions before IE 9, you have to use detachEvent rather than the standard removeEventListener.
-	        target.detachEvent('on' + type, listener);
-	    }
-	};
-
 	// IE8 compatibility output
 	module.exports = {
 	    preventDefault: preventDefault,
 	    stopPropagation: stopPropagation,
+	    dispatchEvent: dispatchEvent,
 	    addEventListener: addEventListener,
-	    removeEventListener: removeEventListener
+	    removeEventListener: removeEventListener,
+	    hasClass: hasClass,
+	    addClass: addClass,
+	    removeClass: removeClass,
+	    toggleClass: toggleClass,
+	    classNames: classNames,
+	    quoteattr: quoteattr,
+	    buildHTML: buildHTML
 	};
 
 /***/ }
