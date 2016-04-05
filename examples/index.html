@@ -57,6 +57,21 @@ html, body {
     text-align: center;
     border-radius: 2px;
 }
+#draggable-element {
+    font-size: 16px;
+    cursor: move;
+    line-height: 40px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    text-align: center;
+}
+#draggable-element:hover {
+    background-color: #f5f6f7;
+}
+#dropped-result {
+    font-size: 16px;
+    line-height: 42px;
+}
 </style>
 <meta name="viewport" content="width=device-width">
 <!--[if lt IE 9]>
@@ -65,19 +80,35 @@ html, body {
 </head>
 <body>
 <div class="container">
-    <div class="row">
-        <div class="col-sm-12 text-center" style="margin-top: 2em">
-            <div class="jumbotron">
-                <div class="row">
-                    <h1>infinite-tree</h1>
+    <div class="row text-center" style="margin: 2em 0;">
+        <div class="col-sm-12" style="margin-bottom: 1em;">
+            <h1>infinite-tree</h1>
+            <h3>A browser-ready tree library that can efficiently display a large tree with smooth scrolling.</h3>
+        </div>
+        <div class="col-sm-12">
+            <button class="btn btn-primary btn-lg" href="https://github.com/cheton/infinite-tree" role="button">View on GitHub</button>
+        </div>
+    </div>
+    <div class="row" style="margin-bottom: 10px;">
+        <div class="col-sm-6">
+            <div class="row">
+                <div class="col-sm-4">
+                    <div draggable="true" id="draggable-element">Drag me!</div>
                 </div>
-                <div class="row" style="margin-bottom: 15px">
-                    <h3>A browser-ready tree library that can efficiently display a large tree with smooth scrolling.</h3>
-                </div>
-                <div class="row">
-                    <a class="btn btn-primary btn-lg" href="https://github.com/cheton/infinite-tree" role="button">View on GitHub</a>
+                <div class="col-sm-8">
+                    <div id="dropped-result"></div>
                 </div>
             </div>
+        </div>
+        <div class="col-sm-6">
+        </div>
+    </div>
+    <div class="row" style="margin-bottom: 5px;">
+        <div class="col-sm-6">
+            <div id="tree"></div>
+        </div>
+        <div class="col-sm-6">
+            <div id="preview"></div>
         </div>
     </div>
     <div class="row">
@@ -85,16 +116,6 @@ html, body {
             <div class="progress">
                 <div class="progress-bar" role="progressbar" id="scrolling-progress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
             </div>
-        </div>
-        <div class="col-sm-6">
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-sm-6">
-            <div id="tree"></div>
-        </div>
-        <div class="col-sm-6">
-            <div id="preview"></div>
         </div>
     </div>
 </div>

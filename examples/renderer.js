@@ -1,7 +1,8 @@
-import { buildHTML, classNames, quoteattr } from '../src/utils';
+import { buildHTML, classNames, quoteattr } from '../src/helper';
 
 const rowRenderer = (node) => {
-    const { id, label, children, state } = node;
+    const { id, label, children, state, props } = node;
+    const { droppable = false } = props;
     const { depth, open, path, total, selected = false } = state;
     const childrenLength = Object.keys(children).length;
     const more = node.hasChildren();
@@ -10,23 +11,22 @@ const rowRenderer = (node) => {
     if (more) {
         let togglerContent = '';
         if (open) {
-            togglerContent = '<i class="glyphicon glyphicon-triangle-bottom"></i>';
+            togglerContent = buildHTML('i', '', {
+                'class': classNames('glyphicon', 'glyphicon-triangle-bottom')
+            });
         }
         if (!open) {
-            togglerContent = '<i class="glyphicon glyphicon-triangle-right"></i>';
+            togglerContent = buildHTML('i', '', {
+                'class': classNames('glyphicon', 'glyphicon-triangle-right')
+            });
         }
         toggler = buildHTML('a', togglerContent, {
             'class': (() => {
                 if (more && open) {
-                    return classNames(
-                        'tree-toggler'
-                    );
+                    return classNames('tree-toggler');
                 }
                 if (more && !open) {
-                    return classNames(
-                        'tree-toggler',
-                        'tree-closed'
-                    );
+                    return classNames('tree-toggler', 'tree-closed');
                 }
                 return '';
             })()
@@ -52,7 +52,8 @@ const rowRenderer = (node) => {
         'class': 'tree-node',
         'style': 'margin-left: ' + depth * 18 + 'px'
     });
-    const treeItem = buildHTML('div', treeNode, {
+
+    let treeNodeAttributes = {
         'aria-id': id,
         'aria-expanded': more && open,
         'aria-depth': depth,
@@ -64,9 +65,12 @@ const rowRenderer = (node) => {
             'tree-item',
             { 'tree-selected': selected }
         )
-    });
+    };
+    if (droppable) {
+        treeNodeAttributes['droppable'] = true;
+    }
 
-    return treeItem;
+    return buildHTML('div', treeNode, treeNodeAttributes);
 };
 
 export default rowRenderer;
