@@ -1,11 +1,25 @@
 # infinite-tree [![build status](https://travis-ci.org/cheton/infinite-tree.svg?branch=master)](https://travis-ci.org/cheton/infinite-tree) [![Coverage Status](https://coveralls.io/repos/cheton/infinite-tree/badge.svg)](https://coveralls.io/r/cheton/infinite-tree)
 [![NPM](https://nodei.co/npm/infinite-tree.png?downloads=true&stars=true)](https://nodei.co/npm/infinite-tree/)
 
-A browser-ready tree library that can efficiently display a large tree with smooth scrolling. Powered by [FlatTree](https://github.com/cheton/flattree) and [Clusterize.js](https://github.com/NeXTs/Clusterize.js).
+A browser-ready tree library that can efficiently display a large tree with smooth scrolling.
 
-View [demo](http://cheton.github.io/infinite-tree) at http://cheton.github.io/infinite-tree.
+Powered by [FlatTree](https://github.com/cheton/flattree) and [Clusterize.js](https://github.com/NeXTs/Clusterize.js).
+
+Demo: http://cheton.github.io/infinite-tree
+
+## Features
+* Supported browsers: Chrome, Firefox, Safari, Microsoft Edge, IE8 with  [es5-shim](https://github.com/es-shims/es5-shim#example-of-applying-es-compatability-shims-in-a-browser-project) polyfill, IE9, IE10, and IE11. 
+* Customizable renderer to render the tree in any form
+* High performance infinite scroll with large data set
+* Native HTML5 drag and drop API
+* A rich set of [APIs](https://github.com/cheton/infinite-tree#api-documentation)
+* No jQuery
+
 
 [![infinite-tree](https://raw.githubusercontent.com/cheton/infinite-tree/master/media/infinite-tree.gif)](http://cheton.github.io/infinite-tree)
+
+## Notice
+<i>The project is under heavy development and a lot of things are changing. Stay tuned for further updates.</i>
 
 ## Installation
 ```bash
