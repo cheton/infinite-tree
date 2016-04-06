@@ -7,6 +7,8 @@ Powered by [FlatTree](https://github.com/cheton/flattree) and [Clusterize.js](ht
 
 Demo: http://cheton.github.io/infinite-tree
 
+[![infinite-tree](https://raw.githubusercontent.com/cheton/infinite-tree/master/media/infinite-tree.gif)](http://cheton.github.io/infinite-tree)
+
 ## Features
 * Supported browsers: Chrome, Firefox, Safari, Microsoft Edge, IE8 with  [es5-shim](https://github.com/es-shims/es5-shim#example-of-applying-es-compatability-shims-in-a-browser-project) polyfill, IE9, IE10, and IE11. 
 * Customizable renderer to render the tree in any form
@@ -14,9 +16,6 @@ Demo: http://cheton.github.io/infinite-tree
 * Native HTML5 drag and drop API
 * A rich set of [APIs](https://github.com/cheton/infinite-tree#api-documentation)
 * No jQuery
-
-
-[![infinite-tree](https://raw.githubusercontent.com/cheton/infinite-tree/master/media/infinite-tree.gif)](http://cheton.github.io/infinite-tree)
 
 ## Notice
 <i>The project is under heavy development and a lot of things are changing. Stay tuned for further updates.</i>
