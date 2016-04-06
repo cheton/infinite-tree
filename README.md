@@ -80,3 +80,9 @@ tree.on('scrollProgress', function(progress) {
 * [Functions: Tree](https://github.com/cheton/infinite-tree/wiki/Functions:-Tree)
 * [Functions: Node](https://github.com/cheton/infinite-tree/wiki/Functions:-Node)
 * [Events](https://github.com/cheton/infinite-tree/wiki/Events)
+
+## License
+
+Copyright (c) 2016 Cheton Wu
+
+Licensed under the [MIT License](LICENSE).

@@ -89,7 +89,7 @@ class InfiniteTree extends events.EventEmitter {
                     this.toggleNode(node);
                     return;
                 }
-                
+
                 if (this.options.selectable) {
                     this.selectNode(node);
                     return;

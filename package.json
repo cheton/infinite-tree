@@ -5,8 +5,9 @@
   "homepage": "https://github.com/cheton/infinite-tree",
   "main": "lib/index.js",
   "scripts": {
-    "prepublish": "npm run lint && npm test && npm run build && npm run dist && npm run stylus && npm run release",
+    "prepublish": "npm run lint && npm test && npm run build && npm run dist && npm run stylus && npm run build-examples && npm run release",
     "build": "babel ./src --out-dir ./lib",
+    "build-examples": "cd examples; webpack",
     "test": "./babel-tap --coverage test/*.js",
     "dist": "webpack; BUILD_ENV=dist webpack",
     "release": "mkdir -p releases; cp -f dist/infinite-tree.css releases/infinite-tree-${npm_package_version}.css; cp -f dist/infinite-tree.js releases/infinite-tree-${npm_package_version}.js; cp -f dist/infinite-tree.min.js releases/infinite-tree-${npm_package_version}.min.js",

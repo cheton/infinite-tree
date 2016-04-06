@@ -1,4 +1,4 @@
-/*! infinite-tree v0.5.0 | (c) 2016 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
+/*! infinite-tree v0.6.0 | (c) 2016 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -133,8 +133,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        _this.options = {
 	            autoOpen: false,
+	            droppable: false,
 	            el: null,
-	            rowRenderer: _renderer.defaultRowRenderer
+	            rowRenderer: _renderer.defaultRowRenderer,
+	            selectable: true
 	        };
 	        _this.state = {
 	            openNodes: [],
@@ -177,8 +179,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    // Click on the toggler to open/close a tree node
 	                    if (handleToggler) {
 	                        _this.toggleNode(node);
-	                    } else {
+	                        return;
+	                    }
+
+	                    if (_this.options.selectable) {
 	                        _this.selectNode(node);
+	                        return;
 	                    }
 	                }
 	            },
@@ -193,9 +199,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	                        itemTarget = itemTarget.parentElement;
 	                    }
 
-	                    // Remove existing dragover element
+	                    // Remove highlight class
 	                    if (_this.dragoverElement !== null) {
-	                        (0, _helper.removeClass)(itemTarget, 'highlight');
+	                        (0, _helper.removeClass)(_this.dragoverElement, 'highlight');
 	                        _this.dragoverElement = null;
 	                    }
 
@@ -221,6 +227,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                        itemTarget = itemTarget.parentElement;
 	                    }
 
+	                    // Remove highlight class
 	                    if (_this.dragoverElement !== itemTarget) {
 	                        (0, _helper.removeClass)(itemTarget, 'highlight');
 	                        _this.dragoverElement = null;
@@ -257,7 +264,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    var id = itemTarget.getAttribute('aria-id');
 	                    var node = _this.getNodeById(id);
 
-	                    _this.emit('drop', node, e);
+	                    _this.emit('dropNode', node, e);
 	                }
 	            }
 	        };
@@ -316,19 +323,23 @@ return /******/ (function(modules) { // webpackBootstrap
 	            this.contentElement = contentElement;
 
 	            (0, _helper.addEventListener)(this.contentElement, 'click', this.contentListener.click);
-	            (0, _helper.addEventListener)(this.contentElement, 'dragenter', this.contentListener.dragenter);
-	            (0, _helper.addEventListener)(this.contentElement, 'dragleave', this.contentListener.dragleave);
-	            (0, _helper.addEventListener)(this.contentElement, 'dragover', this.contentListener.dragover);
-	            (0, _helper.addEventListener)(this.contentElement, 'drop', this.contentListener.drop);
+	            if (this.options.droppable) {
+	                (0, _helper.addEventListener)(this.contentElement, 'dragenter', this.contentListener.dragenter);
+	                (0, _helper.addEventListener)(this.contentElement, 'dragleave', this.contentListener.dragleave);
+	                (0, _helper.addEventListener)(this.contentElement, 'dragover', this.contentListener.dragover);
+	                (0, _helper.addEventListener)(this.contentElement, 'drop', this.contentListener.drop);
+	            }
 	        }
 	    }, {
 	        key: 'destroy',
 	        value: function destroy() {
 	            (0, _helper.removeEventListener)(this.contentElement, 'click', this.contentListener);
-	            (0, _helper.removeEventListener)(this.contentElement, 'dragenter', this.contentListener.dragenter);
-	            (0, _helper.removeEventListener)(this.contentElement, 'dragleave', this.contentListener.dragleave);
-	            (0, _helper.removeEventListener)(this.contentElement, 'dragover', this.contentListener.dragover);
-	            (0, _helper.removeEventListener)(this.contentElement, 'drop', this.contentListener.drop);
+	            if (this.options.droppable) {
+	                (0, _helper.removeEventListener)(this.contentElement, 'dragenter', this.contentListener.dragenter);
+	                (0, _helper.removeEventListener)(this.contentElement, 'dragleave', this.contentListener.dragleave);
+	                (0, _helper.removeEventListener)(this.contentElement, 'dragover', this.contentListener.dragover);
+	                (0, _helper.removeEventListener)(this.contentElement, 'drop', this.contentListener.drop);
+	            }
 
 	            this.clear();
 
@@ -396,7 +407,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            newNode = parentNode.getChildAt(index);
 
 	            var rows = nodes.map(function (node) {
-	                return _this3.options.rowRenderer(node);
+	                return _this3.options.rowRenderer(node, _this3.options);
 	            });
 	            var parentOffset = this.nodes.indexOf(parentNode);
 
@@ -412,7 +423,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            });
 
 	            // Update the row corresponding to the parent node
-	            this.rows[parentOffset] = this.options.rowRenderer(parentNode);
+	            this.rows[parentOffset] = this.options.rowRenderer(parentNode, this.options);
 
 	            // Updates list with new data
 	            this.update();
@@ -505,7 +516,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            this.rows.splice(nodeIndex + 1, deleteCount);
 
 	            // Update the row corresponding to the node
-	            this.rows[nodeIndex] = this.options.rowRenderer(node);
+	            this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
 
 	            // Emit the 'closeNode' event
 	            this.emit('closeNode', node);
@@ -683,7 +694,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            // Update rows
 	            this.rows = this.nodes.map(function (node) {
-	                return _this4.options.rowRenderer(node);
+	                return _this4.options.rowRenderer(node, _this4.options);
 	            });
 
 	            // Updates list with new data
@@ -717,7 +728,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            var nodes = (0, _flattree.flatten)(node.children, { openNodes: this.state.openNodes });
 	            var rows = nodes.map(function (node) {
-	                return _this5.options.rowRenderer(node);
+	                return _this5.options.rowRenderer(node, _this5.options);
 	            });
 
 	            // Update nodes & rows
@@ -725,7 +736,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            this.rows.splice.apply(this.rows, [nodeIndex + 1, 0].concat(rows));
 
 	            // Update the row corresponding to the node
-	            this.rows[nodeIndex] = this.options.rowRenderer(node);
+	            this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
 
 	            // Add all child nodes to the lookup table if the first child does not exist in the lookup table
 	            if (nodes.length > 0 && !this.nodeTable.get(nodes[0])) {
@@ -795,7 +806,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                this.rows.splice(parentNodeIndex + 1, deleteCount);
 
 	                // Update the row corresponding to the parent node
-	                this.rows[parentNodeIndex] = this.options.rowRenderer(parentNode);
+	                this.rows[parentNodeIndex] = this.options.rowRenderer(parentNode, this.options);
 	            }
 
 	            {
@@ -879,7 +890,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            // Update the row corresponding to the parent node
 	            if (parentNodeIndex >= 0) {
-	                this.rows[parentNodeIndex] = this.options.rowRenderer(parentNode);
+	                this.rows[parentNodeIndex] = this.options.rowRenderer(parentNode, this.options);
 	            }
 
 	            {
@@ -948,6 +959,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	        value: function selectNode() {
 	            var node = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
 
+	            if (!this.options.selectable) {
+	                return false;
+	            }
+
 	            if (node === null) {
 	                // Deselect the current node
 	                if (this.state.selectedNode) {
@@ -955,7 +970,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    var selectedIndex = this.nodes.indexOf(selectedNode);
 
 	                    selectedNode.state.selected = false;
-	                    this.rows[selectedIndex] = this.options.rowRenderer(selectedNode);
+	                    this.rows[selectedIndex] = this.options.rowRenderer(selectedNode, this.options);
 	                    this.state.selectedNode = null;
 
 	                    // Emit the 'selectNode' event
@@ -983,7 +998,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                node.state.selected = true;
 
 	                // Update the row corresponding to the node
-	                this.rows[nodeIndex] = this.options.rowRenderer(node);
+	                this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
 	            }
 
 	            // Deselect the current node
@@ -991,7 +1006,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                var _selectedNode = this.state.selectedNode;
 	                var _selectedIndex = this.nodes.indexOf(_selectedNode);
 	                _selectedNode.state.selected = false;
-	                this.rows[_selectedIndex] = this.options.rowRenderer(_selectedNode);
+	                this.rows[_selectedIndex] = this.options.rowRenderer(_selectedNode, this.options);
 	            }
 
 	            if (this.state.selectedNode !== node) {
@@ -1108,7 +1123,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var nodeIndex = this.nodes.indexOf(node);
 	            if (nodeIndex >= 0) {
 	                // Update the row corresponding to the node
-	                this.rows[nodeIndex] = this.options.rowRenderer(node);
+	                this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
 
 	                // Updates list with new data
 	                this.update();
@@ -2226,7 +2241,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _helper = __webpack_require__(9);
 
-	var defaultRowRenderer = function defaultRowRenderer(node) {
+	var defaultRowRenderer = function defaultRowRenderer(node, treeOptions) {
 	    var id = node.id;
 	    var label = node.label;
 	    var children = node.children;
