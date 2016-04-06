@@ -43,7 +43,9 @@ var tree = new InfiniteTree({
     selectable: true // Defaults to true
 });
 
+//
 // Functions: Tree & Node
+//
 var node = tree.getNodeById('fruit');
 // → Node { id: 'fruit', ... }
 tree.selectNode(node);
@@ -55,7 +57,9 @@ console.log(node.getFirstChild().getNextSibling());
 console.log(node.getFirstChild().getPreviousSibling());
 // → null
 
+//
 // Events
+//
 tree.on('update', function() {
     console.log(tree.getSelectedNode());
 });
