@@ -1,7 +1,7 @@
 import InfiniteTree from '../src';
 import rowRenderer from './renderer';
 import '../src/index.styl';
-import { quoteattr } from '../src/helper';
+import { addEventListener, preventDefault, stopPropagation, quoteattr } from '../src/helper';
 
 const data = [];
 const source = '{"id":"<root>","label":"<root>","props":{"droppable":true},"children":[{"id":"alpha","label":"Alpha","props":{"droppable":true}},{"id":"bravo","label":"Bravo","props":{"droppable":true},"children":[{"id":"charlie","label":"Charlie","props":{"droppable":true},"children":[{"id":"delta","label":"Delta","props":{"droppable":true},"children":[{"id":"echo","label":"Echo","props":{"droppable":true}},{"id":"foxtrot","label":"Foxtrot","props":{"droppable":true}}]},{"id":"golf","label":"Golf","props":{"droppable":true}}]},{"id":"hotel","label":"Hotel","props":{"droppable":true},"children":[{"id":"india","label":"India","props":{"droppable":true},"children":[{"id":"juliet","label":"Juliet","props":{"droppable":true}}]}]},{"id":"kilo","label":"Kilo","props":{"droppable":true}}]}]}';
@@ -34,7 +34,7 @@ const updatePreview = (node) => {
 };
 
 tree.on('scrollProgress', (progress) => {
-    document.querySelector('#scrolling-progress').style = 'width: ' + progress + '%';
+    document.querySelector('#scrolling-progress').style.width = progress + '%';
 });
 tree.on('update', () => {
     const node = tree.getSelectedNode();
@@ -48,6 +48,7 @@ tree.on('closeNode', (node) => {
 });
 tree.on('dropNode', (node, e) => {
     const source = e.dataTransfer.getData('text');
+    console.log('Dragged an element ' + JSON.stringify(source) + ' and dropped to ' + JSON.stringify(node.label));
     document.querySelector('#dropped-result').innerHTML = 'Dropped to <b>' + quoteattr(node.label) + '</b>';
 });
 tree.on('selectNode', (node) => {
@@ -58,12 +59,22 @@ tree.loadData(data);
 
 // Draggable Element
 const draggableElement = document.querySelector('#draggable-element');
-draggableElement.addEventListener('dragstart', (e) => {
+
+// http://stackoverflow.com/questions/5500615/internet-explorer-9-drag-and-drop-dnd
+addEventListener(draggableElement, 'selectstart', (e) => {
+    preventDefault(e);
+    stopPropagation(e);
+    draggableElement.dragDrop();
+    return false;
+});
+
+addEventListener(draggableElement, 'dragstart', (e) => {
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text', e.target.id);
     document.querySelector('#dropped-result').innerHTML = '';
 });
-draggableElement.addEventListener('dragend', (e) => {
+
+addEventListener(draggableElement, 'dragend', function(e) {
 });
 
 window.tree = tree;
