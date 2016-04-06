@@ -1,8 +1,8 @@
 import { buildHTML, classNames, quoteattr } from '../src/helper';
 
-const rowRenderer = (node) => {
+const rowRenderer = (node, treeOptions) => {
     const { id, label, children, state, props } = node;
-    const { droppable = false } = props;
+    const droppable = (treeOptions.droppable) && (props.droppable);
     const { depth, open, path, total, selected = false } = state;
     const childrenLength = Object.keys(children).length;
     const more = node.hasChildren();

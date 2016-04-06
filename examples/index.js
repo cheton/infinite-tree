@@ -12,6 +12,7 @@ for (let i = 0; i < 1000; ++i) {
 
 const tree = new InfiniteTree({
     autoOpen: true,
+    droppable: true,
     el: document.querySelector('#tree'),
     rowRenderer: rowRenderer
 });
@@ -44,13 +45,13 @@ tree.on('openNode', (node) => {
 tree.on('closeNode', (node) => {
     console.log('closeNode', node);
 });
-tree.on('selectNode', (node) => {
-    updatePreview(node);
-});
-tree.on('drop', (node, e) => {
+tree.on('dropNode', (node, e) => {
     const source = e.dataTransfer.getData('text');
     const el = document.querySelector('#dropped-result');
     el.innerHTML = 'Dropped to <b>' + quoteattr(node.label) + '</b>';
+});
+tree.on('selectNode', (node) => {
+    updatePreview(node);
 });
 
 tree.loadData(data);
