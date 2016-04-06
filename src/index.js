@@ -42,6 +42,7 @@ const extend = (target, ...sources) => {
 class InfiniteTree extends events.EventEmitter {
     options = {
         autoOpen: false,
+        droppable: false,
         el: null,
         rowRenderer: defaultRowRenderer
     };
@@ -160,7 +161,7 @@ class InfiniteTree extends events.EventEmitter {
                 const id = itemTarget.getAttribute('aria-id');
                 const node = this.getNodeById(id);
 
-                this.emit('drop', node, e);
+                this.emit('dropNode', node, e);
             }
         }
     };
@@ -227,17 +228,21 @@ class InfiniteTree extends events.EventEmitter {
         this.contentElement = contentElement;
 
         addEventListener(this.contentElement, 'click', this.contentListener.click);
-        addEventListener(this.contentElement, 'dragenter', this.contentListener.dragenter);
-        addEventListener(this.contentElement, 'dragleave', this.contentListener.dragleave);
-        addEventListener(this.contentElement, 'dragover', this.contentListener.dragover);
-        addEventListener(this.contentElement, 'drop', this.contentListener.drop);
+        if (this.options.droppable) {
+            addEventListener(this.contentElement, 'dragenter', this.contentListener.dragenter);
+            addEventListener(this.contentElement, 'dragleave', this.contentListener.dragleave);
+            addEventListener(this.contentElement, 'dragover', this.contentListener.dragover);
+            addEventListener(this.contentElement, 'drop', this.contentListener.drop);
+        }
     }
     destroy() {
         removeEventListener(this.contentElement, 'click', this.contentListener);
-        removeEventListener(this.contentElement, 'dragenter', this.contentListener.dragenter);
-        removeEventListener(this.contentElement, 'dragleave', this.contentListener.dragleave);
-        removeEventListener(this.contentElement, 'dragover', this.contentListener.dragover);
-        removeEventListener(this.contentElement, 'drop', this.contentListener.drop);
+        if (this.options.droppable) {
+            removeEventListener(this.contentElement, 'dragenter', this.contentListener.dragenter);
+            removeEventListener(this.contentElement, 'dragleave', this.contentListener.dragleave);
+            removeEventListener(this.contentElement, 'dragover', this.contentListener.dragover);
+            removeEventListener(this.contentElement, 'drop', this.contentListener.drop);
+        }
 
         this.clear();
 
@@ -299,7 +304,7 @@ class InfiniteTree extends events.EventEmitter {
         // Update newNode
         newNode = parentNode.getChildAt(index);
 
-        const rows = nodes.map(node => this.options.rowRenderer(node));
+        const rows = nodes.map(node => this.options.rowRenderer(node, this.options));
         const parentOffset = this.nodes.indexOf(parentNode);
 
         // Update nodes & rows
@@ -314,7 +319,7 @@ class InfiniteTree extends events.EventEmitter {
         });
 
         // Update the row corresponding to the parent node
-        this.rows[parentOffset] = this.options.rowRenderer(parentNode);
+        this.rows[parentOffset] = this.options.rowRenderer(parentNode, this.options);
 
         // Updates list with new data
         this.update();
@@ -396,7 +401,7 @@ class InfiniteTree extends events.EventEmitter {
         this.rows.splice(nodeIndex + 1, deleteCount);
 
         // Update the row corresponding to the node
-        this.rows[nodeIndex] = this.options.rowRenderer(node);
+        this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
 
         // Emit the 'closeNode' event
         this.emit('closeNode', node);
@@ -533,7 +538,7 @@ class InfiniteTree extends events.EventEmitter {
         });
 
         // Update rows
-        this.rows = this.nodes.map(node => this.options.rowRenderer(node));
+        this.rows = this.nodes.map(node => this.options.rowRenderer(node, this.options));
 
         // Updates list with new data
         this.update();
@@ -560,14 +565,14 @@ class InfiniteTree extends events.EventEmitter {
         this.state.openNodes = openNodes;
 
         const nodes = flatten(node.children, { openNodes: this.state.openNodes });
-        const rows = nodes.map(node => this.options.rowRenderer(node));
+        const rows = nodes.map(node => this.options.rowRenderer(node, this.options));
 
         // Update nodes & rows
         this.nodes.splice.apply(this.nodes, [nodeIndex + 1, 0].concat(nodes));
         this.rows.splice.apply(this.rows, [nodeIndex + 1, 0].concat(rows));
 
         // Update the row corresponding to the node
-        this.rows[nodeIndex] = this.options.rowRenderer(node);
+        this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
 
         // Add all child nodes to the lookup table if the first child does not exist in the lookup table
         if ((nodes.length > 0) && !(this.nodeTable.get(nodes[0]))) {
@@ -632,7 +637,7 @@ class InfiniteTree extends events.EventEmitter {
             this.rows.splice(parentNodeIndex + 1, deleteCount);
 
             // Update the row corresponding to the parent node
-            this.rows[parentNodeIndex] = this.options.rowRenderer(parentNode);
+            this.rows[parentNodeIndex] = this.options.rowRenderer(parentNode, this.options);
         }
 
         { // Update open nodes and lookup table
@@ -708,7 +713,7 @@ class InfiniteTree extends events.EventEmitter {
 
         // Update the row corresponding to the parent node
         if (parentNodeIndex >= 0) {
-            this.rows[parentNodeIndex] = this.options.rowRenderer(parentNode);
+            this.rows[parentNodeIndex] = this.options.rowRenderer(parentNode, this.options);
         }
 
         { // Update open nodes and lookup table
@@ -770,7 +775,7 @@ class InfiniteTree extends events.EventEmitter {
                 const selectedIndex = this.nodes.indexOf(selectedNode);
 
                 selectedNode.state.selected = false;
-                this.rows[selectedIndex] = this.options.rowRenderer(selectedNode);
+                this.rows[selectedIndex] = this.options.rowRenderer(selectedNode, this.options);
                 this.state.selectedNode = null;
 
                 // Emit the 'selectNode' event
@@ -798,7 +803,7 @@ class InfiniteTree extends events.EventEmitter {
             node.state.selected = true;
 
             // Update the row corresponding to the node
-            this.rows[nodeIndex] = this.options.rowRenderer(node);
+            this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
         }
 
         // Deselect the current node
@@ -806,7 +811,7 @@ class InfiniteTree extends events.EventEmitter {
             const selectedNode = this.state.selectedNode;
             const selectedIndex = this.nodes.indexOf(selectedNode);
             selectedNode.state.selected = false;
-            this.rows[selectedIndex] = this.options.rowRenderer(selectedNode);
+            this.rows[selectedIndex] = this.options.rowRenderer(selectedNode, this.options);
         }
 
         if (this.state.selectedNode !== node) {
@@ -898,7 +903,7 @@ class InfiniteTree extends events.EventEmitter {
         const nodeIndex = this.nodes.indexOf(node);
         if (nodeIndex >= 0) {
             // Update the row corresponding to the node
-            this.rows[nodeIndex] = this.options.rowRenderer(node);
+            this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
 
             // Updates list with new data
             this.update();
