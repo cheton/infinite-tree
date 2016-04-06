@@ -14,10 +14,12 @@ npm install --save infinite-tree
 
 ## Usage
 ```js
-import InfiniteTree from 'infinite-tree';
-import 'infinite-tree/dist/infinite-tree.css';
+var InfiniteTree = require('infinite-tree');
 
-const data = {
+// when using webpack and browserify
+require('infinite-tree/dist/infinite-tree.css');
+
+var data = {
     id: 'fruit',
     label: 'Fruit',
     children: [{
@@ -32,24 +34,44 @@ const data = {
         }]
     }]
 };
-const tree = new InfiniteTree({
-    autoOpen: true,
+
+var tree = new InfiniteTree({
+    autoOpen: true, // Defaults to false
     data: data,
-    droppable: false,
-    el: document.querySelector('#tree')
+    droppable: false, // Defaults to false
+    el: document.querySelector('#tree'),
+    selectable: true // Defaults to true
 });
-tree.on('update', () => {
+
+//
+// Functions: Tree & Node
+//
+var node = tree.getNodeById('fruit');
+// → Node { id: 'fruit', ... }
+tree.selectNode(node);
+// → true
+console.log(node.getFirstChild());
+// → Node { id: 'apple', ... }
+console.log(node.getFirstChild().getNextSibling());
+// → Node { id: 'banana', ... }
+console.log(node.getFirstChild().getPreviousSibling());
+// → null
+
+//
+// Events
+//
+tree.on('update', function() {
     console.log(tree.getSelectedNode());
 });
-tree.on('openNode', (node) => {
+tree.on('openNode', function(node) {
 });
-tree.on('closeNode', (node) => {
+tree.on('closeNode', function(node) {
 });
-tree.on('selectNode', (node) => {
+tree.on('selectNode', function(node) {
 });
-tree.on('dropNode', (node, evt) => {
+tree.on('dropNode', function(node, evt) {
 });
-tree.on('scrollProgress', (progress) => {
+tree.on('scrollProgress', function(progress) {
 });
 ```
 

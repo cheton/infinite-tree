@@ -11,10 +11,11 @@ for (let i = 0; i < 1000; ++i) {
 }
 
 const tree = new InfiniteTree({
-    autoOpen: true,
-    droppable: true,
+    autoOpen: true, // Defaults to false
+    droppable: true, // Defaults to false
     el: document.querySelector('#tree'),
-    rowRenderer: rowRenderer
+    rowRenderer: rowRenderer,
+    selectable: true // Defaults to true
 });
 
 const updatePreview = (node) => {
@@ -47,8 +48,7 @@ tree.on('closeNode', (node) => {
 });
 tree.on('dropNode', (node, e) => {
     const source = e.dataTransfer.getData('text');
-    const el = document.querySelector('#dropped-result');
-    el.innerHTML = 'Dropped to <b>' + quoteattr(node.label) + '</b>';
+    document.querySelector('#dropped-result').innerHTML = 'Dropped to <b>' + quoteattr(node.label) + '</b>';
 });
 tree.on('selectNode', (node) => {
     updatePreview(node);
@@ -61,6 +61,7 @@ const draggableElement = document.querySelector('#draggable-element');
 draggableElement.addEventListener('dragstart', (e) => {
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text', e.target.id);
+    document.querySelector('#dropped-result').innerHTML = '';
 });
 draggableElement.addEventListener('dragend', (e) => {
 });
