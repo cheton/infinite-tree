@@ -99,6 +99,12 @@ class InfiniteTree extends events.EventEmitter {
                     itemTarget = itemTarget.parentElement;
                 }
 
+                // Remove highlight class
+                if (this.dragoverElement !== null) {
+                    removeClass(this.dragoverElement, 'highlight');
+                    this.dragoverElement = null;
+                }
+
                 if (!(itemTarget.hasAttribute('droppable'))) {
                     return;
                 }
@@ -119,6 +125,7 @@ class InfiniteTree extends events.EventEmitter {
                     itemTarget = itemTarget.parentElement;
                 }
 
+                // Remove highlight class
                 if (this.dragoverElement !== itemTarget) {
                     removeClass(itemTarget, 'highlight');
                     this.dragoverElement = null;
