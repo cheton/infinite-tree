@@ -48,7 +48,6 @@ const defaultRowRenderer = (node, treeOptions) => {
     });
 };
 
-// IE8 compatibility output
-module.exports = {
+export {
     defaultRowRenderer
 };
