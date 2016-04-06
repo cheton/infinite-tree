@@ -44,7 +44,8 @@ class InfiniteTree extends events.EventEmitter {
         autoOpen: false,
         droppable: false,
         el: null,
-        rowRenderer: defaultRowRenderer
+        rowRenderer: defaultRowRenderer,
+        selectable: true
     };
     state = {
         openNodes: [],
@@ -86,8 +87,12 @@ class InfiniteTree extends events.EventEmitter {
                 // Click on the toggler to open/close a tree node
                 if (handleToggler) {
                     this.toggleNode(node);
-                } else {
+                    return;
+                }
+                
+                if (this.options.selectable) {
                     this.selectNode(node);
+                    return;
                 }
             }
         },
@@ -768,6 +773,10 @@ class InfiniteTree extends events.EventEmitter {
     // @param {Node} node The Node object. If null or undefined, deselects the current node.
     // @return {boolean} Returns true on success, false otherwise.
     selectNode(node = null) {
+        if (!this.options.selectable) {
+            return false;
+        }
+
         if (node === null) {
             // Deselect the current node
             if (this.state.selectedNode) {
