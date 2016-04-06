@@ -102,7 +102,7 @@ class InfiniteTree extends events.EventEmitter {
             const { target, currentTarget } = e;
 
             if (target === currentTarget) {
-                return false;
+                return;
             }
 
             let itemTarget = target;

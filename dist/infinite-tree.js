@@ -1,4 +1,4 @@
-/*! infinite-tree v0.6.0 | (c) 2016 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
+/*! infinite-tree v0.6.1 | (c) 2016 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -188,22 +188,25 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    }
 	                }
 	            },
+	            // https://developer.mozilla.org/en-US/docs/Web/Events/dragenter
+	            // The dragenter event is fired when a dragged element or text selection enters a valid drop target.
 	            'dragenter': function dragenter(e) {
 	                var target = e.target;
 	                var currentTarget = e.currentTarget;
 
 
-	                if (target !== currentTarget) {
-	                    var itemTarget = target;
-	                    while (itemTarget && itemTarget.parentElement !== currentTarget) {
-	                        itemTarget = itemTarget.parentElement;
-	                    }
+	                if (target === currentTarget) {
+	                    return;
+	                }
 
-	                    // Remove highlight class
-	                    if (_this.dragoverElement !== null) {
-	                        (0, _helper.removeClass)(_this.dragoverElement, 'highlight');
-	                        _this.dragoverElement = null;
-	                    }
+	                var itemTarget = target;
+	                while (itemTarget && itemTarget.parentElement !== currentTarget) {
+	                    itemTarget = itemTarget.parentElement;
+	                }
+
+	                if (_this.dragoverElement !== itemTarget) {
+	                    (0, _helper.removeClass)(_this.dragoverElement, 'highlight'); // remove 'highlight' class
+	                    _this.dragoverElement = null;
 
 	                    if (!itemTarget.hasAttribute('droppable')) {
 	                        return;
@@ -216,53 +219,33 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    }
 	                }
 	            },
-	            'dragleave': function dragleave(e) {
-	                var target = e.target;
-	                var currentTarget = e.currentTarget;
-
-
-	                if (target !== currentTarget) {
-	                    var itemTarget = target;
-	                    while (itemTarget && itemTarget.parentElement !== currentTarget) {
-	                        itemTarget = itemTarget.parentElement;
-	                    }
-
-	                    // Remove highlight class
-	                    if (_this.dragoverElement !== itemTarget) {
-	                        (0, _helper.removeClass)(itemTarget, 'highlight');
-	                        _this.dragoverElement = null;
-	                    }
+	            // https://developer.mozilla.org/en-US/docs/Web/Events/dragend
+	            // The dragend event is fired when a drag operation is being ended (by releasing a mouse button or hitting the escape key).
+	            'dragend': function dragend(e) {
+	                if (_this.dragoverElement) {
+	                    (0, _helper.removeClass)(_this.dragoverElement, 'highlight'); // remove 'highlight' class
+	                    _this.dragoverElement = null;
 	                }
 	            },
+	            // https://developer.mozilla.org/en-US/docs/Web/Events/dragover
+	            // The dragover event is fired when an element or text selection is being dragged over a valid drop target (every few hundred milliseconds).
 	            'dragover': function dragover(e) {
 	                (0, _helper.preventDefault)(e);
 	                e.dataTransfer.dropEffect = 'move';
 	                return false;
 	            },
+	            // https://developer.mozilla.org/en-US/docs/Web/Events/drop
+	            // The drop event is fired when an element or text selection is dropped on a valid drop target.
 	            'drop': function drop(e) {
-	                var target = e.target;
-	                var currentTarget = e.currentTarget;
-
-	                // Call preventDefault() to prevent the browser default handling of the data
-	                // (default is open as link on drop)
-
+	                // prevent default action (open as link for some elements)
 	                (0, _helper.preventDefault)(e);
 
-	                if (target !== currentTarget) {
-	                    var itemTarget = target;
-	                    while (itemTarget && itemTarget.parentElement !== currentTarget) {
-	                        itemTarget = itemTarget.parentElement;
-	                    }
-
-	                    if (!itemTarget.hasAttribute('droppable')) {
-	                        return;
-	                    }
-
-	                    (0, _helper.removeClass)(itemTarget, 'highlight');
-	                    _this.dragoverElement = null;
-
-	                    var id = itemTarget.getAttribute('aria-id');
+	                if (_this.dragoverElement) {
+	                    var id = _this.dragoverElement.getAttribute('aria-id');
 	                    var node = _this.getNodeById(id);
+
+	                    (0, _helper.removeClass)(_this.dragoverElement, 'highlight');
+	                    _this.dragoverElement = null;
 
 	                    _this.emit('dropNode', node, e);
 	                }
@@ -324,8 +307,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            (0, _helper.addEventListener)(this.contentElement, 'click', this.contentListener.click);
 	            if (this.options.droppable) {
+	                (0, _helper.addEventListener)(document, 'dragend', this.contentListener.dragend);
 	                (0, _helper.addEventListener)(this.contentElement, 'dragenter', this.contentListener.dragenter);
-	                (0, _helper.addEventListener)(this.contentElement, 'dragleave', this.contentListener.dragleave);
 	                (0, _helper.addEventListener)(this.contentElement, 'dragover', this.contentListener.dragover);
 	                (0, _helper.addEventListener)(this.contentElement, 'drop', this.contentListener.drop);
 	            }
@@ -335,8 +318,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        value: function destroy() {
 	            (0, _helper.removeEventListener)(this.contentElement, 'click', this.contentListener);
 	            if (this.options.droppable) {
+	                (0, _helper.removeEventListener)(document, 'dragend', this.contentListener.dragend);
 	                (0, _helper.removeEventListener)(this.contentElement, 'dragenter', this.contentListener.dragenter);
-	                (0, _helper.removeEventListener)(this.contentElement, 'dragleave', this.contentListener.dragleave);
 	                (0, _helper.removeEventListener)(this.contentElement, 'dragover', this.contentListener.dragover);
 	                (0, _helper.removeEventListener)(this.contentElement, 'drop', this.contentListener.drop);
 	            }
