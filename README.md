@@ -34,9 +34,9 @@ const data = {
 };
 const tree = new InfiniteTree({
     autoOpen: true,
-    el: document.querySelector('#tree'),
-    // tree data
-    data: data
+    data: data,
+    droppable: false,
+    el: document.querySelector('#tree')
 });
 tree.on('update', () => {
     console.log(tree.getSelectedNode());
@@ -47,76 +47,14 @@ tree.on('closeNode', (node) => {
 });
 tree.on('selectNode', (node) => {
 });
-tree.on('scrollProgress', (progress) => {
+tree.on('dropNode', (node, evt) => {
 });
-tree.on('drop', (node, e) => {
+tree.on('scrollProgress', (progress) => {
 });
 ```
 
 ## API Documentation
-* [Tree API](https://github.com/cheton/infinite-tree/wiki/API-Documentation:-Tree-API)
-* [Node API](https://github.com/cheton/infinite-tree/wiki/API-Documentation:-Node-API)
-
-## Options
-Below are the configuration options with their default values:
-```js
-{
-    autoOpen: false,
-    el: null,
-    rowRenderer: defaultRowRenderer,
-    data: []
-}
-```
-
-#### autoOpen
-
-Type: `Boolean` Default: `false`
-
-Set to `true` to open all nodes.
-
-
-#### el
-
-Type: `DOMElement` Default: `null`
-
-The DOM element for rendering a tree.
-
-
-#### rowRenderer
-
-Type: `Function` Default: [defaultRowRenderer](https://github.com/cheton/infinite-tree/blob/master/src/renderer.js)
-
-A custom row renderer that returns a HTML string. An example of minimum setup is shown as below:
-```js
-function (node) {
-    var state = node.state;
-    // Check node state
-    var html = [
-        '<div aria-id=' + JSON.stringify(node.id) + ' class="tree-item tree-selected">',
-        '   <div class="tree-node">',
-        '       <a class="tree-toggler tree-toggler-closed">►</a>',
-        '       <span class="tree-title">' + node.label + '</span>',
-        '   </div>',
-        '</div>',
-        ''
-    ].join('\r\n');
-    return html;
-}
-```
-
-Find a more advanced example at [examples/renderer.js](https://github.com/cheton/infinite-tree/blob/master/examples/renderer.js).
-
-#### data
-
-Type: `Object` or `Array` Default: `[]`
-
-Define a tree node structure like so:
-```js
-[
-    { // node
-        id: '<unique-node-id>', // Required
-        label: 'Node Label', // Required
-        children: [] // Optional
-    }
-]
-```
+* [Options](https://github.com/cheton/infinite-tree/wiki/Options)
+* [Functions: Tree](https://github.com/cheton/infinite-tree/wiki/Functions:-Tree)
+* [Functions: Node](https://github.com/cheton/infinite-tree/wiki/Functions:-Node)
+* [Events](https://github.com/cheton/infinite-tree/wiki/Events)
