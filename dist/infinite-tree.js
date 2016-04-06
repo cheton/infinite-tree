@@ -193,6 +193,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	                        itemTarget = itemTarget.parentElement;
 	                    }
 
+	                    // Remove existing dragover element
+	                    if (_this.dragoverElement !== null) {
+	                        (0, _helper.removeClass)(itemTarget, 'highlight');
+	                        _this.dragoverElement = null;
+	                    }
+
 	                    if (!itemTarget.hasAttribute('droppable')) {
 	                        return;
 	                    }
