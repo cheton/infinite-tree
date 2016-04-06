@@ -1,6 +1,6 @@
 import { buildHTML, classNames, quoteattr } from './helper';
 
-const defaultRowRenderer = (node) => {
+const defaultRowRenderer = (node, treeOptions) => {
     const { id, label, children, state } = node;
     const { depth, open, path, total, selected = false } = state;
     const childrenLength = Object.keys(children).length;
