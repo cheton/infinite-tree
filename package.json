@@ -35,7 +35,7 @@
   ],
   "dependencies": {
     "clusterize.js": "^0.16.0",
-    "flattree": "^0.8.1"
+    "flattree": "^0.8.2"
   },
   "devDependencies": {
     "babel-cli": "^6.6.5",
