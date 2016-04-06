@@ -176,8 +176,7 @@ const buildHTML = (tag, html, attrs) => {
     return h;
 };
 
-// IE8 compatibility output
-module.exports = {
+export {
     preventDefault,
     stopPropagation,
     dispatchEvent,

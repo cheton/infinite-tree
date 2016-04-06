@@ -1,4 +1,4 @@
-/*! infinite-tree v0.6.1 | (c) 2016 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
+/*! infinite-tree v0.6.2 | (c) 2016 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -57,27 +57,41 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	'use strict';
 
+	var _infiniteTree = __webpack_require__(1);
+
+	var _infiniteTree2 = _interopRequireDefault(_infiniteTree);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	module.exports = _infiniteTree2['default'];
+
+/***/ },
+/* 1 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	exports.__esModule = true;
+
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _events = __webpack_require__(1);
+	var _events = __webpack_require__(2);
 
 	var _events2 = _interopRequireDefault(_events);
 
-	var _clusterize = __webpack_require__(2);
+	var _clusterize = __webpack_require__(3);
 
 	var _clusterize2 = _interopRequireDefault(_clusterize);
 
-	var _flattree = __webpack_require__(3);
+	var _flattree = __webpack_require__(4);
 
-	var _lookupTable = __webpack_require__(7);
+	var _lookupTable = __webpack_require__(8);
 
 	var _lookupTable2 = _interopRequireDefault(_lookupTable);
 
-	var _renderer = __webpack_require__(8);
+	var _renderer = __webpack_require__(9);
 
-	var _helper = __webpack_require__(9);
+	var _helper = __webpack_require__(10);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -129,7 +143,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        // Assign options
 
-	        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(InfiniteTree).call(this));
+	        var _this = _possibleConstructorReturn(this, _events$EventEmitter.call(this));
 
 	        _this.options = {
 	            autoOpen: false,
@@ -152,56 +166,65 @@ return /******/ (function(modules) { // webpackBootstrap
 	        _this.dragoverElement = null;
 	        _this.contentListener = {
 	            'click': function click(e) {
-	                var target = e.target;
-	                var currentTarget = e.currentTarget;
-
+	                var itemTarget = null;
+	                var handleToggler = false;
 
 	                (0, _helper.stopPropagation)(e);
 
-	                if (target !== currentTarget) {
-	                    var itemTarget = target;
-	                    var handleToggler = false;
+	                if (e.target && e.currentTarget) {
+	                    itemTarget = e.target !== e.currentTarget ? e.target : null;
+	                } else if (e.srcElement) {
+	                    // IE8
+	                    itemTarget = e.srcElement;
+	                }
 
-	                    while (itemTarget && itemTarget.parentElement !== currentTarget) {
-	                        if (itemTarget.className.indexOf('tree-toggler') >= 0) {
-	                            handleToggler = true;
-	                        }
-	                        itemTarget = itemTarget.parentElement;
+	                while (itemTarget && itemTarget.parentElement !== _this.contentElement) {
+	                    if (itemTarget.className.indexOf('tree-toggler') >= 0) {
+	                        handleToggler = true;
 	                    }
+	                    itemTarget = itemTarget.parentElement;
+	                }
 
-	                    var id = itemTarget.getAttribute('aria-id');
-	                    var node = _this.getNodeById(id);
+	                if (!itemTarget) {
+	                    return;
+	                }
 
-	                    if (!node) {
-	                        return;
-	                    }
+	                var id = itemTarget.getAttribute('aria-id');
+	                var node = _this.getNodeById(id);
 
-	                    // Click on the toggler to open/close a tree node
-	                    if (handleToggler) {
-	                        _this.toggleNode(node);
-	                        return;
-	                    }
+	                if (!node) {
+	                    return;
+	                }
 
-	                    if (_this.options.selectable) {
-	                        _this.selectNode(node);
-	                        return;
-	                    }
+	                // Click on the toggler to open/close a tree node
+	                if (handleToggler) {
+	                    _this.toggleNode(node);
+	                    return;
+	                }
+
+	                if (_this.options.selectable) {
+	                    _this.selectNode(node);
+	                    return;
 	                }
 	            },
 	            // https://developer.mozilla.org/en-US/docs/Web/Events/dragenter
 	            // The dragenter event is fired when a dragged element or text selection enters a valid drop target.
 	            'dragenter': function dragenter(e) {
-	                var target = e.target;
-	                var currentTarget = e.currentTarget;
+	                var itemTarget = null;
 
-
-	                if (target === currentTarget) {
-	                    return;
+	                if (e.target && e.currentTarget) {
+	                    itemTarget = e.target !== e.currentTarget ? e.target : null;
+	                } else if (e.srcElement) {
+	                    // IE8
+	                    itemTarget = e.srcElement;
 	                }
 
-	                var itemTarget = target;
-	                while (itemTarget && itemTarget.parentElement !== currentTarget) {
+	                while (itemTarget && itemTarget.parentElement !== _this.contentElement) {
 	                    itemTarget = itemTarget.parentElement;
+	                }
+
+	                if (!itemTarget) {
+	                    return;
 	                }
 
 	                if (_this.dragoverElement !== itemTarget) {
@@ -267,863 +290,832 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return _this;
 	    }
 
-	    _createClass(InfiniteTree, [{
-	        key: 'create',
-	        value: function create() {
-	            var _this2 = this;
+	    InfiniteTree.prototype.create = function create() {
+	        var _this2 = this;
 
-	            if (!this.options.el) {
-	                throw new Error('The element option is not specified.');
-	            }
-
-	            var scrollElement = document.createElement('div');
-	            scrollElement.className = (0, _helper.classNames)('infinite-tree', 'infinite-tree-scroll');
-	            var contentElement = document.createElement('div');
-	            contentElement.className = (0, _helper.classNames)('infinite-tree', 'infinite-tree-content');
-
-	            scrollElement.appendChild(contentElement);
-	            this.options.el.appendChild(scrollElement);
-
-	            this.clusterize = new _clusterize2['default']({
-	                tag: 'div',
-	                rows: [],
-	                scrollElem: scrollElement,
-	                contentElem: contentElement,
-	                no_data_class: 'infinite-tree-no-data',
-	                callbacks: {
-	                    // Will be called right before replacing previous cluster with new one.
-	                    clusterWillChange: function clusterWillChange() {},
-	                    // Will be called right after replacing previous cluster with new one.
-	                    clusterChanged: function clusterChanged() {},
-	                    // Will be called on scrolling. Returns progress position.
-	                    scrollingProgress: function scrollingProgress(progress) {
-	                        _this2.emit('scrollProgress', progress);
-	                    }
-	                }
-	            });
-
-	            this.scrollElement = scrollElement;
-	            this.contentElement = contentElement;
-
-	            (0, _helper.addEventListener)(this.contentElement, 'click', this.contentListener.click);
-	            if (this.options.droppable) {
-	                (0, _helper.addEventListener)(document, 'dragend', this.contentListener.dragend);
-	                (0, _helper.addEventListener)(this.contentElement, 'dragenter', this.contentListener.dragenter);
-	                (0, _helper.addEventListener)(this.contentElement, 'dragover', this.contentListener.dragover);
-	                (0, _helper.addEventListener)(this.contentElement, 'drop', this.contentListener.drop);
-	            }
+	        if (!this.options.el) {
+	            throw new Error('The element option is not specified.');
 	        }
-	    }, {
-	        key: 'destroy',
-	        value: function destroy() {
-	            (0, _helper.removeEventListener)(this.contentElement, 'click', this.contentListener);
-	            if (this.options.droppable) {
-	                (0, _helper.removeEventListener)(document, 'dragend', this.contentListener.dragend);
-	                (0, _helper.removeEventListener)(this.contentElement, 'dragenter', this.contentListener.dragenter);
-	                (0, _helper.removeEventListener)(this.contentElement, 'dragover', this.contentListener.dragover);
-	                (0, _helper.removeEventListener)(this.contentElement, 'drop', this.contentListener.drop);
-	            }
 
-	            this.clear();
+	        var scrollElement = document.createElement('div');
+	        scrollElement.className = (0, _helper.classNames)('infinite-tree', 'infinite-tree-scroll');
+	        var contentElement = document.createElement('div');
+	        contentElement.className = (0, _helper.classNames)('infinite-tree', 'infinite-tree-content');
 
-	            if (this.clusterize) {
-	                this.clusterize.destroy(true); // True to remove all data from the list
-	                this.clusterize = null;
-	            }
+	        scrollElement.appendChild(contentElement);
+	        this.options.el.appendChild(scrollElement);
 
-	            // Remove all child nodes
-	            while (this.contentElement.firstChild) {
-	                this.contentElement.removeChild(this.contentElement.firstChild);
-	            }
-	            while (this.scrollElement.firstChild) {
-	                this.scrollElement.removeChild(this.scrollElement.firstChild);
-	            }
-	            if (this.options.el) {
-	                var containerElement = this.options.el;
-	                while (containerElement.firstChild) {
-	                    containerElement.removeChild(containerElement.firstChild);
+	        this.clusterize = new _clusterize2['default']({
+	            tag: 'div',
+	            rows: [],
+	            scrollElem: scrollElement,
+	            contentElem: contentElement,
+	            no_data_class: 'infinite-tree-no-data',
+	            callbacks: {
+	                // Will be called right before replacing previous cluster with new one.
+	                clusterWillChange: function clusterWillChange() {},
+	                // Will be called right after replacing previous cluster with new one.
+	                clusterChanged: function clusterChanged() {},
+	                // Will be called on scrolling. Returns progress position.
+	                scrollingProgress: function scrollingProgress(progress) {
+	                    _this2.emit('scrollProgress', progress);
 	                }
 	            }
-	            this.contentElement = null;
-	            this.scrollElement = null;
+	        });
+
+	        this.scrollElement = scrollElement;
+	        this.contentElement = contentElement;
+
+	        (0, _helper.addEventListener)(this.contentElement, 'click', this.contentListener.click);
+	        if (this.options.droppable) {
+	            (0, _helper.addEventListener)(document, 'dragend', this.contentListener.dragend);
+	            (0, _helper.addEventListener)(this.contentElement, 'dragenter', this.contentListener.dragenter);
+	            (0, _helper.addEventListener)(this.contentElement, 'dragover', this.contentListener.dragover);
+	            (0, _helper.addEventListener)(this.contentElement, 'drop', this.contentListener.drop);
 	        }
-	        // Inserts a new child node to a parent node at the specified index.
-	        // * If the parent is null or undefined, inserts the child at the specified index in the top-level.
-	        // * If the parent has children, the method adds the child to it at the specified index.
-	        // * If the parent does not have children, the method adds the child to the parent.
-	        // * If the index value is greater than or equal to the number of children in the parent, the method adds the child at the end of the children.
-	        // @param {Object} newNode The new child node.
-	        // @param {number} index The 0-based index of where to insert the child node. Defaults to 0 for negative index.
-	        // @param {Node} parentNode The Node object that defines the parent node.
-	        // @return {boolean} Returns true on success, false otherwise.
+	    };
 
-	    }, {
-	        key: 'addChildNodeAt',
-	        value: function addChildNodeAt(newNode, index, parentNode) {
-	            var _this3 = this;
+	    InfiniteTree.prototype.destroy = function destroy() {
+	        (0, _helper.removeEventListener)(this.contentElement, 'click', this.contentListener);
+	        if (this.options.droppable) {
+	            (0, _helper.removeEventListener)(document, 'dragend', this.contentListener.dragend);
+	            (0, _helper.removeEventListener)(this.contentElement, 'dragenter', this.contentListener.dragenter);
+	            (0, _helper.removeEventListener)(this.contentElement, 'dragover', this.contentListener.dragover);
+	            (0, _helper.removeEventListener)(this.contentElement, 'drop', this.contentListener.drop);
+	        }
 
-	            // Defaults to rootNode if the parentNode is not specified
-	            parentNode = parentNode || this.state.rootNode;
+	        this.clear();
 
-	            ensureNodeInstance(parentNode);
+	        if (this.clusterize) {
+	            this.clusterize.destroy(true); // True to remove all data from the list
+	            this.clusterize = null;
+	        }
 
-	            if (!newNode) {
-	                return false;
+	        // Remove all child nodes
+	        while (this.contentElement.firstChild) {
+	            this.contentElement.removeChild(this.contentElement.firstChild);
+	        }
+	        while (this.scrollElement.firstChild) {
+	            this.scrollElement.removeChild(this.scrollElement.firstChild);
+	        }
+	        if (this.options.el) {
+	            var containerElement = this.options.el;
+	            while (containerElement.firstChild) {
+	                containerElement.removeChild(containerElement.firstChild);
 	            }
-	            index = Number(index) || 0;
-	            if (index < 0) {
-	                index = 0;
+	        }
+	        this.contentElement = null;
+	        this.scrollElement = null;
+	    };
+	    // Inserts a new child node to a parent node at the specified index.
+	    // * If the parent is null or undefined, inserts the child at the specified index in the top-level.
+	    // * If the parent has children, the method adds the child to it at the specified index.
+	    // * If the parent does not have children, the method adds the child to the parent.
+	    // * If the index value is greater than or equal to the number of children in the parent, the method adds the child at the end of the children.
+	    // @param {Object} newNode The new child node.
+	    // @param {number} index The 0-based index of where to insert the child node. Defaults to 0 for negative index.
+	    // @param {Node} parentNode The Node object that defines the parent node.
+	    // @return {boolean} Returns true on success, false otherwise.
+
+
+	    InfiniteTree.prototype.addChildNodeAt = function addChildNodeAt(newNode, index, parentNode) {
+	        var _this3 = this;
+
+	        // Defaults to rootNode if the parentNode is not specified
+	        parentNode = parentNode || this.state.rootNode;
+
+	        ensureNodeInstance(parentNode);
+
+	        if (!newNode) {
+	            return false;
+	        }
+	        index = Number(index) || 0;
+	        if (index < 0) {
+	            index = 0;
+	        }
+
+	        // Inserts the new child at the specified index
+	        newNode.parent = parentNode;
+	        parentNode.children.splice(index, 0, newNode);
+
+	        var deleteCount = parentNode.state.total;
+
+	        // Update index
+	        index = parentNode.children.indexOf(newNode);
+
+	        var nodes = (0, _flattree.flatten)(parentNode.children, { openNodes: this.state.openNodes });
+
+	        // Update newNode
+	        newNode = parentNode.getChildAt(index);
+
+	        var rows = nodes.map(function (node) {
+	            return _this3.options.rowRenderer(node, _this3.options);
+	        });
+	        var parentOffset = this.nodes.indexOf(parentNode);
+
+	        // Update nodes & rows
+	        this.nodes.splice.apply(this.nodes, [parentOffset + 1, deleteCount].concat(nodes));
+	        this.rows.splice.apply(this.rows, [parentOffset + 1, deleteCount].concat(rows));
+
+	        // Update the lookup table with newly added nodes
+	        this.flattenNode(newNode).forEach(function (node) {
+	            if (node.id !== undefined) {
+	                _this3.nodeTable.set(node.id, node);
 	            }
+	        });
 
-	            // Inserts the new child at the specified index
-	            newNode.parent = parentNode;
-	            parentNode.children.splice(index, 0, newNode);
+	        // Update the row corresponding to the parent node
+	        this.rows[parentOffset] = this.options.rowRenderer(parentNode, this.options);
 
-	            var deleteCount = parentNode.state.total;
+	        // Updates list with new data
+	        this.update();
 
-	            // Update index
-	            index = parentNode.children.indexOf(newNode);
+	        return true;
+	    };
+	    // Adds a node to the end of the list of children of a specified parent node.
+	    // * If the parent is null or undefined, inserts the child at the specified index in the top-level.
+	    // * If the parent has children, the method adds the child as the last child.
+	    // * If the parent does not have children, the method adds the child to the parent.
+	    // @param {Object} newNode The new child node.
+	    // @param {Node} parentNode The Node object that defines the parent node.
+	    // @return {boolean} Returns true on success, false otherwise.
 
-	            var nodes = (0, _flattree.flatten)(parentNode.children, { openNodes: this.state.openNodes });
 
-	            // Update newNode
-	            newNode = parentNode.getChildAt(index);
+	    InfiniteTree.prototype.appendChildNode = function appendChildNode(newNode, parentNode) {
+	        // Defaults to rootNode if the parentNode is not specified
+	        parentNode = parentNode || this.state.rootNode;
 
-	            var rows = nodes.map(function (node) {
-	                return _this3.options.rowRenderer(node, _this3.options);
-	            });
-	            var parentOffset = this.nodes.indexOf(parentNode);
+	        ensureNodeInstance(parentNode);
 
-	            // Update nodes & rows
-	            this.nodes.splice.apply(this.nodes, [parentOffset + 1, deleteCount].concat(nodes));
-	            this.rows.splice.apply(this.rows, [parentOffset + 1, deleteCount].concat(rows));
+	        var index = parentNode.children.length;
+	        return this.addChildNodeAt(newNode, index, parentNode);
+	    };
+	    // Clears the tree.
 
-	            // Update the lookup table with newly added nodes
-	            this.flattenNode(newNode).forEach(function (node) {
-	                if (node.id !== undefined) {
-	                    _this3.nodeTable.set(node.id, node);
+
+	    InfiniteTree.prototype.clear = function clear() {
+	        this.clusterize.clear();
+	        this.nodeTable.clear();
+	        this.nodes = [];
+	        this.rows = [];
+	        this.state.openNodes = [];
+	        this.state.rootNode = null;
+	        this.state.selectedNode = null;
+	    };
+	    // Closes a node to hide its children.
+	    // @param {Node} node The Node object.
+	    // @return {boolean} Returns true on success, false otherwise.
+
+
+	    InfiniteTree.prototype.closeNode = function closeNode(node) {
+	        ensureNodeInstance(node);
+
+	        // Retrieve node index
+	        var nodeIndex = this.nodes.indexOf(node);
+	        if (nodeIndex < 0) {
+	            throw new Error('Invalid node index');
+	        }
+
+	        // Check if the closeNode action can be performed
+	        if (this.state.openNodes.indexOf(node) < 0) {
+	            return false;
+	        }
+
+	        // Keep selected node unchanged if "node" is equal to "this.state.selectedNode"
+	        if (this.state.selectedNode && this.state.selectedNode !== node) {
+	            // row #0 - node.0         => parent node (total=4)
+	            // row #1   - node.0.0     => close this node; next selected node (total=2)
+	            // row #2       node.0.0.0 => selected node (total=0)
+	            // row #3       node.0.0.1
+	            // row #4     node.0.1
+	            var selectedIndex = this.nodes.indexOf(this.state.selectedNode);
+	            var rangeFrom = nodeIndex + 1;
+	            var rangeTo = nodeIndex + node.state.total;
+
+	            if (rangeFrom <= selectedIndex && selectedIndex <= rangeTo) {
+	                this.selectNode(node);
+	            }
+	        }
+
+	        node.state.open = false; // Set the open state to false
+	        var openNodes = this.state.openNodes.filter(function (node) {
+	            return node.hasChildren() && node.state.open;
+	        });
+	        this.state.openNodes = openNodes;
+
+	        var deleteCount = node.state.total;
+
+	        // Subtract the deleteCount for all ancestors (parent, grandparent, etc.) of the current node
+	        for (var p = node; p !== null; p = p.parent) {
+	            p.state.total = p.state.total - deleteCount;
+	        }
+
+	        // Update nodes & rows
+	        this.nodes.splice(nodeIndex + 1, deleteCount);
+	        this.rows.splice(nodeIndex + 1, deleteCount);
+
+	        // Update the row corresponding to the node
+	        this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
+
+	        // Emit the 'closeNode' event
+	        this.emit('closeNode', node);
+
+	        // Updates list with new data
+	        this.update();
+
+	        return true;
+	    };
+	    // Flattens all child nodes of a parent node by performing full tree traversal using child-parent link.
+	    // No recursion or stack is involved.
+	    // @param {Node} parentNode The Node object that defines the parent node.
+	    // @return {array} Returns an array of Node objects containing all the child nodes of the parent node.
+
+
+	    InfiniteTree.prototype.flattenChildNodes = function flattenChildNodes(parentNode) {
+	        // Defaults to rootNode if the parentNode is not specified
+	        parentNode = parentNode || this.state.rootNode;
+
+	        ensureNodeInstance(parentNode);
+
+	        var list = [];
+
+	        // Ignore parent node
+	        var node = parentNode.getFirstChild();
+	        while (node) {
+	            list.push(node);
+	            if (node.hasChildren()) {
+	                node = node.getFirstChild();
+	            } else {
+	                // find the parent level
+	                while (node.getNextSibling() === null && node.parent !== parentNode) {
+	                    // use child-parent link to get to the parent level
+	                    node = node.getParent();
 	                }
-	            });
 
-	            // Update the row corresponding to the parent node
-	            this.rows[parentOffset] = this.options.rowRenderer(parentNode, this.options);
-
-	            // Updates list with new data
-	            this.update();
-
-	            return true;
-	        }
-	        // Adds a node to the end of the list of children of a specified parent node.
-	        // * If the parent is null or undefined, inserts the child at the specified index in the top-level.
-	        // * If the parent has children, the method adds the child as the last child.
-	        // * If the parent does not have children, the method adds the child to the parent.
-	        // @param {Object} newNode The new child node.
-	        // @param {Node} parentNode The Node object that defines the parent node.
-	        // @return {boolean} Returns true on success, false otherwise.
-
-	    }, {
-	        key: 'appendChildNode',
-	        value: function appendChildNode(newNode, parentNode) {
-	            // Defaults to rootNode if the parentNode is not specified
-	            parentNode = parentNode || this.state.rootNode;
-
-	            ensureNodeInstance(parentNode);
-
-	            var index = parentNode.children.length;
-	            return this.addChildNodeAt(newNode, index, parentNode);
-	        }
-	        // Clears the tree.
-
-	    }, {
-	        key: 'clear',
-	        value: function clear() {
-	            this.clusterize.clear();
-	            this.nodeTable.clear();
-	            this.nodes = [];
-	            this.rows = [];
-	            this.state.openNodes = [];
-	            this.state.rootNode = null;
-	            this.state.selectedNode = null;
-	        }
-	        // Closes a node to hide its children.
-	        // @param {Node} node The Node object.
-	        // @return {boolean} Returns true on success, false otherwise.
-
-	    }, {
-	        key: 'closeNode',
-	        value: function closeNode(node) {
-	            ensureNodeInstance(node);
-
-	            // Retrieve node index
-	            var nodeIndex = this.nodes.indexOf(node);
-	            if (nodeIndex < 0) {
-	                throw new Error('Invalid node index');
+	                // Get next sibling
+	                node = node.getNextSibling();
 	            }
-
-	            // Check if the closeNode action can be performed
-	            if (this.state.openNodes.indexOf(node) < 0) {
-	                return false;
-	            }
-
-	            // Keep selected node unchanged if "node" is equal to "this.state.selectedNode"
-	            if (this.state.selectedNode && this.state.selectedNode !== node) {
-	                // row #0 - node.0         => parent node (total=4)
-	                // row #1   - node.0.0     => close this node; next selected node (total=2)
-	                // row #2       node.0.0.0 => selected node (total=0)
-	                // row #3       node.0.0.1
-	                // row #4     node.0.1
-	                var selectedIndex = this.nodes.indexOf(this.state.selectedNode);
-	                var rangeFrom = nodeIndex + 1;
-	                var rangeTo = nodeIndex + node.state.total;
-
-	                if (rangeFrom <= selectedIndex && selectedIndex <= rangeTo) {
-	                    this.selectNode(node);
-	                }
-	            }
-
-	            node.state.open = false; // Set the open state to false
-	            var openNodes = this.state.openNodes.filter(function (node) {
-	                return node.hasChildren() && node.state.open;
-	            });
-	            this.state.openNodes = openNodes;
-
-	            var deleteCount = node.state.total;
-
-	            // Subtract the deleteCount for all ancestors (parent, grandparent, etc.) of the current node
-	            for (var p = node; p !== null; p = p.parent) {
-	                p.state.total = p.state.total - deleteCount;
-	            }
-
-	            // Update nodes & rows
-	            this.nodes.splice(nodeIndex + 1, deleteCount);
-	            this.rows.splice(nodeIndex + 1, deleteCount);
-
-	            // Update the row corresponding to the node
-	            this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
-
-	            // Emit the 'closeNode' event
-	            this.emit('closeNode', node);
-
-	            // Updates list with new data
-	            this.update();
-
-	            return true;
 	        }
-	        // Flattens all child nodes of a parent node by performing full tree traversal using child-parent link.
-	        // No recursion or stack is involved.
-	        // @param {Node} parentNode The Node object that defines the parent node.
-	        // @return {array} Returns an array of Node objects containing all the child nodes of the parent node.
 
-	    }, {
-	        key: 'flattenChildNodes',
-	        value: function flattenChildNodes(parentNode) {
-	            // Defaults to rootNode if the parentNode is not specified
-	            parentNode = parentNode || this.state.rootNode;
+	        return list;
+	    };
+	    // Flattens a node by performing full tree traversal using child-parent link.
+	    // No recursion or stack is involved.
+	    // @param {Node} node The Node object.
+	    // @return {array} Returns a flattened list of Node objects.
 
-	            ensureNodeInstance(parentNode);
 
-	            var list = [];
+	    InfiniteTree.prototype.flattenNode = function flattenNode(node) {
+	        return [node].concat(this.flattenChildNodes(node));
+	    };
+	    // Gets a list of child nodes.
+	    // @param {Node} [parentNode] The Node object that defines the parent node. If null or undefined, returns a list of top level nodes.
+	    // @return {array} Returns an array of Node objects containing all the child nodes of the parent node.
 
-	            // Ignore parent node
-	            var node = parentNode.getFirstChild();
-	            while (node) {
-	                list.push(node);
-	                if (node.hasChildren()) {
-	                    node = node.getFirstChild();
-	                } else {
-	                    // find the parent level
-	                    while (node.getNextSibling() === null && node.parent !== parentNode) {
-	                        // use child-parent link to get to the parent level
-	                        node = node.getParent();
-	                    }
 
-	                    // Get next sibling
-	                    node = node.getNextSibling();
-	                }
-	            }
+	    InfiniteTree.prototype.getChildNodes = function getChildNodes(parentNode) {
+	        // Defaults to rootNode if the parentNode is not specified
+	        parentNode = parentNode || this.state.rootNode;
 
-	            return list;
-	        }
-	        // Flattens a node by performing full tree traversal using child-parent link.
-	        // No recursion or stack is involved.
-	        // @param {Node} node The Node object.
-	        // @return {array} Returns a flattened list of Node objects.
+	        ensureNodeInstance(parentNode);
 
-	    }, {
-	        key: 'flattenNode',
-	        value: function flattenNode(node) {
-	            return [node].concat(this.flattenChildNodes(node));
-	        }
-	        // Gets a list of child nodes.
-	        // @param {Node} [parentNode] The Node object that defines the parent node. If null or undefined, returns a list of top level nodes.
-	        // @return {array} Returns an array of Node objects containing all the child nodes of the parent node.
+	        return parentNode.children;
+	    };
+	    // Gets a node by its unique id. This assumes that you have given the nodes in the data a unique id.
+	    // @param {string|number} id An unique node id. A null value will be returned if the id doesn't match.
+	    // @return {Node} Returns a node the matches the id, null otherwise.
 
-	    }, {
-	        key: 'getChildNodes',
-	        value: function getChildNodes(parentNode) {
-	            // Defaults to rootNode if the parentNode is not specified
-	            parentNode = parentNode || this.state.rootNode;
 
-	            ensureNodeInstance(parentNode);
-
-	            return parentNode.children;
-	        }
-	        // Gets a node by its unique id. This assumes that you have given the nodes in the data a unique id.
-	        // @param {string|number} id An unique node id. A null value will be returned if the id doesn't match.
-	        // @return {Node} Returns a node the matches the id, null otherwise.
-
-	    }, {
-	        key: 'getNodeById',
-	        value: function getNodeById(id) {
-	            var node = this.nodeTable.get(id);
+	    InfiniteTree.prototype.getNodeById = function getNodeById(id) {
+	        var node = this.nodeTable.get(id);
+	        if (!node) {
+	            // Find the first node that matches the id
+	            node = this.nodes.filter(function (node) {
+	                return node.id === id;
+	            })[0];
 	            if (!node) {
-	                // Find the first node that matches the id
-	                node = this.nodes.filter(function (node) {
-	                    return node.id === id;
-	                })[0];
-	                if (!node) {
-	                    return null;
-	                }
-	                this.nodeTable.set(node.id, node);
+	                return null;
 	            }
-	            return node;
+	            this.nodeTable.set(node.id, node);
 	        }
-	        // Gets an array of open nodes.
-	        // @return {array} Returns an array of Node objects containing open nodes.
+	        return node;
+	    };
+	    // Gets an array of open nodes.
+	    // @return {array} Returns an array of Node objects containing open nodes.
 
-	    }, {
-	        key: 'getOpenNodes',
-	        value: function getOpenNodes() {
-	            // returns a shallow copy of an array into a new array object.
-	            return this.state.openNodes.slice();
-	        }
-	        // Gets the root node.
-	        // @return {Node} Returns the root node, or null if empty.
 
-	    }, {
-	        key: 'getRootNode',
-	        value: function getRootNode() {
-	            return this.state.rootNode;
-	        }
-	        // Gets the selected node.
-	        // @return {Node} Returns the selected node, or null if not selected.
+	    InfiniteTree.prototype.getOpenNodes = function getOpenNodes() {
+	        // returns a shallow copy of an array into a new array object.
+	        return this.state.openNodes.slice();
+	    };
+	    // Gets the root node.
+	    // @return {Node} Returns the root node, or null if empty.
 
-	    }, {
-	        key: 'getSelectedNode',
-	        value: function getSelectedNode() {
-	            return this.state.selectedNode;
-	        }
-	        // Inserts the specified node after the reference node.
-	        // @param {Object} newNode The new sibling node.
-	        // @param {Node} referenceNode The Node object that defines the reference node.
-	        // @return {boolean} Returns true on success, false otherwise.
 
-	    }, {
-	        key: 'insertNodeAfter',
-	        value: function insertNodeAfter(newNode, referenceNode) {
-	            ensureNodeInstance(referenceNode);
-	            var parentNode = referenceNode.getParent();
-	            var index = parentNode.children.indexOf(referenceNode) + 1;
-	            return this.addChildNodeAt(newNode, index, parentNode);
-	        }
-	        // Inserts the specified node before the reference node.
-	        // @param {Object} newNode The new sibling node.
-	        // @param {Node} referenceNode The Node object that defines the reference node.
-	        // @return {boolean} Returns true on success, false otherwise.
+	    InfiniteTree.prototype.getRootNode = function getRootNode() {
+	        return this.state.rootNode;
+	    };
+	    // Gets the selected node.
+	    // @return {Node} Returns the selected node, or null if not selected.
 
-	    }, {
-	        key: 'insertNodeBefore',
-	        value: function insertNodeBefore(newNode, referenceNode) {
-	            ensureNodeInstance(referenceNode);
-	            var parentNode = referenceNode.getParent();
-	            var index = parentNode.children.indexOf(referenceNode);
-	            return this.addChildNodeAt(newNode, index, parentNode);
-	        }
-	        // Loads data in the tree.
-	        // @param {object|array} data The data is an object or array of objects that defines the node.
 
-	    }, {
-	        key: 'loadData',
-	        value: function loadData() {
-	            var _this4 = this;
+	    InfiniteTree.prototype.getSelectedNode = function getSelectedNode() {
+	        return this.state.selectedNode;
+	    };
+	    // Inserts the specified node after the reference node.
+	    // @param {Object} newNode The new sibling node.
+	    // @param {Node} referenceNode The Node object that defines the reference node.
+	    // @return {boolean} Returns true on success, false otherwise.
 
-	            var data = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
 
-	            this.nodes = (0, _flattree.flatten)(data, { openAllNodes: this.options.autoOpen });
+	    InfiniteTree.prototype.insertNodeAfter = function insertNodeAfter(newNode, referenceNode) {
+	        ensureNodeInstance(referenceNode);
+	        var parentNode = referenceNode.getParent();
+	        var index = parentNode.children.indexOf(referenceNode) + 1;
+	        return this.addChildNodeAt(newNode, index, parentNode);
+	    };
+	    // Inserts the specified node before the reference node.
+	    // @param {Object} newNode The new sibling node.
+	    // @param {Node} referenceNode The Node object that defines the reference node.
+	    // @return {boolean} Returns true on success, false otherwise.
 
-	            // Clear lookup table
-	            this.nodeTable.clear();
 
-	            this.state.openNodes = this.nodes.filter(function (node) {
-	                return node.hasChildren() && node.state.open;
-	            });
-	            this.state.rootNode = function () {
-	                var node = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
+	    InfiniteTree.prototype.insertNodeBefore = function insertNodeBefore(newNode, referenceNode) {
+	        ensureNodeInstance(referenceNode);
+	        var parentNode = referenceNode.getParent();
+	        var index = parentNode.children.indexOf(referenceNode);
+	        return this.addChildNodeAt(newNode, index, parentNode);
+	    };
+	    // Loads data in the tree.
+	    // @param {object|array} data The data is an object or array of objects that defines the node.
 
-	                // Finding the root node
-	                while (node && node.parent !== null) {
-	                    node = node.parent;
-	                }
-	                return node;
-	            }(this.nodes[0]);
-	            this.state.selectedNode = null;
 
-	            // Update the lookup table with newly added nodes
-	            this.flattenChildNodes(this.state.rootNode).forEach(function (node) {
-	                if (node.id !== undefined) {
-	                    _this4.nodeTable.set(node.id, node);
-	                }
-	            });
+	    InfiniteTree.prototype.loadData = function loadData() {
+	        var _this4 = this;
 
-	            // Update rows
-	            this.rows = this.nodes.map(function (node) {
-	                return _this4.options.rowRenderer(node, _this4.options);
-	            });
+	        var data = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
 
-	            // Updates list with new data
-	            this.update();
-	        }
-	        // Opens a node to display its children.
-	        // @param {Node} node The Node object.
-	        // @return {boolean} Returns true on success, false otherwise.
+	        this.nodes = (0, _flattree.flatten)(data, { openAllNodes: this.options.autoOpen });
 
-	    }, {
-	        key: 'openNode',
-	        value: function openNode(node) {
-	            var _this5 = this;
+	        // Clear lookup table
+	        this.nodeTable.clear();
 
-	            ensureNodeInstance(node);
-
-	            // Retrieve node index
-	            var nodeIndex = this.nodes.indexOf(node);
-	            if (nodeIndex < 0) {
-	                throw new Error('Invalid node index');
-	            }
-
-	            // Check if the openNode action can be performed
-	            if (this.state.openNodes.indexOf(node) >= 0) {
-	                return false;
-	            }
-
-	            node.state.open = true; // Set node.state.open to true
-	            var openNodes = [node].concat(this.state.openNodes); // the most recently used items first
-	            this.state.openNodes = openNodes;
-
-	            var nodes = (0, _flattree.flatten)(node.children, { openNodes: this.state.openNodes });
-	            var rows = nodes.map(function (node) {
-	                return _this5.options.rowRenderer(node, _this5.options);
-	            });
-
-	            // Update nodes & rows
-	            this.nodes.splice.apply(this.nodes, [nodeIndex + 1, 0].concat(nodes));
-	            this.rows.splice.apply(this.rows, [nodeIndex + 1, 0].concat(rows));
-
-	            // Update the row corresponding to the node
-	            this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
-
-	            // Add all child nodes to the lookup table if the first child does not exist in the lookup table
-	            if (nodes.length > 0 && !this.nodeTable.get(nodes[0])) {
-	                nodes.forEach(function (node) {
-	                    if (node.id !== undefined) {
-	                        _this5.nodeTable.set(node.id, node);
-	                    }
-	                });
-	            }
-
-	            // Emit the 'openNode' event
-	            this.emit('openNode', node);
-
-	            // Updates list with new data
-	            this.update();
-
-	            return true;
-	        }
-	        // Removes all child nodes from a parent node.
-	        // @param {Node} parentNode The Node object that defines the parent node.
-	        // @return {boolean} Returns true on success, false otherwise.
-
-	    }, {
-	        key: 'removeChildNodes',
-	        value: function removeChildNodes(parentNode) {
-	            var _this6 = this;
-
-	            ensureNodeInstance(parentNode);
-
-	            if (parentNode.children.length === 0) {
-	                return false;
-	            }
-
-	            var parentNodeIndex = this.nodes.indexOf(parentNode);
-
-	            // Update selected node
-	            if (parentNodeIndex >= 0 && this.state.selectedNode) {
-	                // row #0 - node.0         => parent node (total=4)
-	                // row #1   - node.0.0
-	                // row #2       node.0.0.0 => current selected node
-	                // row #3       node.0.0.1
-	                // row #4     node.0.1
-	                var selectedIndex = this.nodes.indexOf(this.state.selectedNode);
-	                var rangeFrom = parentNodeIndex + 1;
-	                var rangeTo = parentNodeIndex + parentNode.state.total;
-
-	                if (rangeFrom <= selectedIndex && selectedIndex <= rangeTo) {
-	                    this.selectNode(parentNode);
-	                }
-	            }
-
-	            // Update parent node
-	            parentNode.children = [];
-	            parentNode.state.open = parentNode.state.open && parentNode.children.length > 0;
-
-	            // Get the number of nodes to be removed
-	            var deleteCount = parentNode.state.total;
-
-	            // Subtract the deleteCount for all ancestors (parent, grandparent, etc.) of the current node
-	            for (var p = parentNode; p !== null; p = p.parent) {
-	                p.state.total = p.state.total - deleteCount;
-	            }
-
-	            if (parentNodeIndex >= 0) {
-	                // Update nodes & rows
-	                this.nodes.splice(parentNodeIndex + 1, deleteCount);
-	                this.rows.splice(parentNodeIndex + 1, deleteCount);
-
-	                // Update the row corresponding to the parent node
-	                this.rows[parentNodeIndex] = this.options.rowRenderer(parentNode, this.options);
-	            }
-
-	            {
-	                (function () {
-	                    // Update open nodes and lookup table
-	                    var childNodes = _this6.flattenChildNodes(parentNode);
-
-	                    _this6.state.openNodes = _this6.state.openNodes.filter(function (node) {
-	                        return childNodes.indexOf(node) < 0;
-	                    });
-
-	                    childNodes.forEach(function (node) {
-	                        _this6.nodeTable.unset(node.id);
-	                    });
-	                })();
-	            }
-
-	            // Updates list with new data
-	            this.update();
-
-	            return true;
-	        }
-	        // Removes a node and all of its child nodes.
-	        // @param {Node} node The Node object.
-	        // @return {boolean} Returns true on success, false otherwise.
-
-	    }, {
-	        key: 'removeNode',
-	        value: function removeNode(node) {
-	            var _this7 = this;
-
-	            ensureNodeInstance(node);
-
-	            var parentNode = node.parent;
-	            if (!parentNode) {
-	                return false;
-	            }
-
-	            // Retrieve node index
-	            var nodeIndex = this.nodes.indexOf(node);
-	            var parentNodeIndex = this.nodes.indexOf(parentNode);
-
-	            // Update selected node
-	            if (nodeIndex >= 0 && this.state.selectedNode) {
-	                // row #0 - node.0         => parent node (total=4)
-	                // row #1   - node.0.0     => remove this node (total=2)
-	                // row #2       node.0.0.0 => current selected node (total=0)
-	                // row #3       node.0.0.1
-	                // row #4     node.0.1     => next selected node (total=0)
-	                var selectedIndex = this.nodes.indexOf(this.state.selectedNode);
-	                var rangeFrom = nodeIndex;
-	                var rangeTo = nodeIndex + node.state.total + 1;
-
-	                if (rangeFrom <= selectedIndex && selectedIndex <= rangeTo) {
-	                    // Change the selected node in the following order:
-	                    // 1. next sibling node
-	                    // 2. previous sibling node
-	                    // 3. parent node
-	                    var selectedNode = node.getNextSibling() || node.getPreviousSibling() || node.getParent();
-	                    this.selectNode(selectedNode);
-	                }
-	            }
-
-	            // Update parent node
-	            parentNode.children.splice(parentNode.children.indexOf(node), 1);
-	            parentNode.state.open = parentNode.state.open && parentNode.children.length > 0;
-
-	            // Get the number of nodes to be removed
-	            var deleteCount = node.state.total + 1;
-
-	            // Subtract the deleteCount for all ancestors (parent, grandparent, etc.) of the current node
-	            for (var p = parentNode; p !== null; p = p.parent) {
-	                p.state.total = p.state.total - deleteCount;
-	            }
-
-	            if (nodeIndex >= 0) {
-	                // Update nodes & rows
-	                this.nodes.splice(nodeIndex, deleteCount);
-	                this.rows.splice(nodeIndex, deleteCount);
-	            }
-
-	            // Update the row corresponding to the parent node
-	            if (parentNodeIndex >= 0) {
-	                this.rows[parentNodeIndex] = this.options.rowRenderer(parentNode, this.options);
-	            }
-
-	            {
-	                (function () {
-	                    // Update open nodes and lookup table
-	                    var nodes = _this7.flattenNode(node);
-
-	                    _this7.state.openNodes = _this7.state.openNodes.filter(function (node) {
-	                        return nodes.indexOf(node) < 0;
-	                    });
-
-	                    nodes.forEach(function (node) {
-	                        _this7.nodeTable.unset(node.id);
-	                    });
-	                })();
-	            }
-
-	            // Updates list with new data
-	            this.update();
-
-	            return true;
-	        }
-	        // Sets the current scroll position to this node.
-	        // @param {Node} node The Node object.
-	        // @return {number} Returns the vertical scroll position, or -1 on error.
-
-	    }, {
-	        key: 'scrollToNode',
-	        value: function scrollToNode(node) {
-	            ensureNodeInstance(node);
-
-	            // Retrieve node index
-	            var nodeIndex = this.nodes.indexOf(node);
-	            if (nodeIndex < 0) {
-	                return -1;
-	            }
-	            if (!this.contentElement) {
-	                return -1;
-	            }
-	            // Get the offset height of the first child element that contains the "tree-item" class
-	            var firstChild = this.contentElement.querySelectorAll('.tree-item')[0];
-	            var rowHeight = firstChild && firstChild.offsetHeight || 0;
-	            return this.scrollTop(nodeIndex * rowHeight);
-	        }
-	        // Gets (or sets) the current vertical position of the scroll bar.
-	        // @param {number} [value] An integer that indicates the new position to set the scroll bar to.
-	        // @return {number} Returns the vertical scroll position.
-
-	    }, {
-	        key: 'scrollTop',
-	        value: function scrollTop(value) {
-	            if (!this.scrollElement) {
-	                return 0;
-	            }
-	            if (value !== undefined) {
-	                this.scrollElement.scrollTop = Number(value);
-	            }
-	            return this.scrollElement.scrollTop;
-	        }
-	        // Selects a node.
-	        // @param {Node} node The Node object. If null or undefined, deselects the current node.
-	        // @return {boolean} Returns true on success, false otherwise.
-
-	    }, {
-	        key: 'selectNode',
-	        value: function selectNode() {
+	        this.state.openNodes = this.nodes.filter(function (node) {
+	            return node.hasChildren() && node.state.open;
+	        });
+	        this.state.rootNode = function () {
 	            var node = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
 
-	            if (!this.options.selectable) {
-	                return false;
+	            // Finding the root node
+	            while (node && node.parent !== null) {
+	                node = node.parent;
 	            }
+	            return node;
+	        }(this.nodes[0]);
+	        this.state.selectedNode = null;
 
-	            if (node === null) {
-	                // Deselect the current node
-	                if (this.state.selectedNode) {
-	                    var selectedNode = this.state.selectedNode;
-	                    var selectedIndex = this.nodes.indexOf(selectedNode);
+	        // Update the lookup table with newly added nodes
+	        this.flattenChildNodes(this.state.rootNode).forEach(function (node) {
+	            if (node.id !== undefined) {
+	                _this4.nodeTable.set(node.id, node);
+	            }
+	        });
 
-	                    selectedNode.state.selected = false;
-	                    this.rows[selectedIndex] = this.options.rowRenderer(selectedNode, this.options);
-	                    this.state.selectedNode = null;
+	        // Update rows
+	        this.rows = this.nodes.map(function (node) {
+	            return _this4.options.rowRenderer(node, _this4.options);
+	        });
 
-	                    // Emit the 'selectNode' event
-	                    this.emit('selectNode', null);
+	        // Updates list with new data
+	        this.update();
+	    };
+	    // Opens a node to display its children.
+	    // @param {Node} node The Node object.
+	    // @return {boolean} Returns true on success, false otherwise.
 
-	                    // Updates list with new data
-	                    this.update();
 
-	                    return true;
+	    InfiniteTree.prototype.openNode = function openNode(node) {
+	        var _this5 = this;
+
+	        ensureNodeInstance(node);
+
+	        // Retrieve node index
+	        var nodeIndex = this.nodes.indexOf(node);
+	        if (nodeIndex < 0) {
+	            throw new Error('Invalid node index');
+	        }
+
+	        // Check if the openNode action can be performed
+	        if (this.state.openNodes.indexOf(node) >= 0) {
+	            return false;
+	        }
+
+	        node.state.open = true; // Set node.state.open to true
+	        var openNodes = [node].concat(this.state.openNodes); // the most recently used items first
+	        this.state.openNodes = openNodes;
+
+	        var nodes = (0, _flattree.flatten)(node.children, { openNodes: this.state.openNodes });
+	        var rows = nodes.map(function (node) {
+	            return _this5.options.rowRenderer(node, _this5.options);
+	        });
+
+	        // Update nodes & rows
+	        this.nodes.splice.apply(this.nodes, [nodeIndex + 1, 0].concat(nodes));
+	        this.rows.splice.apply(this.rows, [nodeIndex + 1, 0].concat(rows));
+
+	        // Update the row corresponding to the node
+	        this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
+
+	        // Add all child nodes to the lookup table if the first child does not exist in the lookup table
+	        if (nodes.length > 0 && !this.nodeTable.get(nodes[0])) {
+	            nodes.forEach(function (node) {
+	                if (node.id !== undefined) {
+	                    _this5.nodeTable.set(node.id, node);
 	                }
+	            });
+	        }
 
-	                return false;
+	        // Emit the 'openNode' event
+	        this.emit('openNode', node);
+
+	        // Updates list with new data
+	        this.update();
+
+	        return true;
+	    };
+	    // Removes all child nodes from a parent node.
+	    // @param {Node} parentNode The Node object that defines the parent node.
+	    // @return {boolean} Returns true on success, false otherwise.
+
+
+	    InfiniteTree.prototype.removeChildNodes = function removeChildNodes(parentNode) {
+	        var _this6 = this;
+
+	        ensureNodeInstance(parentNode);
+
+	        if (parentNode.children.length === 0) {
+	            return false;
+	        }
+
+	        var parentNodeIndex = this.nodes.indexOf(parentNode);
+
+	        // Update selected node
+	        if (parentNodeIndex >= 0 && this.state.selectedNode) {
+	            // row #0 - node.0         => parent node (total=4)
+	            // row #1   - node.0.0
+	            // row #2       node.0.0.0 => current selected node
+	            // row #3       node.0.0.1
+	            // row #4     node.0.1
+	            var selectedIndex = this.nodes.indexOf(this.state.selectedNode);
+	            var rangeFrom = parentNodeIndex + 1;
+	            var rangeTo = parentNodeIndex + parentNode.state.total;
+
+	            if (rangeFrom <= selectedIndex && selectedIndex <= rangeTo) {
+	                this.selectNode(parentNode);
 	            }
+	        }
 
-	            ensureNodeInstance(node);
+	        // Update parent node
+	        parentNode.children = [];
+	        parentNode.state.open = parentNode.state.open && parentNode.children.length > 0;
 
-	            // Retrieve node index
-	            var nodeIndex = this.nodes.indexOf(node);
-	            if (nodeIndex < 0) {
-	                throw new Error('Invalid node index');
+	        // Get the number of nodes to be removed
+	        var deleteCount = parentNode.state.total;
+
+	        // Subtract the deleteCount for all ancestors (parent, grandparent, etc.) of the current node
+	        for (var p = parentNode; p !== null; p = p.parent) {
+	            p.state.total = p.state.total - deleteCount;
+	        }
+
+	        if (parentNodeIndex >= 0) {
+	            // Update nodes & rows
+	            this.nodes.splice(parentNodeIndex + 1, deleteCount);
+	            this.rows.splice(parentNodeIndex + 1, deleteCount);
+
+	            // Update the row corresponding to the parent node
+	            this.rows[parentNodeIndex] = this.options.rowRenderer(parentNode, this.options);
+	        }
+
+	        {
+	            (function () {
+	                // Update open nodes and lookup table
+	                var childNodes = _this6.flattenChildNodes(parentNode);
+
+	                _this6.state.openNodes = _this6.state.openNodes.filter(function (node) {
+	                    return childNodes.indexOf(node) < 0;
+	                });
+
+	                childNodes.forEach(function (node) {
+	                    _this6.nodeTable.unset(node.id);
+	                });
+	            })();
+	        }
+
+	        // Updates list with new data
+	        this.update();
+
+	        return true;
+	    };
+	    // Removes a node and all of its child nodes.
+	    // @param {Node} node The Node object.
+	    // @return {boolean} Returns true on success, false otherwise.
+
+
+	    InfiniteTree.prototype.removeNode = function removeNode(node) {
+	        var _this7 = this;
+
+	        ensureNodeInstance(node);
+
+	        var parentNode = node.parent;
+	        if (!parentNode) {
+	            return false;
+	        }
+
+	        // Retrieve node index
+	        var nodeIndex = this.nodes.indexOf(node);
+	        var parentNodeIndex = this.nodes.indexOf(parentNode);
+
+	        // Update selected node
+	        if (nodeIndex >= 0 && this.state.selectedNode) {
+	            // row #0 - node.0         => parent node (total=4)
+	            // row #1   - node.0.0     => remove this node (total=2)
+	            // row #2       node.0.0.0 => current selected node (total=0)
+	            // row #3       node.0.0.1
+	            // row #4     node.0.1     => next selected node (total=0)
+	            var selectedIndex = this.nodes.indexOf(this.state.selectedNode);
+	            var rangeFrom = nodeIndex;
+	            var rangeTo = nodeIndex + node.state.total + 1;
+
+	            if (rangeFrom <= selectedIndex && selectedIndex <= rangeTo) {
+	                // Change the selected node in the following order:
+	                // 1. next sibling node
+	                // 2. previous sibling node
+	                // 3. parent node
+	                var selectedNode = node.getNextSibling() || node.getPreviousSibling() || node.getParent();
+	                this.selectNode(selectedNode);
 	            }
+	        }
 
-	            // Select this node
-	            if (this.state.selectedNode !== node) {
-	                node.state.selected = true;
+	        // Update parent node
+	        parentNode.children.splice(parentNode.children.indexOf(node), 1);
+	        parentNode.state.open = parentNode.state.open && parentNode.children.length > 0;
 
-	                // Update the row corresponding to the node
-	                this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
-	            }
+	        // Get the number of nodes to be removed
+	        var deleteCount = node.state.total + 1;
 
+	        // Subtract the deleteCount for all ancestors (parent, grandparent, etc.) of the current node
+	        for (var p = parentNode; p !== null; p = p.parent) {
+	            p.state.total = p.state.total - deleteCount;
+	        }
+
+	        if (nodeIndex >= 0) {
+	            // Update nodes & rows
+	            this.nodes.splice(nodeIndex, deleteCount);
+	            this.rows.splice(nodeIndex, deleteCount);
+	        }
+
+	        // Update the row corresponding to the parent node
+	        if (parentNodeIndex >= 0) {
+	            this.rows[parentNodeIndex] = this.options.rowRenderer(parentNode, this.options);
+	        }
+
+	        {
+	            (function () {
+	                // Update open nodes and lookup table
+	                var nodes = _this7.flattenNode(node);
+
+	                _this7.state.openNodes = _this7.state.openNodes.filter(function (node) {
+	                    return nodes.indexOf(node) < 0;
+	                });
+
+	                nodes.forEach(function (node) {
+	                    _this7.nodeTable.unset(node.id);
+	                });
+	            })();
+	        }
+
+	        // Updates list with new data
+	        this.update();
+
+	        return true;
+	    };
+	    // Sets the current scroll position to this node.
+	    // @param {Node} node The Node object.
+	    // @return {number} Returns the vertical scroll position, or -1 on error.
+
+
+	    InfiniteTree.prototype.scrollToNode = function scrollToNode(node) {
+	        ensureNodeInstance(node);
+
+	        // Retrieve node index
+	        var nodeIndex = this.nodes.indexOf(node);
+	        if (nodeIndex < 0) {
+	            return -1;
+	        }
+	        if (!this.contentElement) {
+	            return -1;
+	        }
+	        // Get the offset height of the first child element that contains the "tree-item" class
+	        var firstChild = this.contentElement.querySelectorAll('.tree-item')[0];
+	        var rowHeight = firstChild && firstChild.offsetHeight || 0;
+	        return this.scrollTop(nodeIndex * rowHeight);
+	    };
+	    // Gets (or sets) the current vertical position of the scroll bar.
+	    // @param {number} [value] An integer that indicates the new position to set the scroll bar to.
+	    // @return {number} Returns the vertical scroll position.
+
+
+	    InfiniteTree.prototype.scrollTop = function scrollTop(value) {
+	        if (!this.scrollElement) {
+	            return 0;
+	        }
+	        if (value !== undefined) {
+	            this.scrollElement.scrollTop = Number(value);
+	        }
+	        return this.scrollElement.scrollTop;
+	    };
+	    // Selects a node.
+	    // @param {Node} node The Node object. If null or undefined, deselects the current node.
+	    // @return {boolean} Returns true on success, false otherwise.
+
+
+	    InfiniteTree.prototype.selectNode = function selectNode() {
+	        var node = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
+
+	        if (!this.options.selectable) {
+	            return false;
+	        }
+
+	        if (node === null) {
 	            // Deselect the current node
 	            if (this.state.selectedNode) {
-	                var _selectedNode = this.state.selectedNode;
-	                var _selectedIndex = this.nodes.indexOf(_selectedNode);
-	                _selectedNode.state.selected = false;
-	                this.rows[_selectedIndex] = this.options.rowRenderer(_selectedNode, this.options);
-	            }
+	                var selectedNode = this.state.selectedNode;
+	                var selectedIndex = this.nodes.indexOf(selectedNode);
 
-	            if (this.state.selectedNode !== node) {
-	                this.state.selectedNode = node;
-
-	                // Emit the 'selectNode' event
-	                this.emit('selectNode', node);
-	            } else {
+	                selectedNode.state.selected = false;
+	                this.rows[selectedIndex] = this.options.rowRenderer(selectedNode, this.options);
 	                this.state.selectedNode = null;
 
 	                // Emit the 'selectNode' event
 	                this.emit('selectNode', null);
-	            }
-
-	            // Updates list with new data
-	            this.update();
-
-	            return true;
-	        }
-	        // Toggles a node to display or hide its children.
-	        // @param {Node} node The Node object.
-
-	    }, {
-	        key: 'toggleNode',
-	        value: function toggleNode(node) {
-	            if (this.state.openNodes.indexOf(node) >= 0) {
-	                // close node
-	                this.closeNode(node);
-	            } else {
-	                // open node
-	                this.openNode(node);
-	            }
-	        }
-	        // Serializes the current state of a node to a JSON string.
-	        // @param {Node} node The Node object. If null, returns the whole tree.
-	        // @return {string} Returns a JSON string represented the tree.
-
-	    }, {
-	        key: 'toString',
-	        value: function toString() {
-	            var node = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
-
-	            var traverse = function traverse(node) {
-	                var s = '[';
-	                if (node && node.children) {
-	                    var _loop = function _loop(i) {
-	                        var list = [];
-	                        s = s + '{';
-	                        Object.keys(node).forEach(function (key) {
-	                            var value = node[key];
-	                            if (key === 'parent') {
-	                                // ignore parent
-	                                return;
-	                            }
-	                            if (key === 'children') {
-	                                // traverse child nodes
-	                                list.push('"' + key + '":' + traverse(node.children[i]));
-	                                return;
-	                            }
-	                            if (typeof value === 'string' || (typeof value === 'undefined' ? 'undefined' : _typeof(value)) === 'object') {
-	                                list.push('"' + key + '":' + JSON.stringify(value));
-	                            } else {
-	                                // primitive types
-	                                list.push('"' + key + '":' + value);
-	                            }
-	                        });
-	                        s = s + list.join(',');
-	                        s = s + '}' + (i === node.children.length - 1 ? '' : ',');
-	                    };
-
-	                    for (var i = 0; i < node.children.length; ++i) {
-	                        _loop(i);
-	                    }
-	                }
-	                s = s + ']';
-	                return s;
-	            };
-
-	            if (!node) {
-	                node = this.state.rootNode;
-	            }
-
-	            return traverse(node);
-	        }
-	        // Updates the tree.
-
-	    }, {
-	        key: 'update',
-	        value: function update() {
-	            // Update the list with new data
-	            this.clusterize.update(this.rows);
-
-	            // Emit the 'update' event
-	            this.emit('update');
-	        }
-	        // Updates the data of a node.
-	        // @param {Node} node The Node object.
-	        // @param {Object} data The data object.
-
-	    }, {
-	        key: 'updateNode',
-	        value: function updateNode(node, data) {
-	            ensureNodeInstance(node);
-
-	            // The static attributes (i.e. children, parent, and state) are being protected
-	            var _node = node;
-	            var children = _node.children;
-	            var parent = _node.parent;
-	            var state = _node.state;
-
-	            node = extend(node, data, { children: children, parent: parent, state: state });
-
-	            // Retrieve node index
-	            var nodeIndex = this.nodes.indexOf(node);
-	            if (nodeIndex >= 0) {
-	                // Update the row corresponding to the node
-	                this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
 
 	                // Updates list with new data
 	                this.update();
+
+	                return true;
 	            }
+
+	            return false;
 	        }
-	    }]);
+
+	        ensureNodeInstance(node);
+
+	        // Retrieve node index
+	        var nodeIndex = this.nodes.indexOf(node);
+	        if (nodeIndex < 0) {
+	            throw new Error('Invalid node index');
+	        }
+
+	        // Select this node
+	        if (this.state.selectedNode !== node) {
+	            node.state.selected = true;
+
+	            // Update the row corresponding to the node
+	            this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
+	        }
+
+	        // Deselect the current node
+	        if (this.state.selectedNode) {
+	            var _selectedNode = this.state.selectedNode;
+	            var _selectedIndex = this.nodes.indexOf(_selectedNode);
+	            _selectedNode.state.selected = false;
+	            this.rows[_selectedIndex] = this.options.rowRenderer(_selectedNode, this.options);
+	        }
+
+	        if (this.state.selectedNode !== node) {
+	            this.state.selectedNode = node;
+
+	            // Emit the 'selectNode' event
+	            this.emit('selectNode', node);
+	        } else {
+	            this.state.selectedNode = null;
+
+	            // Emit the 'selectNode' event
+	            this.emit('selectNode', null);
+	        }
+
+	        // Updates list with new data
+	        this.update();
+
+	        return true;
+	    };
+	    // Toggles a node to display or hide its children.
+	    // @param {Node} node The Node object.
+
+
+	    InfiniteTree.prototype.toggleNode = function toggleNode(node) {
+	        if (this.state.openNodes.indexOf(node) >= 0) {
+	            // close node
+	            this.closeNode(node);
+	        } else {
+	            // open node
+	            this.openNode(node);
+	        }
+	    };
+	    // Serializes the current state of a node to a JSON string.
+	    // @param {Node} node The Node object. If null, returns the whole tree.
+	    // @return {string} Returns a JSON string represented the tree.
+
+
+	    InfiniteTree.prototype.toString = function toString() {
+	        var node = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
+
+	        var traverse = function traverse(node) {
+	            var s = '[';
+	            if (node && node.children) {
+	                var _loop = function _loop(i) {
+	                    var list = [];
+	                    s = s + '{';
+	                    Object.keys(node).forEach(function (key) {
+	                        var value = node[key];
+	                        if (key === 'parent') {
+	                            // ignore parent
+	                            return;
+	                        }
+	                        if (key === 'children') {
+	                            // traverse child nodes
+	                            list.push('"' + key + '":' + traverse(node.children[i]));
+	                            return;
+	                        }
+	                        if (typeof value === 'string' || (typeof value === 'undefined' ? 'undefined' : _typeof(value)) === 'object') {
+	                            list.push('"' + key + '":' + JSON.stringify(value));
+	                        } else {
+	                            // primitive types
+	                            list.push('"' + key + '":' + value);
+	                        }
+	                    });
+	                    s = s + list.join(',');
+	                    s = s + '}' + (i === node.children.length - 1 ? '' : ',');
+	                };
+
+	                for (var i = 0; i < node.children.length; ++i) {
+	                    _loop(i);
+	                }
+	            }
+	            s = s + ']';
+	            return s;
+	        };
+
+	        if (!node) {
+	            node = this.state.rootNode;
+	        }
+
+	        return traverse(node);
+	    };
+	    // Updates the tree.
+
+
+	    InfiniteTree.prototype.update = function update() {
+	        // Update the list with new data
+	        this.clusterize.update(this.rows);
+
+	        // Emit the 'update' event
+	        this.emit('update');
+	    };
+	    // Updates the data of a node.
+	    // @param {Node} node The Node object.
+	    // @param {Object} data The data object.
+
+
+	    InfiniteTree.prototype.updateNode = function updateNode(node, data) {
+	        ensureNodeInstance(node);
+
+	        // The static attributes (i.e. children, parent, and state) are being protected
+	        var _node = node;
+	        var children = _node.children;
+	        var parent = _node.parent;
+	        var state = _node.state;
+
+	        node = extend(node, data, { children: children, parent: parent, state: state });
+
+	        // Retrieve node index
+	        var nodeIndex = this.nodes.indexOf(node);
+	        if (nodeIndex >= 0) {
+	            // Update the row corresponding to the node
+	            this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
+
+	            // Updates list with new data
+	            this.update();
+	        }
+	    };
 
 	    return InfiniteTree;
 	}(_events2['default'].EventEmitter);
 
-	// IE8 compatibility output
-
-
-	module.exports = InfiniteTree;
+	exports['default'] = InfiniteTree;
 
 /***/ },
-/* 1 */
+/* 2 */
 /***/ function(module, exports) {
 
 	// Copyright Joyent, Inc. and other Node contributors.
@@ -1427,7 +1419,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 2 */
+/* 3 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*! Clusterize.js - v0.16.0 - 2016-03-12
@@ -1759,40 +1751,41 @@ return /******/ (function(modules) { // webpackBootstrap
 	}));
 
 /***/ },
-/* 3 */
+/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var _flatten = __webpack_require__(4);
+	exports.__esModule = true;
+	exports.Node = exports.flatten = undefined;
+
+	var _flatten = __webpack_require__(5);
 
 	var _flatten2 = _interopRequireDefault(_flatten);
 
-	var _node = __webpack_require__(6);
+	var _node = __webpack_require__(7);
 
 	var _node2 = _interopRequireDefault(_node);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 	// IE8 compatibility output
-	module.exports = {
-	    flatten: _flatten2['default'],
-	    Node: _node2['default']
-	};
+	exports.flatten = _flatten2['default'];
+	exports.Node = _node2['default'];
 
 /***/ },
-/* 4 */
+/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+	exports.__esModule = true;
 
-	var _extend = __webpack_require__(5);
+	var _extend = __webpack_require__(6);
 
 	var _extend2 = _interopRequireDefault(_extend);
 
-	var _node = __webpack_require__(6);
+	var _node = __webpack_require__(7);
 
 	var _node2 = _interopRequireDefault(_node);
 
@@ -1876,11 +1869,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    while (stack.length > 0) {
 	        var _stack$pop = stack.pop();
 
-	        var _stack$pop2 = _slicedToArray(_stack$pop, 3);
-
-	        var current = _stack$pop2[0];
-	        var depth = _stack$pop2[1];
-	        var index = _stack$pop2[2];
+	        var current = _stack$pop[0];
+	        var depth = _stack$pop[1];
+	        var index = _stack$pop[2];
 
 	        var _loop = function _loop() {
 	            var node = current.children[index];
@@ -1985,15 +1976,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return flatten;
 	};
 
-	// IE8 compatibility output
-	module.exports = flatten;
+	exports['default'] = flatten;
 
 /***/ },
-/* 5 */
+/* 6 */
 /***/ function(module, exports) {
 
 	'use strict';
 
+	exports.__esModule = true;
 	var extend = function extend(target) {
 	    for (var _len = arguments.length, sources = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
 	        sources[_key - 1] = arguments[_key];
@@ -2017,18 +2008,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return output;
 	};
 
-	// IE8 compatibility output
-	module.exports = extend;
+	exports['default'] = extend;
 
 /***/ },
-/* 6 */
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	exports.__esModule = true;
 
-	var _extend = __webpack_require__(5);
+	var _extend = __webpack_require__(6);
 
 	var _extend2 = _interopRequireDefault(_extend);
 
@@ -2055,119 +2045,105 @@ return /******/ (function(modules) { // webpackBootstrap
 	    // @return {object} Returns an object that defines the node, null otherwise.
 
 
-	    _createClass(Node, [{
-	        key: 'getChildAt',
-	        value: function getChildAt(index) {
-	            var node = null;
-	            if (this.children.length > 0 && index >= 0 && index < this.children.length) {
-	                node = this.children[index];
+	    Node.prototype.getChildAt = function getChildAt(index) {
+	        var node = null;
+	        if (this.children.length > 0 && index >= 0 && index < this.children.length) {
+	            node = this.children[index];
+	        }
+	        return node;
+	    };
+	    // Gets the child nodes.
+	    // @return {array} Returns an array of objects that define the nodes.
+
+
+	    Node.prototype.getChildren = function getChildren() {
+	        return this.children;
+	    };
+	    // Gets the first child node.
+	    // @return {object} Returns an object that defines the node, null otherwise.
+
+
+	    Node.prototype.getFirstChild = function getFirstChild() {
+	        var node = null;
+	        if (this.children.length > 0) {
+	            node = this.children[0];
+	        }
+	        return node;
+	    };
+	    // Gets the last child node.
+	    // @return {object} Returns an object that defines the node, null otherwise.
+
+
+	    Node.prototype.getLastChild = function getLastChild() {
+	        var node = null;
+	        if (this.children.length > 0) {
+	            node = this.children[this.children.length - 1];
+	        }
+	        return node;
+	    };
+	    // Gets the next sibling node.
+	    // @return {object} Returns an object that defines the node, null otherwise.
+
+
+	    Node.prototype.getNextSibling = function getNextSibling() {
+	        var node = null;
+	        if (this.parent) {
+	            var index = this.parent.children.indexOf(this);
+	            if (index >= 0 && index < this.parent.children.length - 1) {
+	                node = this.parent.children[index + 1];
 	            }
-	            return node;
 	        }
-	        // Gets the child nodes.
-	        // @return {array} Returns an array of objects that define the nodes.
+	        return node;
+	    };
+	    // Gets the parent node.
+	    // @return {object} Returns an object that defines the node, null otherwise.
 
-	    }, {
-	        key: 'getChildren',
-	        value: function getChildren() {
-	            return this.children;
-	        }
-	        // Gets the first child node.
-	        // @return {object} Returns an object that defines the node, null otherwise.
 
-	    }, {
-	        key: 'getFirstChild',
-	        value: function getFirstChild() {
-	            var node = null;
-	            if (this.children.length > 0) {
-	                node = this.children[0];
+	    Node.prototype.getParent = function getParent() {
+	        return this.parent;
+	    };
+	    // Gets the previous sibling node.
+	    // @return {object} Returns an object that defines the node, null otherwise.
+
+
+	    Node.prototype.getPreviousSibling = function getPreviousSibling() {
+	        var node = null;
+	        if (this.parent) {
+	            var index = this.parent.children.indexOf(this);
+	            if (index > 0 && index < this.parent.children.length) {
+	                node = this.parent.children[index - 1];
 	            }
-	            return node;
 	        }
-	        // Gets the last child node.
-	        // @return {object} Returns an object that defines the node, null otherwise.
+	        return node;
+	    };
+	    // Checks whether this node has children.
+	    // @return {boolean} Returns true if the node has children, false otherwise.
 
-	    }, {
-	        key: 'getLastChild',
-	        value: function getLastChild() {
-	            var node = null;
-	            if (this.children.length > 0) {
-	                node = this.children[this.children.length - 1];
-	            }
-	            return node;
-	        }
-	        // Gets the next sibling node.
-	        // @return {object} Returns an object that defines the node, null otherwise.
 
-	    }, {
-	        key: 'getNextSibling',
-	        value: function getNextSibling() {
-	            var node = null;
-	            if (this.parent) {
-	                var index = this.parent.children.indexOf(this);
-	                if (index >= 0 && index < this.parent.children.length - 1) {
-	                    node = this.parent.children[index + 1];
-	                }
-	            }
-	            return node;
-	        }
-	        // Gets the parent node.
-	        // @return {object} Returns an object that defines the node, null otherwise.
+	    Node.prototype.hasChildren = function hasChildren() {
+	        return this.children.length > 0;
+	    };
+	    // Checks whether this node is the last child of its parent.
+	    // @return {boolean} Returns true if the node is the last child of its parent, false otherwise.
 
-	    }, {
-	        key: 'getParent',
-	        value: function getParent() {
-	            return this.parent;
-	        }
-	        // Gets the previous sibling node.
-	        // @return {object} Returns an object that defines the node, null otherwise.
 
-	    }, {
-	        key: 'getPreviousSibling',
-	        value: function getPreviousSibling() {
-	            var node = null;
-	            if (this.parent) {
-	                var index = this.parent.children.indexOf(this);
-	                if (index > 0 && index < this.parent.children.length) {
-	                    node = this.parent.children[index - 1];
-	                }
-	            }
-	            return node;
-	        }
-	        // Checks whether this node has children.
-	        // @return {boolean} Returns true if the node has children, false otherwise.
-
-	    }, {
-	        key: 'hasChildren',
-	        value: function hasChildren() {
-	            return this.children.length > 0;
-	        }
-	        // Checks whether this node is the last child of its parent.
-	        // @return {boolean} Returns true if the node is the last child of its parent, false otherwise.
-
-	    }, {
-	        key: 'isLastChild',
-	        value: function isLastChild() {
-	            var hasNextSibling = this.getNextSibling();
-	            return !hasNextSibling;
-	        }
-	    }]);
+	    Node.prototype.isLastChild = function isLastChild() {
+	        var hasNextSibling = this.getNextSibling();
+	        return !hasNextSibling;
+	    };
 
 	    return Node;
 	}();
 
-	// IE8 compatibility output
-
-
-	module.exports = Node;
+	exports['default'] = Node;
 
 /***/ },
-/* 7 */
+/* 8 */
 /***/ function(module, exports) {
 
 	"use strict";
 
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	exports.__esModule = true;
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -2178,51 +2154,44 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.data = {};
 	    }
 
-	    _createClass(LookupTable, [{
-	        key: "clear",
-	        value: function clear() {
-	            this.data = {};
+	    LookupTable.prototype.clear = function clear() {
+	        this.data = {};
+	    };
+
+	    LookupTable.prototype.get = function get(key) {
+	        return this.data[key];
+	    };
+
+	    LookupTable.prototype.has = function has(key) {
+	        return this.data[key] !== undefined;
+	    };
+
+	    LookupTable.prototype.set = function set(key, value) {
+	        this.data[key] = value;
+	        return value;
+	    };
+
+	    LookupTable.prototype.unset = function unset(key) {
+	        if (this.data[key] !== undefined) {
+	            delete this.data[key];
 	        }
-	    }, {
-	        key: "get",
-	        value: function get(key) {
-	            return this.data[key];
-	        }
-	    }, {
-	        key: "has",
-	        value: function has(key) {
-	            return this.data[key] !== undefined;
-	        }
-	    }, {
-	        key: "set",
-	        value: function set(key, value) {
-	            this.data[key] = value;
-	            return value;
-	        }
-	    }, {
-	        key: "unset",
-	        value: function unset(key) {
-	            if (this.data[key] !== undefined) {
-	                delete this.data[key];
-	            }
-	        }
-	    }]);
+	    };
 
 	    return LookupTable;
 	}();
 
-	// IE8 compatibility output
-
-
-	module.exports = LookupTable;
+	exports["default"] = LookupTable;
 
 /***/ },
-/* 8 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var _helper = __webpack_require__(9);
+	exports.__esModule = true;
+	exports.defaultRowRenderer = undefined;
+
+	var _helper = __webpack_require__(10);
 
 	var defaultRowRenderer = function defaultRowRenderer(node, treeOptions) {
 	    var id = node.id;
@@ -2278,16 +2247,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	    });
 	};
 
-	// IE8 compatibility output
-	module.exports = {
-	    defaultRowRenderer: defaultRowRenderer
-	};
+	exports.defaultRowRenderer = defaultRowRenderer;
 
 /***/ },
-/* 9 */
+/* 10 */
 /***/ function(module, exports) {
 
 	'use strict';
+
+	exports.__esModule = true;
 
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
@@ -2477,21 +2445,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return h;
 	};
 
-	// IE8 compatibility output
-	module.exports = {
-	    preventDefault: preventDefault,
-	    stopPropagation: stopPropagation,
-	    dispatchEvent: dispatchEvent,
-	    addEventListener: addEventListener,
-	    removeEventListener: removeEventListener,
-	    hasClass: hasClass,
-	    addClass: addClass,
-	    removeClass: removeClass,
-	    toggleClass: toggleClass,
-	    classNames: classNames,
-	    quoteattr: quoteattr,
-	    buildHTML: buildHTML
-	};
+	exports.preventDefault = preventDefault;
+	exports.stopPropagation = stopPropagation;
+	exports.dispatchEvent = dispatchEvent;
+	exports.addEventListener = addEventListener;
+	exports.removeEventListener = removeEventListener;
+	exports.hasClass = hasClass;
+	exports.addClass = addClass;
+	exports.removeClass = removeClass;
+	exports.toggleClass = toggleClass;
+	exports.classNames = classNames;
+	exports.quoteattr = quoteattr;
+	exports.buildHTML = buildHTML;
 
 /***/ }
 /******/ ])
