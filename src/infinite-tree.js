@@ -46,9 +46,7 @@ class InfiniteTree extends events.EventEmitter {
         el: null,
         rowRenderer: defaultRowRenderer,
         selectable: true,
-        shouldSelectNode: (node) => {
-            return this.options.selectable;
-        }
+        shouldSelectNode: null
     };
     state = {
         openNodes: [],
@@ -771,10 +769,12 @@ class InfiniteTree extends events.EventEmitter {
     // @param {Node} node The Node object. If null or undefined, deselects the current node.
     // @return {boolean} Returns true on success, false otherwise.
     selectNode(node = null) {
-        if (!this.options.selectable) {
+        const { selectable, shouldSelectNode } = this.options;
+
+        if (!selectable) {
             return false;
         }
-        if (!this.options.shouldSelectNode(node)) {
+        if ((typeof shouldSelectNode === 'function') && !shouldSelectNode(node)) {
             return false;
         }
 
