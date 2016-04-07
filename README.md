@@ -11,7 +11,7 @@ Demo: http://cheton.github.io/infinite-tree
 
 ## Features
 * Supported browsers: Chrome, Firefox, Safari, Microsoft Edge, IE8 with  [es5-shim](https://github.com/es-shims/es5-shim#example-of-applying-es-compatability-shims-in-a-browser-project) polyfill, IE9, IE10, and IE11. 
-* Customizable renderer to render the tree in any form
+* [Customizable renderer](https://github.com/cheton/infinite-tree/wiki/Options#rowrenderer) to render the tree in any form
 * High performance infinite scroll with large data set
 * Native HTML5 drag and drop API
 * A rich set of [APIs](https://github.com/cheton/infinite-tree#api-documentation)
