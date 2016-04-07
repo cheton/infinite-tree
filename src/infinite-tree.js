@@ -45,7 +45,10 @@ class InfiniteTree extends events.EventEmitter {
         droppable: false,
         el: null,
         rowRenderer: defaultRowRenderer,
-        selectable: true
+        selectable: true,
+        shouldSelectNode: (node) => {
+            return this.options.selectable;
+        }
     };
     state = {
         openNodes: [],
@@ -97,10 +100,7 @@ class InfiniteTree extends events.EventEmitter {
                 return;
             }
 
-            if (this.options.selectable) {
-                this.selectNode(node);
-                return;
-            }
+            this.selectNode(node);
         },
         // https://developer.mozilla.org/en-US/docs/Web/Events/dragenter
         // The dragenter event is fired when a dragged element or text selection enters a valid drop target.
@@ -772,6 +772,9 @@ class InfiniteTree extends events.EventEmitter {
     // @return {boolean} Returns true on success, false otherwise.
     selectNode(node = null) {
         if (!this.options.selectable) {
+            return false;
+        }
+        if (!this.options.shouldSelectNode(node)) {
             return false;
         }
 
