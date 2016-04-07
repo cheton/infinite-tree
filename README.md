@@ -56,7 +56,7 @@ var tree = new InfiniteTree({
     selectable: true, // Defaults to true
     shouldSelectNode: function(node) { // Defaults to null
         if (!node || (node === tree.getSelectedNode())) {
-            return false; // Return false to prevent from deselection
+            return false; // Prevent from deselecting the current node
         }
         return true;
     }
