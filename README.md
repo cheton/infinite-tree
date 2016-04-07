@@ -53,7 +53,13 @@ var tree = new InfiniteTree({
     data: data,
     droppable: false, // Defaults to false
     el: document.querySelector('#tree'),
-    selectable: true // Defaults to true
+    selectable: true, // Defaults to true
+    shouldSelectNode: function(node) { // Defaults to null
+        if (!node || (node === tree.getSelectedNode())) {
+            return false; // Return false to prevent from deselection
+        }
+        return true;
+    }
 });
 
 //
