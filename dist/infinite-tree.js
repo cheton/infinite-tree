@@ -1,4 +1,4 @@
-/*! infinite-tree v0.7.0 | (c) 2016 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
+/*! infinite-tree v0.8.0 | (c) 2016 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -366,72 +366,82 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.contentElement = null;
 	        this.scrollElement = null;
 	    };
-	    // Inserts a new child node to a parent node at the specified index.
-	    // * If the parent is null or undefined, inserts the child at the specified index in the top-level.
-	    // * If the parent has children, the method adds the child to it at the specified index.
-	    // * If the parent does not have children, the method adds the child to the parent.
+	    // Adds an array of new child nodes to a parent node at the specified index.
+	    // * If the parent is null or undefined, inserts new childs at the specified index in the top-level.
+	    // * If the parent has children, the method adds the new child to it at the specified index.
+	    // * If the parent does not have children, the method adds the new child to the parent.
 	    // * If the index value is greater than or equal to the number of children in the parent, the method adds the child at the end of the children.
-	    // @param {Object} newNode The new child node.
-	    // @param {number} index The 0-based index of where to insert the child node. Defaults to 0 for negative index.
+	    // @param {Array} newNodes An array of new child nodes.
+	    // @param {number} [index] The 0-based index of where to insert the child node.
 	    // @param {Node} parentNode The Node object that defines the parent node.
 	    // @return {boolean} Returns true on success, false otherwise.
 
 
-	    InfiniteTree.prototype.addChildNodeAt = function addChildNodeAt(newNode, index, parentNode) {
+	    InfiniteTree.prototype.addChildNodes = function addChildNodes(newNodes, index, parentNode) {
 	        var _this3 = this;
 
-	        // Defaults to rootNode if the parentNode is not specified
-	        parentNode = parentNode || this.state.rootNode;
+	        newNodes = [].concat(newNodes || []); // Ensure array
+	        if (newNodes.length === 0) {
+	            return false;
+	        }
+
+	        if ((typeof index === 'undefined' ? 'undefined' : _typeof(index)) === 'object') {
+	            // The 'object' type might be Node or null
+	            parentNode = index || this.state.rootNode; // Defaults to rootNode if not specified
+	            index = parentNode.children.length;
+	        } else {
+	            parentNode = parentNode || this.state.rootNode; // Defaults to rootNode if not specified
+	        }
 
 	        ensureNodeInstance(parentNode);
 
-	        if (!newNode) {
-	            return false;
-	        }
-	        index = Number(index) || 0;
-	        if (index < 0) {
-	            index = 0;
-	        }
+	        // Assign parent
+	        newNodes.forEach(function (newNode) {
+	            newNode.parent = parentNode;
+	        });
 
-	        // Inserts the new child at the specified index
-	        newNode.parent = parentNode;
-	        parentNode.children.splice(index, 0, newNode);
+	        // Insert new child node at the specified index
+	        parentNode.children.splice.apply(parentNode.children, [index, 0].concat(newNodes));
+
+	        // Get the index of the first new node within the array of child nodes
+	        index = parentNode.children.indexOf(newNodes[0]);
 
 	        var deleteCount = parentNode.state.total;
-
-	        // Update index
-	        index = parentNode.children.indexOf(newNode);
-
 	        var nodes = (0, _flattree.flatten)(parentNode.children, { openNodes: this.state.openNodes });
-
-	        // Update newNode
-	        newNode = parentNode.getChildAt(index);
-
 	        var rows = nodes.map(function (node) {
 	            return _this3.options.rowRenderer(node, _this3.options);
 	        });
-	        var parentOffset = this.nodes.indexOf(parentNode);
 
-	        // Update nodes & rows
-	        this.nodes.splice.apply(this.nodes, [parentOffset + 1, deleteCount].concat(nodes));
-	        this.rows.splice.apply(this.rows, [parentOffset + 1, deleteCount].concat(rows));
+	        if (parentNode === this.state.rootNode) {
+	            this.nodes = nodes;
+	            this.rows = rows;
+	        } else {
+	            var parentOffset = this.nodes.indexOf(parentNode);
+	            if (parentOffset >= 0) {
+	                // Update nodes & rows
+	                this.nodes.splice.apply(this.nodes, [parentOffset + 1, deleteCount].concat(nodes));
+	                this.rows.splice.apply(this.rows, [parentOffset + 1, deleteCount].concat(rows));
+
+	                // Update the row corresponding to the parent node
+	                this.rows[parentOffset] = this.options.rowRenderer(parentNode, this.options);
+	            }
+	        }
 
 	        // Update the lookup table with newly added nodes
-	        this.flattenNode(newNode).forEach(function (node) {
-	            if (node.id !== undefined) {
-	                _this3.nodeTable.set(node.id, node);
-	            }
+	        parentNode.children.slice(index).forEach(function (childNode) {
+	            _this3.flattenNode(childNode).forEach(function (node) {
+	                if (node.id !== undefined) {
+	                    _this3.nodeTable.set(node.id, node);
+	                }
+	            });
 	        });
-
-	        // Update the row corresponding to the parent node
-	        this.rows[parentOffset] = this.options.rowRenderer(parentNode, this.options);
 
 	        // Updates list with new data
 	        this.update();
 
 	        return true;
 	    };
-	    // Adds a node to the end of the list of children of a specified parent node.
+	    // Adds a new child node to the end of the list of children of a specified parent node.
 	    // * If the parent is null or undefined, inserts the child at the specified index in the top-level.
 	    // * If the parent has children, the method adds the child as the last child.
 	    // * If the parent does not have children, the method adds the child to the parent.
@@ -443,11 +453,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    InfiniteTree.prototype.appendChildNode = function appendChildNode(newNode, parentNode) {
 	        // Defaults to rootNode if the parentNode is not specified
 	        parentNode = parentNode || this.state.rootNode;
-
 	        ensureNodeInstance(parentNode);
-
 	        var index = parentNode.children.length;
-	        return this.addChildNodeAt(newNode, index, parentNode);
+	        var newNodes = [].concat(newNode || []); // Ensure array
+	        return this.addChildNodes(newNodes, index, parentNode);
 	    };
 	    // Clears the tree.
 
@@ -631,7 +640,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        ensureNodeInstance(referenceNode);
 	        var parentNode = referenceNode.getParent();
 	        var index = parentNode.children.indexOf(referenceNode) + 1;
-	        return this.addChildNodeAt(newNode, index, parentNode);
+	        var newNodes = [].concat(newNode || []); // Ensure array
+	        return this.addChildNodes(newNodes, index, parentNode);
 	    };
 	    // Inserts the specified node before the reference node.
 	    // @param {Object} newNode The new sibling node.
@@ -643,7 +653,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        ensureNodeInstance(referenceNode);
 	        var parentNode = referenceNode.getParent();
 	        var index = parentNode.children.indexOf(referenceNode);
-	        return this.addChildNodeAt(newNode, index, parentNode);
+	        var newNodes = [].concat(newNode || []); // Ensure array
+	        return this.addChildNodes(newNodes, index, parentNode);
 	    };
 	    // Loads data in the tree.
 	    // @param {object|array} data The data is an object or array of objects that defines the node.
