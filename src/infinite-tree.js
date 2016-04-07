@@ -44,6 +44,7 @@ class InfiniteTree extends events.EventEmitter {
         autoOpen: false,
         droppable: false,
         el: null,
+        loadNodes: null,
         rowRenderer: defaultRowRenderer,
         selectable: true,
         shouldSelectNode: null
@@ -558,6 +559,42 @@ class InfiniteTree extends events.EventEmitter {
 
         // Check if the openNode action can be performed
         if (this.state.openNodes.indexOf(node) >= 0) {
+            return false;
+        }
+
+        if (!node.hasChildren() && node.loadOnDemand) {
+            if (typeof this.options.loadNodes !== 'function') {
+                return false;
+            }
+
+            // Set loading state to true
+            node.state.loading = true;
+            this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
+
+            // Updates list with new data
+            this.update();
+
+            this.options.loadNodes(node, (err, nodes) => {
+                // Set loading state to false
+                node.state.loading = false;
+                this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
+
+                // Updates list with new data
+                this.update();
+
+                if (err) {
+                    return;
+                }
+
+                // Append child nodes
+                nodes.forEach((childNode) => {
+                    this.appendChildNode(childNode, node);
+                });
+
+                // Call openNode again
+                this.openNode(node);
+            });
+
             return false;
         }
 
