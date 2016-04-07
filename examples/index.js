@@ -10,14 +10,6 @@ for (let i = 0; i < 1000; ++i) {
     data.push(JSON.parse(source.replace(/"(id|label)":"([^"]*)"/g, '"$1": "$2.' + i + '"')));
 }
 
-const tree = new InfiniteTree({
-    autoOpen: true, // Defaults to false
-    droppable: true, // Defaults to false
-    el: document.querySelector('#tree'),
-    rowRenderer: rowRenderer,
-    selectable: true // Defaults to true
-});
-
 const updatePreview = (node) => {
     const el = document.querySelector('#preview');
     if (node) {
@@ -32,6 +24,21 @@ const updatePreview = (node) => {
         el.innerHTML = '';
     }
 };
+
+const tree = new InfiniteTree({
+    autoOpen: true, // Defaults to false
+    droppable: true, // Defaults to false
+    el: document.querySelector('#tree'),
+    rowRenderer: rowRenderer,
+    selectable: true, // Defaults to true
+    shouldSelectNode: (node) => {
+        if (node && (node === tree.getSelectedNode())) {
+            // Prevent from deselecting a selected node
+            return false;
+        }
+        return true;
+    }
+});
 
 tree.on('scrollProgress', (progress) => {
     document.querySelector('#scrolling-progress').style.width = progress + '%';
@@ -56,6 +63,9 @@ tree.on('selectNode', (node) => {
 });
 
 tree.loadData(data);
+
+// Select the first node
+tree.selectNode(tree.getChildNodes()[0]);
 
 // Draggable Element
 const draggableElement = document.querySelector('#draggable-element');
