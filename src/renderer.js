@@ -1,7 +1,7 @@
 import { buildHTML, classNames, quoteattr } from './helper';
 
 const defaultRowRenderer = (node, treeOptions) => {
-    const { id, label, children, state } = node;
+    const { id, label, loadOnDemand = false, children, state } = node;
     const { depth, open, path, total, selected = false } = state;
     const childrenLength = Object.keys(children).length;
     const more = node.hasChildren();
@@ -13,12 +13,18 @@ const defaultRowRenderer = (node, treeOptions) => {
     if (more && !open) {
         togglerContent = '►';
     }
+    if (!more && loadOnDemand) {
+        togglerContent = '►';
+    }
     const toggler = buildHTML('a', togglerContent, {
         'class': (() => {
             if (more && open) {
                 return classNames('tree-toggler');
             }
             if (more && !open) {
+                return classNames('tree-toggler', 'tree-closed');
+            }
+            if (!more && loadOnDemand) {
                 return classNames('tree-toggler', 'tree-closed');
             }
             return '';

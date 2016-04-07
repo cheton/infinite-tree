@@ -1,37 +1,42 @@
 import { buildHTML, classNames, quoteattr } from '../src/helper';
 
 const rowRenderer = (node, treeOptions) => {
-    const { id, label, children, state, props } = node;
+    const { id, label, loadOnDemand = false, children, state, props = {} } = node;
     const droppable = (treeOptions.droppable) && (props.droppable);
-    const { depth, open, path, total, selected = false } = state;
+    const { depth, open, path, total, loading = false, selected = false } = state;
     const childrenLength = Object.keys(children).length;
     const more = node.hasChildren();
 
-    let toggler = '';
-    if (more) {
-        let togglerContent = '';
-        if (open) {
-            togglerContent = buildHTML('i', '', {
-                'class': classNames('glyphicon', 'glyphicon-triangle-bottom')
-            });
-        }
-        if (!open) {
-            togglerContent = buildHTML('i', '', {
-                'class': classNames('glyphicon', 'glyphicon-triangle-right')
-            });
-        }
-        toggler = buildHTML('a', togglerContent, {
-            'class': (() => {
-                if (more && open) {
-                    return classNames('tree-toggler');
-                }
-                if (more && !open) {
-                    return classNames('tree-toggler', 'tree-closed');
-                }
-                return '';
-            })()
+    let togglerContent = '';
+    if (!more && loadOnDemand) {
+        togglerContent = buildHTML('i', '', {
+            'class': classNames('glyphicon', 'glyphicon-triangle-right')
         });
     }
+    if (more && open) {
+        togglerContent = buildHTML('i', '', {
+            'class': classNames('glyphicon', 'glyphicon-triangle-bottom')
+        });
+    }
+    if (more && !open) {
+        togglerContent = buildHTML('i', '', {
+            'class': classNames('glyphicon', 'glyphicon-triangle-right')
+        });
+    }
+    const toggler = buildHTML('a', togglerContent, {
+        'class': (() => {
+            if (!more && loadOnDemand) {
+                return classNames('tree-toggler', 'tree-closed');
+            }
+            if (more && open) {
+                return classNames('tree-toggler');
+            }
+            if (more && !open) {
+                return classNames('tree-toggler', 'tree-closed');
+            }
+            return '';
+        })()
+    });
 
     const icon = buildHTML('i', '', {
         'class': classNames(
@@ -45,10 +50,19 @@ const rowRenderer = (node, treeOptions) => {
     const title = buildHTML('span', quoteattr(label), {
         'class': classNames('tree-title')
     });
+    const loadingIcon = buildHTML('i', '', {
+        'style': 'margin-left: 5px',
+        'class': classNames(
+            { 'hidden': !loading },
+            'glyphicon',
+            'glyphicon-refresh',
+            { 'rotating': loading }
+        )
+    });
     const count = buildHTML('span', childrenLength, {
         'class': 'count'
     });
-    const treeNode = buildHTML('div', toggler + icon + title + count, {
+    const treeNode = buildHTML('div', toggler + icon + title + loadingIcon + count, {
         'class': 'tree-node',
         'style': 'margin-left: ' + depth * 18 + 'px'
     });
