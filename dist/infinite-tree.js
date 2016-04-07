@@ -149,6 +149,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            autoOpen: false,
 	            droppable: false,
 	            el: null,
+	            loadNodes: null,
 	            rowRenderer: _renderer.defaultRowRenderer,
 	            selectable: true,
 	            shouldSelectNode: null
@@ -705,6 +706,42 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        // Check if the openNode action can be performed
 	        if (this.state.openNodes.indexOf(node) >= 0) {
+	            return false;
+	        }
+
+	        if (!node.hasChildren() && node.loadOnDemand) {
+	            if (typeof this.options.loadNodes !== 'function') {
+	                return false;
+	            }
+
+	            // Set loading state to true
+	            node.state.loading = true;
+	            this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
+
+	            // Updates list with new data
+	            this.update();
+
+	            this.options.loadNodes(node, function (err, nodes) {
+	                // Set loading state to false
+	                node.state.loading = false;
+	                _this5.rows[nodeIndex] = _this5.options.rowRenderer(node, _this5.options);
+
+	                // Updates list with new data
+	                _this5.update();
+
+	                if (err) {
+	                    return;
+	                }
+
+	                // Append child nodes
+	                nodes.forEach(function (childNode) {
+	                    _this5.appendChildNode(childNode, node);
+	                });
+
+	                // Call openNode again
+	                _this5.openNode(node);
+	            });
+
 	            return false;
 	        }
 
@@ -2201,6 +2238,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	var defaultRowRenderer = function defaultRowRenderer(node, treeOptions) {
 	    var id = node.id;
 	    var label = node.label;
+	    var _node$loadOnDemand = node.loadOnDemand;
+	    var loadOnDemand = _node$loadOnDemand === undefined ? false : _node$loadOnDemand;
 	    var children = node.children;
 	    var state = node.state;
 	    var depth = state.depth;
@@ -2220,12 +2259,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (more && !open) {
 	        togglerContent = '►';
 	    }
+	    if (!more && loadOnDemand) {
+	        togglerContent = '►';
+	    }
 	    var toggler = (0, _helper.buildHTML)('a', togglerContent, {
 	        'class': function () {
 	            if (more && open) {
 	                return (0, _helper.classNames)('tree-toggler');
 	            }
 	            if (more && !open) {
+	                return (0, _helper.classNames)('tree-toggler', 'tree-closed');
+	            }
+	            if (!more && loadOnDemand) {
 	                return (0, _helper.classNames)('tree-toggler', 'tree-closed');
 	            }
 	            return '';
