@@ -31,10 +31,9 @@ const tree = new InfiniteTree({
     el: document.querySelector('#tree'),
     rowRenderer: rowRenderer,
     selectable: true, // Defaults to true
-    shouldSelectNode: (node) => {
-        if (node && (node === tree.getSelectedNode())) {
-            // Prevent from deselecting a selected node
-            return false;
+    shouldSelectNode: (node) => { // Defaults to null
+        if (!node || (node === tree.getSelectedNode())) {
+            return false; // Returns false to prevent from deselection
         }
         return true;
     }
