@@ -1,4 +1,4 @@
-/*! infinite-tree v0.6.2 | (c) 2016 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
+/*! infinite-tree v0.6.3 | (c) 2016 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -150,7 +150,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	            droppable: false,
 	            el: null,
 	            rowRenderer: _renderer.defaultRowRenderer,
-	            selectable: true
+	            selectable: true,
+	            shouldSelectNode: null
 	        };
 	        _this.state = {
 	            openNodes: [],
@@ -202,10 +203,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    return;
 	                }
 
-	                if (_this.options.selectable) {
-	                    _this.selectNode(node);
-	                    return;
-	                }
+	                _this.selectNode(node);
 	            },
 	            // https://developer.mozilla.org/en-US/docs/Web/Events/dragenter
 	            // The dragenter event is fired when a dragged element or text selection enters a valid drop target.
@@ -941,8 +939,15 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    InfiniteTree.prototype.selectNode = function selectNode() {
 	        var node = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
+	        var _options = this.options;
+	        var selectable = _options.selectable;
+	        var shouldSelectNode = _options.shouldSelectNode;
 
-	        if (!this.options.selectable) {
+
+	        if (!selectable) {
+	            return false;
+	        }
+	        if (typeof shouldSelectNode === 'function' && !shouldSelectNode(node)) {
 	            return false;
 	        }
 
