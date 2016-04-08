@@ -11,8 +11,9 @@ Demo: http://cheton.github.io/infinite-tree
 
 ## Features
 * Supported browsers: Chrome, Firefox, Safari, Microsoft Edge, IE8 with  [es5-shim](https://github.com/es-shims/es5-shim#example-of-applying-es-compatability-shims-in-a-browser-project) polyfill, IE9, IE10, and IE11. 
-* [Customizable renderer](https://github.com/cheton/infinite-tree/wiki/Options#rowrenderer) to render the tree in any form
 * High performance infinite scroll with large data set
+* [Customizable renderer](https://github.com/cheton/infinite-tree/wiki/Options#rowrenderer) to render the tree in any form
+* [Load nodes on demand](https://github.com/cheton/infinite-tree/wiki/Options#loadnodes)
 * Native HTML5 drag and drop API
 * A rich set of [APIs](https://github.com/cheton/infinite-tree#api-documentation)
 * No jQuery
@@ -50,30 +51,36 @@ var data = {
 };
 
 var tree = new InfiniteTree({
-    autoOpen: true, // Defaults to false
-    data: data,
-    droppable: false, // Defaults to false
     el: document.querySelector('#tree'),
+    data: data,
+    // Open all nodes
+    autoOpen: true,
+    // Droppable elements
+    droppable: true,
+    // Load nodes on demand
     loadNodes: function(parentNode, done) {
         var nodes = [];
-
-        // load nodes on demand
-        setTimeout(function() {
+        setTimeout(function() { // Loading...
             done(null, nodes);
         }, 1000);
     },
-    selectable: true, // Defaults to true
-    shouldSelectNode: function(node) { // Defaults to null
+    // Return false to prevent selecting a node
+    shouldSelectNode: function(node) {
         if (!node || (node === tree.getSelectedNode())) {
             return false; // Prevent from deselecting the current node
         }
         return true;
+    },
+    // Render tree nodes with your own way
+    rowRenderer: function(node, treeOptions) {
+        return '<div aria-id="<node-id>" class="tree-item">' + node.label + '</div>';
     }
 });
+```
 
-//
-// Functions: Tree & Node
-//
+#### Functions Usage
+Learn more: [Tree](https://github.com/cheton/infinite-tree/wiki/Functions:-Tree) /  [Node](https://github.com/cheton/infinite-tree/wiki/Functions:-Node)
+```js
 var node = tree.getNodeById('fruit');
 // → Node { id: 'fruit', ... }
 tree.selectNode(node);
@@ -84,10 +91,11 @@ console.log(node.getFirstChild().getNextSibling());
 // → Node { id: 'banana', ... }
 console.log(node.getFirstChild().getPreviousSibling());
 // → null
+```
 
-//
-// Events
-//
+#### Events Usage
+Learn more: [Events](https://github.com/cheton/infinite-tree/wiki/Events)
+```js
 tree.on('update', function() {
     console.log(tree.getSelectedNode());
 });
