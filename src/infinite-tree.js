@@ -4,6 +4,7 @@ import { flatten, Node } from 'flattree';
 import LookupTable from './lookup-table';
 import { defaultRowRenderer } from './renderer';
 import {
+    extend,
     preventDefault,
     stopPropagation,
     addEventListener,
@@ -18,25 +19,6 @@ const ensureNodeInstance = (node) => {
         throw new Error('The node must be a Node object.');
     }
     return true;
-};
-
-const extend = (target, ...sources) => {
-    if (target === undefined || target === null) {
-        throw new TypeError('Cannot convert undefined or null to object');
-    }
-
-    const output = Object(target);
-    for (let index = 0; index < sources.length; index++) {
-        const source = sources[index];
-        if (source !== undefined && source !== null) {
-            for (let key in source) {
-                if (source.hasOwnProperty(key)) {
-                    output[key] = source[key];
-                }
-            }
-        }
-    }
-    return output;
 };
 
 class InfiniteTree extends events.EventEmitter {
@@ -952,9 +934,15 @@ class InfiniteTree extends events.EventEmitter {
     updateNode(node, data) {
         ensureNodeInstance(node);
 
-        // The static attributes (i.e. children, parent, and state) are being protected
-        const { children, parent, state } = node;
-        node = extend(node, data, { children, parent, state });
+        // Clone a new one
+        data = extend({}, data);
+
+        // Ignore keys: children, parent, and state
+        delete data.children;
+        delete data.parent;
+        delete data.state;
+
+        node = extend(node, data);
 
         // Retrieve node index
         const nodeIndex = this.nodes.indexOf(node);
