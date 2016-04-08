@@ -14,13 +14,17 @@ for (let i = 0; i < 1000; ++i) {
 const updatePreview = (node) => {
     const el = document.querySelector('#preview');
     if (node) {
-        el.innerHTML = JSON.stringify({
+        let o = {
             id: node.id,
             label: node.label,
             children: node.children ? node.children.length : 0,
             parent: node.parent ? node.parent.id : null,
             state: node.state
-        }, null, 2).replace(/\n/g, '<br>').replace(/\s/g, '&nbsp;');
+        };
+        if (node.loadOnDemand !== undefined) {
+            o.loadOnDemand = node.loadOnDemand;
+        }
+        el.innerHTML = JSON.stringify(o, null, 2).replace(/\n/g, '<br>').replace(/\s/g, '&nbsp;');
     } else {
         el.innerHTML = '';
     }
