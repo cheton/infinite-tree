@@ -58,11 +58,9 @@ var tree = new InfiniteTree({
     // Droppable elements
     droppable: true,
     // Load nodes on demand
-    loadNodes: function(parentNode, done) { // Defaults to null
+    loadNodes: function(parentNode, done) {
         var nodes = [];
-
-        // load nodes on demand
-        setTimeout(function() {
+        setTimeout(function() { // Loading...
             done(null, nodes);
         }, 1000);
     },
@@ -73,15 +71,16 @@ var tree = new InfiniteTree({
         }
         return true;
     },
-    // Render tree nodes in your own way
+    // Render tree nodes with your own way
     rowRenderer: function(node, treeOptions) {
         return '<div aria-id="<node-id>" class="tree-item">' + node.label + '</div>';
     }
 });
+```
 
-//
-// Functions: Tree & Node
-//
+#### Functions Usage
+Learn more: [Tree](https://github.com/cheton/infinite-tree/wiki/Functions:-Tree) /  [Node](https://github.com/cheton/infinite-tree/wiki/Functions:-Node)
+```js
 var node = tree.getNodeById('fruit');
 // → Node { id: 'fruit', ... }
 tree.selectNode(node);
@@ -92,10 +91,11 @@ console.log(node.getFirstChild().getNextSibling());
 // → Node { id: 'banana', ... }
 console.log(node.getFirstChild().getPreviousSibling());
 // → null
+```
 
-//
-// Events
-//
+#### Events Usage
+Learn more: [Events](https://github.com/cheton/infinite-tree/wiki/Events)
+```js
 tree.on('update', function() {
     console.log(tree.getSelectedNode());
 });
