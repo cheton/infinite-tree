@@ -50,11 +50,14 @@ var data = {
 };
 
 var tree = new InfiniteTree({
-    autoOpen: true, // Defaults to false
-    data: data,
-    droppable: false, // Defaults to false
     el: document.querySelector('#tree'),
-    loadNodes: function(parentNode, done) {
+    data: data,
+    // Open all nodes
+    autoOpen: true,
+    // Droppable elements
+    droppable: true,
+    // Load nodes on demand
+    loadNodes: function(parentNode, done) { // Defaults to null
         var nodes = [];
 
         // load nodes on demand
@@ -62,12 +65,16 @@ var tree = new InfiniteTree({
             done(null, nodes);
         }, 1000);
     },
-    selectable: true, // Defaults to true
-    shouldSelectNode: function(node) { // Defaults to null
+    // Return false to prevent selecting a node
+    shouldSelectNode: function(node) {
         if (!node || (node === tree.getSelectedNode())) {
             return false; // Prevent from deselecting the current node
         }
         return true;
+    },
+    // Render tree nodes in your own way
+    rowRenderer: function(node, treeOptions) {
+        return '<div aria-id="<node-id>" class="tree-item">' + node.label + '</div>';
     }
 });
 
