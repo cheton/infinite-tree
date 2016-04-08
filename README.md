@@ -43,7 +43,8 @@ var data = {
         label: 'Banana',
         children: [{
             id: 'cherry',
-            label: 'Cherry'
+            label: 'Cherry',
+            loadOnDemand: true
         }]
     }]
 };
@@ -53,6 +54,14 @@ var tree = new InfiniteTree({
     data: data,
     droppable: false, // Defaults to false
     el: document.querySelector('#tree'),
+    loadNodes: function(parentNode, done) {
+        var nodes = [];
+
+        // load nodes on demand
+        setTimeout(function() {
+            done(null, nodes);
+        }, 1000);
+    },
     selectable: true, // Defaults to true
     shouldSelectNode: function(node) { // Defaults to null
         if (!node || (node === tree.getSelectedNode())) {
