@@ -30,10 +30,9 @@ const updatePreview = (node) => {
     }
 };
 
-const tree = new InfiniteTree({
+const tree = new InfiniteTree(document.querySelector('#tree'), {
     autoOpen: true, // Defaults to false
     droppable: true, // Defaults to false
-    el: document.querySelector('#tree'),
     loadNodes: (parentNode, done) => {
         const suffix = parentNode.id.replace(/(\w)+/, '');
         const nodes = [

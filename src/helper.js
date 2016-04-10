@@ -1,3 +1,19 @@
+const extend = (target, ...sources) => {
+    target = target || {};
+    for (let index = 0; index < sources.length; index++) {
+        let obj = sources[index];
+        if (!obj) {
+            continue;
+        }
+        for (let key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                target[key] = obj[key];
+            }
+        }
+    }
+    return target;
+};
+
 const preventDefault = (e) => {
     if (typeof e.preventDefault !== 'undefined') {
         e.preventDefault();
@@ -101,6 +117,24 @@ const classNames = (...args) => {
     return classNames.join(' ');
 };
 
+// http://stackoverflow.com/questions/384286/javascript-isdom-how-do-you-check-if-a-javascript-object-is-a-dom-object
+
+//Returns true if it is a DOM element
+const isDOMElement = (o) => {
+    if (typeof HTMLElement === 'object') {
+        return o instanceof HTMLElement;
+    }
+    return o && typeof o === 'object' && o.nodeType === 1 && typeof o.nodeName === 'string';
+};
+
+// Returns true if it is a DOM node
+const isDOMNode = (o) => {
+    if (typeof Node === 'object') {
+        return o instanceof Node;
+    }
+    return o && typeof o === 'object' && typeof o.nodeType === 'number' && typeof o.nodeName === 'string';
+};
+
 const quoteattr = (s, preserveCR) => {
     preserveCR = preserveCR ? '&#13;' : '\n';
     return ('' + s) /* Forces the conversion to string. */
@@ -177,6 +211,7 @@ const buildHTML = (tag, html, attrs) => {
 };
 
 export {
+    extend,
     preventDefault,
     stopPropagation,
     dispatchEvent,
@@ -187,6 +222,8 @@ export {
     removeClass,
     toggleClass,
     classNames,
+    isDOMElement,
+    isDOMNode,
     quoteattr,
     buildHTML
 };

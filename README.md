@@ -10,13 +10,18 @@ Demo: http://cheton.github.io/infinite-tree
 [![infinite-tree](https://raw.githubusercontent.com/cheton/infinite-tree/master/media/infinite-tree.gif)](http://cheton.github.io/infinite-tree)
 
 ## Features
-* Supported browsers: Chrome, Firefox, Safari, Microsoft Edge, IE8 with  [es5-shim](https://github.com/es-shims/es5-shim#example-of-applying-es-compatability-shims-in-a-browser-project) polyfill, IE9, IE10, and IE11. 
 * High performance infinite scroll with large data set
 * [Customizable renderer](https://github.com/cheton/infinite-tree/wiki/Options#rowrenderer) to render the tree in any form
 * [Load nodes on demand](https://github.com/cheton/infinite-tree/wiki/Options#loadnodes)
 * Native HTML5 drag and drop API
 * A rich set of [APIs](https://github.com/cheton/infinite-tree#api-documentation)
 * No jQuery
+
+## Browser Support
+![Chrome](https://raw.github.com/alrra/browser-logos/master/chrome/chrome_48x48.png)<br>Chrome | ![Edge](https://raw.github.com/alrra/browser-logos/master/edge/edge_48x48.png)<br>Edge | ![Firefox](https://raw.github.com/alrra/browser-logos/master/firefox/firefox_48x48.png)<br>Firefox | ![IE](https://raw.github.com/alrra/browser-logos/master/internet-explorer/internet-explorer_48x48.png)<br>IE | ![Opera](https://raw.github.com/alrra/browser-logos/master/opera/opera_48x48.png)<br>Opera | ![Safari](https://raw.github.com/alrra/browser-logos/master/safari/safari_48x48.png)<br>Safari
+--- | --- | --- | --- | --- | --- |
+ Yes | Yes | Yes| 8+ | Yes | Yes | 
+Need to include [es5-shim](https://github.com/es-shims/es5-shim#example-of-applying-es-compatability-shims-in-a-browser-project) polyfill for IE8
 
 ## Notice
 <i>The project is under heavy development and a lot of things are changing. Stay tuned for further updates.</i>
