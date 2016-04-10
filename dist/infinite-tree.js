@@ -1,4 +1,4 @@
-/*! infinite-tree v0.8.0 | (c) 2016 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
+/*! infinite-tree v0.8.1 | (c) 2016 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -108,40 +108,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return true;
 	};
 
-	var extend = function extend(target) {
-	    for (var _len = arguments.length, sources = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-	        sources[_key - 1] = arguments[_key];
-	    }
-
-	    if (target === undefined || target === null) {
-	        throw new TypeError('Cannot convert undefined or null to object');
-	    }
-
-	    var output = Object(target);
-	    for (var index = 0; index < sources.length; index++) {
-	        var source = sources[index];
-	        if (source !== undefined && source !== null) {
-	            for (var key in source) {
-	                if (source.hasOwnProperty(key)) {
-	                    output[key] = source[key];
-	                }
-	            }
-	        }
-	    }
-	    return output;
-	};
-
 	var InfiniteTree = function (_events$EventEmitter) {
 	    _inherits(InfiniteTree, _events$EventEmitter);
 
 	    // Creates new InfiniteTree object.
 
-	    function InfiniteTree() {
-	        var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-
+	    function InfiniteTree(el, options) {
 	        _classCallCheck(this, InfiniteTree);
-
-	        // Assign options
 
 	        var _this = _possibleConstructorReturn(this, _events$EventEmitter.call(this));
 
@@ -273,7 +246,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	                }
 	            }
 	        };
-	        _this.options = extend({}, _this.options, options);
+
+
+	        if ((0, _helper.isDOMElement)(el)) {
+	            options.el = el;
+	        } else {
+	            options = el;
+	        }
+
+	        // Assign options
+	        _this.options = (0, _helper.extend)({}, _this.options, options);
 
 	        if (!_this.options.el) {
 	            console.error('Failed to initialize infinite-tree: el is not specified.', options);
@@ -1143,13 +1125,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	    InfiniteTree.prototype.updateNode = function updateNode(node, data) {
 	        ensureNodeInstance(node);
 
-	        // The static attributes (i.e. children, parent, and state) are being protected
-	        var _node = node;
-	        var children = _node.children;
-	        var parent = _node.parent;
-	        var state = _node.state;
+	        // Clone a new one
+	        data = (0, _helper.extend)({}, data);
 
-	        node = extend(node, data, { children: children, parent: parent, state: state });
+	        // Ignore keys: children, parent, and state
+	        delete data.children;
+	        delete data.parent;
+	        delete data.state;
+
+	        node = (0, _helper.extend)(node, data);
 
 	        // Retrieve node index
 	        var nodeIndex = this.nodes.indexOf(node);
@@ -2320,6 +2304,26 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
+	var extend = function extend(target) {
+	    for (var _len = arguments.length, sources = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+	        sources[_key - 1] = arguments[_key];
+	    }
+
+	    target = target || {};
+	    for (var index = 0; index < sources.length; index++) {
+	        var obj = sources[index];
+	        if (!obj) {
+	            continue;
+	        }
+	        for (var key in obj) {
+	            if (obj.hasOwnProperty(key)) {
+	                target[key] = obj[key];
+	            }
+	        }
+	    }
+	    return target;
+	};
+
 	var preventDefault = function preventDefault(e) {
 	    if (typeof e.preventDefault !== 'undefined') {
 	        e.preventDefault();
@@ -2411,8 +2415,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 	var classNames = function classNames() {
-	    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-	        args[_key] = arguments[_key];
+	    for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+	        args[_key2] = arguments[_key2];
 	    }
 
 	    var classNames = [];
@@ -2431,6 +2435,24 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	    });
 	    return classNames.join(' ');
+	};
+
+	// http://stackoverflow.com/questions/384286/javascript-isdom-how-do-you-check-if-a-javascript-object-is-a-dom-object
+
+	//Returns true if it is a DOM element
+	var isDOMElement = function isDOMElement(o) {
+	    if ((typeof HTMLElement === 'undefined' ? 'undefined' : _typeof(HTMLElement)) === 'object') {
+	        return o instanceof HTMLElement;
+	    }
+	    return o && (typeof o === 'undefined' ? 'undefined' : _typeof(o)) === 'object' && o.nodeType === 1 && typeof o.nodeName === 'string';
+	};
+
+	// Returns true if it is a DOM node
+	var isDOMNode = function isDOMNode(o) {
+	    if ((typeof Node === 'undefined' ? 'undefined' : _typeof(Node)) === 'object') {
+	        return o instanceof Node;
+	    }
+	    return o && (typeof o === 'undefined' ? 'undefined' : _typeof(o)) === 'object' && typeof o.nodeType === 'number' && typeof o.nodeName === 'string';
 	};
 
 	var quoteattr = function quoteattr(s, preserveCR) {
@@ -2506,6 +2528,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return h;
 	};
 
+	exports.extend = extend;
 	exports.preventDefault = preventDefault;
 	exports.stopPropagation = stopPropagation;
 	exports.dispatchEvent = dispatchEvent;
@@ -2516,6 +2539,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.removeClass = removeClass;
 	exports.toggleClass = toggleClass;
 	exports.classNames = classNames;
+	exports.isDOMElement = isDOMElement;
+	exports.isDOMNode = isDOMNode;
 	exports.quoteattr = quoteattr;
 	exports.buildHTML = buildHTML;
 
