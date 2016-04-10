@@ -11,7 +11,8 @@ import {
     removeEventListener,
     classNames,
     addClass,
-    removeClass
+    removeClass,
+    isDOMElement
 } from './helper';
 
 const ensureNodeInstance = (node) => {
@@ -151,8 +152,14 @@ class InfiniteTree extends events.EventEmitter {
     };
 
     // Creates new InfiniteTree object.
-    constructor(options = {}) {
+    constructor(el, options) {
         super();
+
+        if (isDOMElement(el)) {
+            options.el = el;
+        } else {
+            options = el;
+        }
 
         // Assign options
         this.options = extend({}, this.options, options);
