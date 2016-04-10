@@ -17,7 +17,6 @@ Demo: http://cheton.github.io/infinite-tree
  Yes | Yes | Yes| 8+ | Yes | Yes | 
  
   Need to include [es5-shim](https://github.com/es-shims/es5-shim#example-of-applying-es-compatability-shims-in-a-browser-project) polyfill for IE8
- 
 * High performance infinite scroll with large data set
 * [Customizable renderer](https://github.com/cheton/infinite-tree/wiki/Options#rowrenderer) to render the tree in any form
 * [Load nodes on demand](https://github.com/cheton/infinite-tree/wiki/Options#loadnodes)
