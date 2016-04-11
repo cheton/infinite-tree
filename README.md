@@ -23,7 +23,7 @@ Demo: http://cheton.github.io/infinite-tree
  Yes | Yes | Yes| 8+ | Yes | Yes | 
 Need to include [es5-shim](https://github.com/es-shims/es5-shim#example-of-applying-es-compatability-shims-in-a-browser-project) polyfill for IE8
 
-## React
+## React Support
 Check out <b>react-infinite-tree</b> at https://github.com/cheton/react-infinite-tree.
 
 ## Notice
