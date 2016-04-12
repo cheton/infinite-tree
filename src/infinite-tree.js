@@ -584,6 +584,14 @@ class InfiniteTree extends events.EventEmitter {
                 if (err) {
                     return;
                 }
+                if (!nodes) {
+                    return;
+                }
+
+                nodes = [].concat(nodes || []); // Ensure array
+                if (nodes.length === 0) {
+                    return;
+                }
 
                 // Append child nodes
                 nodes.forEach((childNode) => {
