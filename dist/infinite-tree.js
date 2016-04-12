@@ -1,4 +1,4 @@
-/*! infinite-tree v0.8.1 | (c) 2016 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
+/*! infinite-tree v0.8.2 | (c) 2016 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -731,8 +731,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    _this5.appendChildNode(childNode, node);
 	                });
 
-	                // Call openNode again
-	                _this5.openNode(node);
+	                // Ensure the node has children to prevent from infinite loop
+	                if (node.hasChildren()) {
+	                    // Call openNode again
+	                    _this5.openNode(node);
+	                }
 	            });
 
 	            return false;

@@ -590,8 +590,11 @@ class InfiniteTree extends events.EventEmitter {
                     this.appendChildNode(childNode, node);
                 });
 
-                // Call openNode again
-                this.openNode(node);
+                // Ensure the node has children to prevent from infinite loop
+                if (node.hasChildren()) {
+                    // Call openNode again
+                    this.openNode(node);
+                }
             });
 
             return false;
