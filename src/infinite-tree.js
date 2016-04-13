@@ -233,9 +233,12 @@ class InfiniteTree extends events.EventEmitter {
                 },
                 // Will be called right after replacing previous cluster with new one.
                 clusterChanged: () => {
+                    // Emit the update event
+                    this.emit('update');
                 },
                 // Will be called on scrolling. Returns progress position.
                 scrollingProgress: (progress) => {
+                    // Emit the scrollProgress event
                     this.emit('scrollProgress', progress);
                 }
             }
@@ -966,9 +969,6 @@ class InfiniteTree extends events.EventEmitter {
     update() {
         // Update the list with new data
         this.clusterize.update(this.rows);
-
-        // Emit the 'update' event
-        this.emit('update');
     }
     // Updates the data of a node.
     // @param {Node} node The Node object.
