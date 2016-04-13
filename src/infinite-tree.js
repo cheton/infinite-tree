@@ -25,9 +25,11 @@ const ensureNodeInstance = (node) => {
 class InfiniteTree extends events.EventEmitter {
     options = {
         autoOpen: false,
+        containerView: 'div',
         droppable: false,
         el: null,
         loadNodes: null,
+        noDataText: 'No data',
         rowRenderer: defaultRowRenderer,
         selectable: true,
         shouldSelectNode: null
@@ -181,25 +183,49 @@ class InfiniteTree extends events.EventEmitter {
             throw new Error('The element option is not specified.');
         }
 
-        const scrollElement = document.createElement('div');
-        scrollElement.className = classNames(
+        let tag = null;
+
+        this.scrollElement = document.createElement('div');
+        
+        if (this.options.containerView === 'table') {
+            const tableElement = document.createElement('table');
+            tableElement.className = classNames(
+                'infinite-tree',
+                'infinite-tree-table'
+            );
+            const contentElement = document.createElement('tbody');
+            tableElement.appendChild(contentElement);
+            this.scrollElement.appendChild(tableElement);
+            this.contentElement = contentElement;
+
+            // The tag name for supporting elements
+            tag = 'tr';
+        } else {
+            const contentElement = document.createElement('div');
+            this.scrollElement.appendChild(contentElement);
+            this.contentElement = contentElement;
+
+            // The tag name for supporting elements
+            tag = 'div';
+        }
+        
+        this.scrollElement.className = classNames(
             'infinite-tree',
             'infinite-tree-scroll'
         );
-        const contentElement = document.createElement('div');
-        contentElement.className = classNames(
+        this.contentElement.className = classNames(
             'infinite-tree',
             'infinite-tree-content'
         );
 
-        scrollElement.appendChild(contentElement);
-        this.options.el.appendChild(scrollElement);
+        this.options.el.appendChild(this.scrollElement);
 
         this.clusterize = new Clusterize({
-            tag: 'div',
+            tag: tag,
             rows: [],
-            scrollElem: scrollElement,
-            contentElem: contentElement,
+            scrollElem: this.scrollElement,
+            contentElem: this.contentElement,
+            no_data_text: this.options.noDataText,
             no_data_class: 'infinite-tree-no-data',
             callbacks: {
                 // Will be called right before replacing previous cluster with new one.
@@ -215,10 +241,8 @@ class InfiniteTree extends events.EventEmitter {
             }
         });
 
-        this.scrollElement = scrollElement;
-        this.contentElement = contentElement;
-
         addEventListener(this.contentElement, 'click', this.contentListener.click);
+
         if (this.options.droppable) {
             addEventListener(document, 'dragend', this.contentListener.dragend);
             addEventListener(this.contentElement, 'dragenter', this.contentListener.dragenter);
