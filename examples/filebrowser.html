@@ -37,12 +37,12 @@ html, body {
     padding: 20px;
     min-height: 400px;
 }
-.infinite-tree-content {
-    max-height: 400px;
-}
 .tree-toggler {
     text-align: center;
     margin-right: 5px;
+}
+.tree-folder-icon {
+    width: 19px;
 }
 .tree-folder-icon:first-child {
     margin-left: 20px;
@@ -102,17 +102,18 @@ html, body {
     </div>
     <hr/>
     <div class="row" style="margin-bottom: 5px;">
-        <div class="col-xs-12">
-            <table width="100%">
+        <div class="col-xs-6">
+            <table class="filebrowser-header" width="100%">
                 <thead>
                     <th>Name</th>
-                    <th>Modified Date</th>
-                    <th>Type</th>
                     <th>Size</th>
+                    <th>Type</th>
+                    <th>Modified Date</th>
                 </thead>
             </table>
             <div id="tree"></div>
         </div>
+        <div class="col-xs-6"></div>
     </div>
 </div>
 <script src="filebrowser.bundle.js"></script>

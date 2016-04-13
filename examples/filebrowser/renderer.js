@@ -60,12 +60,24 @@ const renderer = (node, treeOptions) => {
     });
 
     const columnName = buildHTML('td', toggler + icon + title + loadingIcon, {
-        'class': 'tree-node',
+        'class': 'tree-node nowrap',
         'style': 'padding-left: ' + depth * 18 + 'px'
     });
-    const columnSize = buildHTML('td', typeof props.size !== undefined ? props.size : '');
-    const columnType = buildHTML('td', typeof props.type !== undefined ? props.type : '');
-    const columnDate = buildHTML('td', typeof props.dateModified !== undefined ? props.dateModified : '');
+    const columnSize = buildHTML('td', typeof props.size !== undefined ? props.size : '', {
+        'class': 'nowrap',
+        'style': 'min-width: 50px',
+        'width': '1%'
+    });
+    const columnType = buildHTML('td', typeof props.type !== undefined ? props.type : '', {
+        'class': 'nowrap',
+        'style': 'min-width: 50px',
+        'width': '1%'
+    });
+    const columnDate = buildHTML('td', typeof props.dateModified !== undefined ? props.dateModified : '', {
+        'class': 'nowrap',
+        'style': 'min-width: 50px',
+        'width': '1%'
+    });
 
     return buildHTML('tr', columnName + columnSize + columnType + columnDate, {
         'aria-id': id,
