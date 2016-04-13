@@ -1,6 +1,6 @@
-import { buildHTML, classNames, quoteattr } from '../src/helper';
+import { buildHTML, classNames, quoteattr } from '../../src/helper';
 
-const rowRenderer = (node, treeOptions) => {
+const renderer = (node, treeOptions) => {
     const { id, label, loadOnDemand = false, children, state, props = {} } = node;
     const droppable = (treeOptions.droppable) && (props.droppable);
     const { depth, open, path, total, loading = false, selected = false } = state;
@@ -87,4 +87,4 @@ const rowRenderer = (node, treeOptions) => {
     return buildHTML('div', treeNode, treeNodeAttributes);
 };
 
-export default rowRenderer;
+export default renderer;

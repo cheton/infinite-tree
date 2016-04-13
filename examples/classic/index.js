@@ -1,8 +1,8 @@
-import InfiniteTree from '../src';
-import rowRenderer from './renderer';
-import '../src/index.styl';
+import InfiniteTree from '../../src';
+import renderer from './renderer';
+import './index.styl';
 import './animation.styl';
-import { addEventListener, preventDefault, stopPropagation, quoteattr } from '../src/helper';
+import { addEventListener, preventDefault, stopPropagation, quoteattr } from '../../src/helper';
 
 const data = [];
 const source = '{"id":"<root>","label":"<root>","props":{"droppable":true},"children":[{"id":"alpha","label":"Alpha","props":{"droppable":true}},{"id":"bravo","label":"Bravo","props":{"droppable":true},"children":[{"id":"charlie","label":"Charlie","props":{"droppable":true},"children":[{"id":"delta","label":"Delta","props":{"droppable":true},"children":[{"id":"echo","label":"Echo","props":{"droppable":true}},{"id":"foxtrot","label":"Foxtrot","props":{"droppable":true}}]},{"id":"golf","label":"Golf","props":{"droppable":true}}]},{"id":"hotel","label":"Hotel","props":{"droppable":true},"children":[{"id":"india","label":"India","props":{"droppable":true},"children":[{"id":"juliet","label":"Juliet","props":{"droppable":true}}]}]},{"id":"kilo","label":"(Load On Demand) Kilo","loadOnDemand":true,"props":{"droppable":true}}]}]}';
@@ -49,7 +49,7 @@ const tree = new InfiniteTree(document.querySelector('#tree'), {
             done(null, nodes);
         }, 1000);
     },
-    rowRenderer: rowRenderer,
+    rowRenderer: renderer,
     selectable: true, // Defaults to true
     shouldSelectNode: (node) => { // Defaults to null
         if (!node || (node === tree.getSelectedNode())) {

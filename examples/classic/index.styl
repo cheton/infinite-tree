@@ -1,0 +1,51 @@
+@import 'nib'
+
+.infinite-tree {
+}
+.infinite-tree-scroll {
+    overflow: auto;
+    max-height: 400px;
+}
+.infinite-tree-table {
+    width: 100%;
+}
+.infinite-tree-content {
+    // Outline removes default browser's borders for focused element.
+    outline: 0;
+
+    .tree-selected.tree-item,
+    .tree-selected.tree-item:hover {
+        background: #deecfd;
+        border: 1px solid #0066cc;
+    }
+    .tree-item {
+        border: 1px solid transparent;
+        cursor: default;
+    }
+    .tree-item:hover {
+        background: #f2fdff;
+    }
+    .tree-item.highlight {
+        border: 1px dotted #ccc;
+        background-color: #f5f6f7;
+    }
+    .tree-node {
+        position: relative;
+    }
+    .tree-toggler {
+        color: #666;
+        user-select: none;
+    }
+    .tree-toggler:hover {
+        color: #333;
+        text-decoration: none;
+    }
+    .tree-title {
+        cursor: pointer;
+        user-select: none;
+    }
+}
+// centering message that appears when no data provided
+.infinite-tree-no-data {
+    text-align: center;
+}

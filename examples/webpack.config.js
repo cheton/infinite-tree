@@ -6,10 +6,13 @@ var webpack = require('webpack');
 module.exports = {
     debug: true,
     devtool: 'source-map',
-    entry: path.resolve('index.js'),
+    entry: {
+        'classic': path.resolve(__dirname, 'classic/index.js'),
+        'filebrowser': path.resolve(__dirname, 'filebrowser/index.js')
+    },
     output: {
-        path: path.join(__dirname),
-        filename: 'bundle.js'
+        path: __dirname,
+        filename: '[name].bundle.js'
     },
     module: {
         loaders: [
