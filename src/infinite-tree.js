@@ -26,6 +26,7 @@ class InfiniteTree extends events.EventEmitter {
     options = {
         autoOpen: false,
         containerView: 'div',
+        dragoverClass: 'dragover',
         droppable: false,
         el: null,
         loadNodes: null,
@@ -106,7 +107,7 @@ class InfiniteTree extends events.EventEmitter {
             }
 
             if (this.dragoverElement !== itemTarget) {
-                removeClass(this.dragoverElement, 'highlight'); // remove 'highlight' class
+                removeClass(this.dragoverElement, this.options.dragoverClass);
                 this.dragoverElement = null;
 
                 if (!(itemTarget.hasAttribute('droppable'))) {
@@ -115,7 +116,7 @@ class InfiniteTree extends events.EventEmitter {
 
                 const canDrop = !(itemTarget.getAttribute('droppable').match(/false/i));
                 if (canDrop) {
-                    addClass(itemTarget, 'highlight');
+                    addClass(itemTarget, this.options.dragoverClass);
                     this.dragoverElement = itemTarget;
                 }
             }
@@ -124,7 +125,7 @@ class InfiniteTree extends events.EventEmitter {
         // The dragend event is fired when a drag operation is being ended (by releasing a mouse button or hitting the escape key).
         'dragend': (e) => {
             if (this.dragoverElement) {
-                removeClass(this.dragoverElement, 'highlight'); // remove 'highlight' class
+                removeClass(this.dragoverElement, this.options.dragoverClass);
                 this.dragoverElement = null;
             }
         },
@@ -145,7 +146,7 @@ class InfiniteTree extends events.EventEmitter {
                 const id = this.dragoverElement.getAttribute('aria-id');
                 const node = this.getNodeById(id);
 
-                removeClass(this.dragoverElement, 'highlight');
+                removeClass(this.dragoverElement, this.options.dragoverClass);
                 this.dragoverElement = null;
 
                 this.emit('dropNode', node, e);
