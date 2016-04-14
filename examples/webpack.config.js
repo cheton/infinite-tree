@@ -7,6 +7,7 @@ module.exports = {
     debug: true,
     devtool: 'source-map',
     entry: {
+        'main': path.resolve(__dirname, 'index.js'),
         'classic': path.resolve(__dirname, 'classic/index.js'),
         'filebrowser': path.resolve(__dirname, 'filebrowser/index.js')
     },

@@ -186,7 +186,7 @@ class InfiniteTree extends events.EventEmitter {
         let tag = null;
 
         this.scrollElement = document.createElement('div');
-        
+
         if (this.options.containerView === 'table') {
             const tableElement = document.createElement('table');
             tableElement.className = classNames(
@@ -208,7 +208,7 @@ class InfiniteTree extends events.EventEmitter {
             // The tag name for supporting elements
             tag = 'div';
         }
-        
+
         this.scrollElement.className = classNames(
             'infinite-tree',
             'infinite-tree-scroll'
