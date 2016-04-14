@@ -120,9 +120,12 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        _this.options = {
 	            autoOpen: false,
+	            containerView: 'div',
+	            dragoverClass: 'dragover',
 	            droppable: false,
 	            el: null,
 	            loadNodes: null,
+	            noDataText: 'No data',
 	            rowRenderer: _renderer.defaultRowRenderer,
 	            selectable: true,
 	            shouldSelectNode: null
@@ -200,7 +203,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                }
 
 	                if (_this.dragoverElement !== itemTarget) {
-	                    (0, _helper.removeClass)(_this.dragoverElement, 'highlight'); // remove 'highlight' class
+	                    (0, _helper.removeClass)(_this.dragoverElement, _this.options.dragoverClass);
 	                    _this.dragoverElement = null;
 
 	                    if (!itemTarget.hasAttribute('droppable')) {
@@ -209,7 +212,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	                    var canDrop = !itemTarget.getAttribute('droppable').match(/false/i);
 	                    if (canDrop) {
-	                        (0, _helper.addClass)(itemTarget, 'highlight');
+	                        (0, _helper.addClass)(itemTarget, _this.options.dragoverClass);
 	                        _this.dragoverElement = itemTarget;
 	                    }
 	                }
@@ -218,7 +221,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            // The dragend event is fired when a drag operation is being ended (by releasing a mouse button or hitting the escape key).
 	            'dragend': function dragend(e) {
 	                if (_this.dragoverElement) {
-	                    (0, _helper.removeClass)(_this.dragoverElement, 'highlight'); // remove 'highlight' class
+	                    (0, _helper.removeClass)(_this.dragoverElement, _this.options.dragoverClass);
 	                    _this.dragoverElement = null;
 	                }
 	            },
@@ -239,7 +242,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    var id = _this.dragoverElement.getAttribute('aria-id');
 	                    var node = _this.getNodeById(id);
 
-	                    (0, _helper.removeClass)(_this.dragoverElement, 'highlight');
+	                    (0, _helper.removeClass)(_this.dragoverElement, _this.options.dragoverClass);
 	                    _this.dragoverElement = null;
 
 	                    _this.emit('dropNode', node, e);
@@ -278,36 +281,59 @@ return /******/ (function(modules) { // webpackBootstrap
 	            throw new Error('The element option is not specified.');
 	        }
 
-	        var scrollElement = document.createElement('div');
-	        scrollElement.className = (0, _helper.classNames)('infinite-tree', 'infinite-tree-scroll');
-	        var contentElement = document.createElement('div');
-	        contentElement.className = (0, _helper.classNames)('infinite-tree', 'infinite-tree-content');
+	        var tag = null;
 
-	        scrollElement.appendChild(contentElement);
-	        this.options.el.appendChild(scrollElement);
+	        this.scrollElement = document.createElement('div');
+
+	        if (this.options.containerView === 'table') {
+	            var tableElement = document.createElement('table');
+	            tableElement.className = (0, _helper.classNames)('infinite-tree', 'infinite-tree-table');
+	            var contentElement = document.createElement('tbody');
+	            tableElement.appendChild(contentElement);
+	            this.scrollElement.appendChild(tableElement);
+	            this.contentElement = contentElement;
+
+	            // The tag name for supporting elements
+	            tag = 'tr';
+	        } else {
+	            var _contentElement = document.createElement('div');
+	            this.scrollElement.appendChild(_contentElement);
+	            this.contentElement = _contentElement;
+
+	            // The tag name for supporting elements
+	            tag = 'div';
+	        }
+
+	        this.scrollElement.className = (0, _helper.classNames)('infinite-tree', 'infinite-tree-scroll');
+	        this.contentElement.className = (0, _helper.classNames)('infinite-tree', 'infinite-tree-content');
+
+	        this.options.el.appendChild(this.scrollElement);
 
 	        this.clusterize = new _clusterize2['default']({
-	            tag: 'div',
+	            tag: tag,
 	            rows: [],
-	            scrollElem: scrollElement,
-	            contentElem: contentElement,
+	            scrollElem: this.scrollElement,
+	            contentElem: this.contentElement,
+	            no_data_text: this.options.noDataText,
 	            no_data_class: 'infinite-tree-no-data',
 	            callbacks: {
 	                // Will be called right before replacing previous cluster with new one.
 	                clusterWillChange: function clusterWillChange() {},
 	                // Will be called right after replacing previous cluster with new one.
-	                clusterChanged: function clusterChanged() {},
+	                clusterChanged: function clusterChanged() {
+	                    // Emit the update event
+	                    _this2.emit('update');
+	                },
 	                // Will be called on scrolling. Returns progress position.
 	                scrollingProgress: function scrollingProgress(progress) {
+	                    // Emit the scrollProgress event
 	                    _this2.emit('scrollProgress', progress);
 	                }
 	            }
 	        });
 
-	        this.scrollElement = scrollElement;
-	        this.contentElement = contentElement;
-
 	        (0, _helper.addEventListener)(this.contentElement, 'click', this.contentListener.click);
+
 	        if (this.options.droppable) {
 	            (0, _helper.addEventListener)(document, 'dragend', this.contentListener.dragend);
 	            (0, _helper.addEventListener)(this.contentElement, 'dragenter', this.contentListener.dragenter);
@@ -725,6 +751,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	                if (err) {
 	                    return;
 	                }
+	                if (!nodes) {
+	                    return;
+	                }
+
+	                nodes = [].concat(nodes || []); // Ensure array
+	                if (nodes.length === 0) {
+	                    return;
+	                }
 
 	                // Append child nodes
 	                nodes.forEach(function (childNode) {
@@ -1116,9 +1150,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	    InfiniteTree.prototype.update = function update() {
 	        // Update the list with new data
 	        this.clusterize.update(this.rows);
-
-	        // Emit the 'update' event
-	        this.emit('update');
 	    };
 	    // Updates the data of a node.
 	    // @param {Node} node The Node object.

@@ -1,9 +1,9 @@
-/* Change the max-height to suit your needs. */
-.infinite-tree-content {
-  max-height: 400px;
-}
 .infinite-tree-scroll {
   overflow: auto;
+  max-height: 400px; /* Change the height to suit your needs. */
+}
+.infinite-tree-table {
+  width: 100%;
 }
 .infinite-tree-content {
   outline: 0;
@@ -20,7 +20,7 @@
 .infinite-tree-content .tree-item:hover {
   background: #f2fdff;
 }
-.infinite-tree-content .tree-item.highlight {
+.infinite-tree-content .tree-item.dragover {
   border: 1px dotted #ccc;
   background-color: #f5f6f7;
 }
