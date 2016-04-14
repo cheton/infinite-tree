@@ -7,11 +7,12 @@ module.exports = {
     debug: true,
     devtool: 'source-map',
     entry: {
-        'examples': path.resolve(__dirname, 'examples.js')
+        navbar: path.resolve(__dirname, 'navbar.js'),
+        examples: path.resolve(__dirname, 'examples.js')
     },
     output: {
         path: __dirname,
-        filename: 'dist/[name]-bundle.js'
+        filename: 'dist/[name].js'
     },
     module: {
         loaders: [
@@ -54,6 +55,7 @@ module.exports = {
         ]
     },
     plugins: [
+        new webpack.optimize.CommonsChunkPlugin('dist/common.js'),
         new webpack.optimize.UglifyJsPlugin({
             compress: {
                 warnings: false
