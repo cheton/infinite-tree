@@ -12,7 +12,7 @@ for (let i = 0; i < 1000; ++i) {
 }
 
 const updatePreview = (node) => {
-    const el = document.querySelector('#preview');
+    const el = document.querySelector('#classic [data-id="preview"]');
     if (node) {
         let o = {
             id: node.id,
@@ -30,7 +30,7 @@ const updatePreview = (node) => {
     }
 };
 
-const tree = new InfiniteTree(document.querySelector('#tree'), {
+const tree = new InfiniteTree(document.querySelector('#classic [data-id="tree"]'), {
     autoOpen: true, // Defaults to false
     droppable: true, // Defaults to false
     loadNodes: (parentNode, done) => {
@@ -60,7 +60,7 @@ const tree = new InfiniteTree(document.querySelector('#tree'), {
 });
 
 tree.on('scrollProgress', (progress) => {
-    document.querySelector('#scrolling-progress').style.width = progress + '%';
+    document.querySelector('#classic [data-id="scrolling-progress"]').style.width = progress + '%';
 });
 tree.on('update', () => {
     const node = tree.getSelectedNode();
@@ -75,7 +75,7 @@ tree.on('closeNode', (node) => {
 tree.on('dropNode', (node, e) => {
     const source = e.dataTransfer.getData('text');
     console.log('Dragged an element ' + JSON.stringify(source) + ' and dropped to ' + JSON.stringify(node.label));
-    document.querySelector('#dropped-result').innerHTML = 'Dropped to <b>' + quoteattr(node.label) + '</b>';
+    document.querySelector('#classic [data-id="dropped-result"]').innerHTML = 'Dropped to <b>' + quoteattr(node.label) + '</b>';
 });
 tree.on('selectNode', (node) => {
     updatePreview(node);
@@ -87,7 +87,7 @@ tree.loadData(data);
 tree.selectNode(tree.getChildNodes()[0]);
 
 // Draggable Element
-const draggableElement = document.querySelector('#draggable-element');
+const draggableElement = document.querySelector('#classic [data-id="draggable-element"]');
 
 // http://stackoverflow.com/questions/5500615/internet-explorer-9-drag-and-drop-dnd
 addEventListener(draggableElement, 'selectstart', (e) => {
@@ -101,10 +101,8 @@ addEventListener(draggableElement, 'dragstart', (e) => {
     e.dataTransfer.effectAllowed = 'move';
     const target = e.target || e.srcElement;
     e.dataTransfer.setData('text', target.id);
-    document.querySelector('#dropped-result').innerHTML = '';
+    document.querySelector('#classic [data-id="dropped-result"]').innerHTML = '';
 });
 
 addEventListener(draggableElement, 'dragend', function(e) {
 });
-
-window.tree = tree;

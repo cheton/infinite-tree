@@ -1,62 +1,87 @@
 @import 'nib'
 
-.nowrap {
-    white-space: nowrap;
-}
-.infinite-tree-content td {
-    padding-right: 20px;
-}
+#filebrowser {
 
-/* Change the max-height to suit your needs. */
-.infinite-tree-content {
-}
-.infinite-tree {
-}
-.infinite-tree-scroll {
-    overflow-y: auto;
-    overflow-x: hidden;
-    max-height: 400px;
-}
-.infinite-tree-table {
-    width: 100%;
-}
-.infinite-tree-content {
-    // Outline removes default browser's borders for focused element.
-    outline: 0;
+    [data-id="tree"] {
+        border: 1px solid #ccc;
+        background-color: #fff;
+    }
+    .nowrap {
+        white-space: nowrap;
+    }
+    .infinite-tree-content td {
+        padding-right: 20px;
+    }
 
-    .tree-selected.tree-item,
-    .tree-selected.tree-item:hover {
-        background: #deecfd;
-        //border: 1px solid #0066cc;
-    }
-    .tree-item {
-        border: 1px solid transparent;
-        cursor: default;
-    }
-    .tree-item:hover {
-        background: #f2fdff;
-    }
-    .tree-item.highlight {
-        border: 1px dotted #ccc;
-        background-color: #f5f6f7;
-    }
-    .tree-node {
-        position: relative;
+    .tree {
+        border: 1px solid #ccc;
+        background-color: #fff;
     }
     .tree-toggler {
-        color: #666;
-        user-select: none;
+        text-align: center;
+        margin-right: 5px;
     }
-    .tree-toggler:hover {
-        color: #333;
-        text-decoration: none;
+    .tree-folder-icon {
+        width: 19px;
     }
-    .tree-title {
-        cursor: pointer;
-        user-select: none;
+    .tree-folder-icon:first-child {
+        margin-left: 20px;
     }
-}
-// centering message that appears when no data provided
-.infinite-tree-no-data {
-    text-align: center;
+    .tree-folder-icon:before {
+        margin-right: 5px;
+    }
+
+    /* Change the max-height to suit your needs. */
+    .infinite-tree-content {
+    }
+    .infinite-tree {
+    }
+    .infinite-tree-scroll {
+        overflow-y: auto;
+        overflow-x: hidden;
+        max-height: 400px;
+    }
+    .infinite-tree-table {
+        width: 100%;
+    }
+    .infinite-tree-content {
+        // Outline removes default browser's borders for focused element.
+        outline: 0;
+
+        .tree-selected.tree-item,
+        .tree-selected.tree-item:hover {
+            background: #deecfd;
+            //border: 1px solid #0066cc;
+        }
+        .tree-item {
+            border: 1px solid transparent;
+            cursor: default;
+        }
+        .tree-item:hover {
+            background: #f2fdff;
+        }
+        .tree-item.dragover-highlight {
+            border: 1px dotted #ccc;
+            background-color: #f5f6f7;
+        }
+        .tree-node {
+            position: relative;
+        }
+        .tree-toggler {
+            color: #666;
+            user-select: none;
+        }
+        .tree-toggler:hover {
+            color: #333;
+            text-decoration: none;
+        }
+        .tree-title {
+            cursor: pointer;
+            user-select: none;
+        }
+    }
+    // centering message that appears when no data provided
+    .infinite-tree-no-data {
+        text-align: center;
+    }
 }

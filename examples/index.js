@@ -1,27 +1,25 @@
-import { Router } from 'director';
 import { addClass, removeClass, addEventListener } from '../src/helper';
+import './classic';
+import './filebrowser';
 
-const routes = {
-    '/classic': function() {
-        console.log('classic');
-    },
-    '/filebrowser': function() {
-        console.log('filebrowser');
-    }
-};
+let activeTarget = null;
 
-const router = Router(routes);
-router.configure({
-    on: () => {
-    }
-});
-router.init();
-
-addEventListener(document.getElementById('sidebar'), 'click', (e) => {
+const sidebar = document.getElementById('sidebar');
+addEventListener(sidebar, 'click', (e) => {
     const target = e.target || e.srcElement;
+    let itemTarget = target;
+
     if (target.nodeName !== 'A') {
         return;
     }
 
-    addClass(target, 'active');
+    while (itemTarget && itemTarget.parentElement !== sidebar) {
+        itemTarget = itemTarget.parentElement;
+    }
+
+    if (activeTarget) {
+        removeClass(activeTarget, 'active');
+    }
+    activeTarget = itemTarget;
+    addClass(activeTarget, 'active');
 });

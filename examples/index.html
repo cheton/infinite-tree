@@ -16,70 +16,6 @@ html, body {
     font-weight: bold;
     font-size: 64px;
 }
-.progress-bar {
-    -webkit-transition: none;
-    -moz-transition: none;
-    -ms-transition: none;
-    -o-transition: none;
-    transition: none;
-}
-#tree {
-    border: 1px solid #ccc;
-    background-color: #fff;
-}
-#preview {
-    font-family: Consolas;
-    font-size: 14px;
-    font-weight: bold;
-    white-space: pre-wrap;
-    background-color: #282c34;
-    border: solid 1px #ccc;
-    color: #9197a3;
-    padding: 20px;
-    min-height: 400px;
-}
-.tree-toggler {
-    text-align: center;
-    margin-right: 5px;
-}
-.tree-folder-icon {
-    width: 19px;
-}
-.tree-folder-icon:first-child {
-    margin-left: 20px;
-}
-.tree-folder-icon:before {
-    margin-right: 5px;
-}
-.tree-node .count {
-    position: absolute;
-    right: 4px;
-    padding: 0 8px;
-    height: 18px;
-    line-height: 18px;
-    background-color: #D8DFEA;
-    color: #3B5998;
-    font-style: normal;
-    font-weight: bold;
-    text-align: center;
-    border-radius: 2px;
-}
-#draggable-element {
-    font-size: 16px;
-    cursor: move;
-    line-height: 40px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    text-align: center;
-    white-space: nowrap;
-}
-#draggable-element:hover {
-    background-color: #f5f6f7;
-}
-#dropped-result {
-    font-size: 16px;
-    line-height: 42px;
-}
 </style>
 <!--[if lt IE 9]>
 <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -101,35 +37,72 @@ html, body {
         </div>
     </div>
     <div class="row">
-        <div class="col-md-3">
-            <nav class="bs-docs-sidebar affix-top">
+        <div class="col-md-3 bs-docs-sidebar-holder">
+            <nav class="bs-docs-sidebar">
                 <ul class="nav bs-docs-sidenav" id="sidebar">
-                    <li><a href="#/classic">Classic</a></li>
-                    <li><a href="#/filebrowser">File Browser</a></li>
+                    <li><a href="#classic">Classic</a></li>
+                    <li><a href="#filebrowser">File Browser</a></li>
                 </ul>
             </nav>
         </div>
-        <div class="col-md-9">
+        <div class="col-md-9" id="main">
+            <!-- Classic -->
+            <section class="bs-docs-section" id="classic">
+                <h2 class="page-header">Classic</h2>
+                <div class="container-fluid">
+                    <div class="row" style="margin-bottom: 10px;">
+                        <div class="col-xs-12">
+                            <button
+                                type="button"
+                                class="btn btn-default"
+                                draggable="true"
+                                data-id="draggable-element"
+                                style="margin-right: 10px"
+                            >
+                                Drag me!
+                            </button>
+                            <span class="dropped-result" data-id="dropped-result"></span>
+                        </div>
+                    </div>
+                    <div class="row" style="margin-bottom: 5px;">
+                        <div class="col-xs-6">
+                            <div class="tree" data-id="tree"></div>
+                        </div>
+                        <div class="col-xs-6">
+                            <div class="preview" data-id="preview"></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <div class="progress">
+                                <div class="progress-bar" role="progressbar" data-id="scrolling-progress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- File Browser -->
+            <section class="bs-docs-section" id="filebrowser">
+                <h2 class="page-header">File Browser</h2>
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <table class="filebrowser-header" width="100%">
+                                <thead>
+                                    <th>Name</th>
+                                    <th>Size</th>
+                                    <th>Type</th>
+                                    <th>Modified Date</th>
+                                </thead>
+                            </table>
+                            <div class="tree" data-id="tree"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </div>
     <div>
-    <a href="#/classic">classic</a>
-    <a href="#/filebrowser">filebrowser</a>
-    <hr/>
-    <div class="row" style="margin-bottom: 5px;">
-        <div class="col-xs-6">
-            <table class="filebrowser-header" width="100%">
-                <thead>
-                    <th>Name</th>
-                    <th>Size</th>
-                    <th>Type</th>
-                    <th>Modified Date</th>
-                </thead>
-            </table>
-            <div id="tree"></div>
-        </div>
-        <div class="col-xs-6"></div>
-    </div>
 </div>
-<script src="main.bundle.js"></script>
+<script src="dist/main.js"></script>
 </body>
 </html>

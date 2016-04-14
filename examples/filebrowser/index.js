@@ -7,8 +7,8 @@ import data from './data';
 
 // Makes header columns equal width to content columns
 const fitHeaderColumns = () => {
-    const row = document.querySelector('.infinite-tree-content tr.tree-item');
-    const headers = document.querySelectorAll('table.filebrowser-header > thead > tr > th');
+    const row = document.querySelector('#filebrowser .infinite-tree-content tr.tree-item');
+    const headers = document.querySelectorAll('#filebrowser table.filebrowser-header > thead > tr > th');
     for (let c = row.firstChild, i = 0; c !== null && i < headers.length; c = c.nextSibling, ++i) {
         headers[i].style.width = c.clientWidth + 'px';
     }
@@ -16,8 +16,8 @@ const fitHeaderColumns = () => {
 
 // Keep header equal width to tbody
 const setHeaderWidth = () => {
-    const header = document.querySelector('table.filebrowser-header');
-    const content = document.querySelector('.infinite-tree-content');
+    const header = document.querySelector('#filebrowser table.filebrowser-header');
+    const content = document.querySelector('#filebrowser .infinite-tree-content');
     header.style.width = content.clientWidth + 'px';
 };
 
@@ -26,7 +26,7 @@ window.onresize = function() {
     debounce(fitHeaderColumns, 150);
 };
 
-const tree = new InfiniteTree(document.querySelector('#tree'), {
+const tree = new InfiniteTree(document.querySelector('#filebrowser [data-id="tree"]'), {
     autoOpen: true, // Defaults to false
     containerView: 'table',
     droppable: true, // Defaults to false
@@ -73,5 +73,3 @@ tree.loadData(data);
 
 // Select the first node
 tree.selectNode(tree.getChildNodes()[0]);
-
-window.tree = tree;
