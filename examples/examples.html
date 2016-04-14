@@ -1,0 +1,127 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="x-ua-compatible" content="ie=edge">
+<title>infinite-tree</title>
+<meta name="description" content="">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+<link rel="stylesheet" href="bs-docs.css">
+<link rel="stylesheet" href="common.css">
+<style>
+#sidebar {
+    position: fixed;
+    top: 60px;
+    bottom: 0;
+    left: 0;
+}
+#main {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+}
+#main section {
+    display: none;
+}
+#main section.active {
+    display: block;
+}
+</style>
+<!--[if lt IE 9]>
+<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/es5-shim/4.5.7/es5-shim.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/es5-shim/4.5.7/es5-sham.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/json3/3.3.2/json3.min.js"></script>
+<![endif]-->
+</head>
+<body>
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+            <a href="https://github.com/cheton/infinite-tree/fork">
+                <img class="github-ribbon" src="http://aral.github.com/fork-me-on-github-retina-ribbons/right-white@2x.png" alt="Fork me on GitHub">
+            </a>
+            <a class="navbar-brand" href="https://github.com/cheton/infinite-tree">Infinite Tree</a>
+        </div>
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav pull-right">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="https://github.com/cheton/infinite-tree/wiki">Documentation</a></li>
+                <li class="active"><a href="examples.html">Examples</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class="container-fluid top-space">
+    <div class="row">
+        <div class="col-md-2 bs-docs-sidebar-holder" id="sidebar">
+            <nav class="bs-docs-sidebar">
+                <ul class="nav bs-docs-sidenav">
+                    <li><a href="#/classic" data-section-id="classic">Classic</a></li>
+                    <li><a href="#/filebrowser" data-section-id="filebrowser">File Browser</a></li>
+                </ul>
+            </nav>
+        </div>
+        <div class="col-md-10" id="main">
+            <!-- Classic -->
+            <section class="bs-docs-section" id="classic">
+                <h2 class="page-header">Classic</h2>
+                <div class="container-fluid">
+                    <div class="row" style="margin-bottom: 10px;">
+                        <div class="col-xs-12">
+                            <button
+                                type="button"
+                                class="btn btn-default"
+                                draggable="true"
+                                data-id="draggable-element"
+                                style="margin-right: 10px"
+                            >
+                                Drag me!
+                            </button>
+                            <span class="dropped-result" data-id="dropped-result"></span>
+                        </div>
+                    </div>
+                    <div class="row" style="margin-bottom: 5px;">
+                        <div class="col-xs-6">
+                            <div class="tree" data-id="tree"></div>
+                        </div>
+                        <div class="col-xs-6">
+                            <div class="preview" data-id="preview"></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <div class="progress">
+                                <div class="progress-bar" role="progressbar" data-id="scrolling-progress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- File Browser -->
+            <section class="bs-docs-section" id="filebrowser">
+                <h2 class="page-header">File Browser</h2>
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <table class="filebrowser-header" width="100%">
+                                <thead>
+                                    <th>Name</th>
+                                    <th>Size</th>
+                                    <th>Type</th>
+                                    <th>Modified Date</th>
+                                </thead>
+                            </table>
+                            <div class="tree" data-id="tree"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    <div>
+</div>
+<script src="dist/examples-bundle.js"></script>
+</body>
+</html>

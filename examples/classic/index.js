@@ -77,9 +77,6 @@ tree.on('selectNode', (node) => {
 
 tree.loadData(data);
 
-// Select the first node
-tree.selectNode(tree.getChildNodes()[0]);
-
 // Draggable Element
 const draggableElement = document.querySelector('#classic [data-id="draggable-element"]');
 
@@ -100,3 +97,12 @@ addEventListener(draggableElement, 'dragstart', (e) => {
 
 addEventListener(draggableElement, 'dragend', function(e) {
 });
+
+const load = () => {
+    // Select the first node
+    tree.selectNode(tree.getChildNodes()[0]);
+};
+
+export {
+    load
+}

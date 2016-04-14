@@ -7,11 +7,11 @@ module.exports = {
     debug: true,
     devtool: 'source-map',
     entry: {
-        'main': path.resolve(__dirname, 'index.js')
+        'examples': path.resolve(__dirname, 'examples.js')
     },
     output: {
         path: __dirname,
-        filename: 'dist/[name].js'
+        filename: 'dist/[name]-bundle.js'
     },
     module: {
         loaders: [

@@ -73,3 +73,12 @@ tree.loadData(data);
 
 // Select the first node
 tree.selectNode(tree.getChildNodes()[0]);
+
+const load = () => {
+    fitHeaderColumns();
+    setHeaderWidth();
+};
+
+export {
+    load
+}
