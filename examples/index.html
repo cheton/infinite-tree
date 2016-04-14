@@ -7,6 +7,7 @@
 <meta name="description" content="">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+<link rel="stylesheet" href="bs-docs.css">
 <style>
 html, body {
     font-family: Arial, Helvetica, sans-serif;
@@ -40,6 +41,9 @@ html, body {
 .tree-toggler {
     text-align: center;
     margin-right: 5px;
+}
+.tree-folder-icon {
+    width: 19px;
 }
 .tree-folder-icon:first-child {
     margin-left: 20px;
@@ -96,37 +100,36 @@ html, body {
             <a class="btn btn-default btn-lg" href="https://github.com/cheton/infinite-tree/wiki" role="button">API Documentation</a>
         </div>
     </div>
+    <div class="row">
+        <div class="col-md-3">
+            <nav class="bs-docs-sidebar affix-top">
+                <ul class="nav bs-docs-sidenav" id="sidebar">
+                    <li><a href="#/classic">Classic</a></li>
+                    <li><a href="#/filebrowser">File Browser</a></li>
+                </ul>
+            </nav>
+        </div>
+        <div class="col-md-9">
+        </div>
+    <div>
+    <a href="#/classic">classic</a>
+    <a href="#/filebrowser">filebrowser</a>
     <hr/>
-    <div class="row" style="margin-bottom: 10px;">
-        <div class="col-xs-6">
-            <div class="row">
-                <div class="col-xs-6">
-                    <div draggable="true" id="draggable-element">Drag me!</div>
-                </div>
-                <div class="col-xs-6">
-                    <div id="dropped-result"></div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xs-6">
-        </div>
-    </div>
     <div class="row" style="margin-bottom: 5px;">
         <div class="col-xs-6">
+            <table class="filebrowser-header" width="100%">
+                <thead>
+                    <th>Name</th>
+                    <th>Size</th>
+                    <th>Type</th>
+                    <th>Modified Date</th>
+                </thead>
+            </table>
             <div id="tree"></div>
         </div>
-        <div class="col-xs-6">
-            <div id="preview"></div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-xs-6">
-            <div class="progress">
-                <div class="progress-bar" role="progressbar" id="scrolling-progress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-            </div>
-        </div>
+        <div class="col-xs-6"></div>
     </div>
 </div>
-<script src="classic.bundle.js"></script>
+<script src="main.bundle.js"></script>
 </body>
 </html>
