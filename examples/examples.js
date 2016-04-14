@@ -5,7 +5,6 @@ import * as filebrowser from './filebrowser';
 const routes = {
     'classic': () => {
         classic.load();
-
     },
     'filebrowser': () => {
         filebrowser.load();
