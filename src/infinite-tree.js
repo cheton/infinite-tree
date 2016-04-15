@@ -23,6 +23,9 @@ const error = (...args) => {
 };
 
 const ensureNodeInstance = (node) => {
+    if (!node) { // undefined or null
+        return false;
+    }
     if (!(node instanceof Node)) {
         error('The node must be a Node object.');
         return false;
