@@ -28,24 +28,8 @@ window.onresize = function() {
 
 const tree = new InfiniteTree(document.querySelector('#filebrowser [data-id="tree"]'), {
     autoOpen: true, // Defaults to false
-    containerView: 'table',
     droppable: true, // Defaults to false
-    loadNodes: (parentNode, done) => {
-        const suffix = parentNode.id.replace(/(\w)+/, '');
-        const nodes = [
-            {
-                id: 'node1' + suffix,
-                label: 'Node 1'
-            },
-            {
-                id: 'node2' + suffix,
-                label: 'Node 2'
-            }
-        ];
-        setTimeout(() => {
-            done(null, nodes);
-        }, 1000);
-    },
+    layout: 'table', // Defaults to 'div'
     rowRenderer: renderer,
     selectable: true, // Defaults to true
     shouldSelectNode: (node) => { // Defaults to null
@@ -56,7 +40,11 @@ const tree = new InfiniteTree(document.querySelector('#filebrowser [data-id="tre
     }
 });
 
-tree.on('update', () => {
+tree.on('contentWillUpdate', () => {
+    console.log('contentWillUpdate');
+});
+tree.on('contentDidUpdate', () => {
+    console.log('contentDidUpdate');
     fitHeaderColumns();
     setHeaderWidth();
 });
@@ -67,6 +55,7 @@ tree.on('closeNode', (node) => {
     console.log('closeNode', node);
 });
 tree.on('selectNode', (node) => {
+    console.log('selectNode', node);
 });
 
 tree.loadData(data);

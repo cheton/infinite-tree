@@ -10,7 +10,7 @@ const updatePreview = (node) => {
     if (node) {
         let o = {
             id: node.id,
-            label: node.label,
+            name: node.name,
             children: node.children ? node.children.length : 0,
             parent: node.parent ? node.parent.id : null,
             state: node.state
@@ -32,11 +32,11 @@ const tree = new InfiniteTree(document.querySelector('#classic [data-id="tree"]'
         const nodes = [
             {
                 id: 'node1' + suffix,
-                label: 'Node 1'
+                name: 'Node 1'
             },
             {
                 id: 'node2' + suffix,
-                label: 'Node 2'
+                name: 'Node 2'
             }
         ];
         setTimeout(() => {
@@ -53,10 +53,11 @@ const tree = new InfiniteTree(document.querySelector('#classic [data-id="tree"]'
     }
 });
 
-tree.on('scrollProgress', (progress) => {
-    document.querySelector('#classic [data-id="scrolling-progress"]').style.width = progress + '%';
+tree.on('contentWillUpdate', () => {
+    console.log('contentWillUpdate');
 });
-tree.on('update', () => {
+tree.on('contentDidUpdate', () => {
+    console.log('contentDidUpdate');
     const node = tree.getSelectedNode();
     updatePreview(node);
 });
@@ -67,15 +68,23 @@ tree.on('closeNode', (node) => {
     console.log('closeNode', node);
 });
 tree.on('dropNode', (node, e) => {
+    console.log('dropNode', node);
     const source = e.dataTransfer.getData('text');
-    console.log('Dragged an element ' + JSON.stringify(source) + ' and dropped to ' + JSON.stringify(node.label));
-    document.querySelector('#classic [data-id="dropped-result"]').innerHTML = 'Dropped to <b>' + quoteattr(node.label) + '</b>';
+    const innerHTML = 'Dropped to <b>' + quoteattr(node.name) + '</b>';
+    document.querySelector('#classic [data-id="dropped-result"]').innerHTML = innerHTML;
 });
 tree.on('selectNode', (node) => {
+    console.log('selectNode', node);
     updatePreview(node);
 });
 
 tree.loadData(data);
+
+// Scroll Element
+addEventListener(tree.scrollElement, 'scroll', (e) => {
+    const progress = (tree.scrollElement.scrollTop / tree.contentElement.clientHeight) * 100 || 0;
+    document.querySelector('#classic [data-id="scrolling-progress"]').style.width = progress + '%';
+});
 
 // Draggable Element
 const draggableElement = document.querySelector('#classic [data-id="draggable-element"]');
