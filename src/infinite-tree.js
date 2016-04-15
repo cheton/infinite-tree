@@ -25,11 +25,12 @@ const ensureNodeInstance = (node) => {
 class InfiniteTree extends events.EventEmitter {
     options = {
         autoOpen: false,
-        containerView: 'div',
         dragoverClass: 'dragover',
         droppable: false,
         el: null,
+        layout: 'div',
         loadNodes: null,
+        noDataClass: 'infinite-tree-no-data',
         noDataText: 'No data',
         rowRenderer: defaultRowRenderer,
         selectable: true,
@@ -188,7 +189,7 @@ class InfiniteTree extends events.EventEmitter {
 
         this.scrollElement = document.createElement('div');
 
-        if (this.options.containerView === 'table') {
+        if (this.options.layout === 'table') {
             const tableElement = document.createElement('table');
             tableElement.className = classNames(
                 'infinite-tree',
@@ -227,22 +228,7 @@ class InfiniteTree extends events.EventEmitter {
             scrollElem: this.scrollElement,
             contentElem: this.contentElement,
             no_data_text: this.options.noDataText,
-            no_data_class: 'infinite-tree-no-data',
-            callbacks: {
-                // Will be called right before replacing previous cluster with new one.
-                clusterWillChange: () => {
-                },
-                // Will be called right after replacing previous cluster with new one.
-                clusterChanged: () => {
-                    // Emit the update event
-                    this.emit('update');
-                },
-                // Will be called on scrolling. Returns progress position.
-                scrollingProgress: (progress) => {
-                    // Emit the scrollProgress event
-                    this.emit('scrollProgress', progress);
-                }
-            }
+            no_data_class: this.options.noDataClass
         });
 
         addEventListener(this.contentElement, 'click', this.contentListener.click);
@@ -430,7 +416,7 @@ class InfiniteTree extends events.EventEmitter {
         // Update the row corresponding to the node
         this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
 
-        // Emit the 'closeNode' event
+        // Emit 'closeNode' event
         this.emit('closeNode', node);
 
         // Updates list with new data
@@ -659,7 +645,7 @@ class InfiniteTree extends events.EventEmitter {
             });
         }
 
-        // Emit the 'openNode' event
+        // Emit 'openNode' event
         this.emit('openNode', node);
 
         // Updates list with new data
@@ -863,7 +849,7 @@ class InfiniteTree extends events.EventEmitter {
                 this.rows[selectedIndex] = this.options.rowRenderer(selectedNode, this.options);
                 this.state.selectedNode = null;
 
-                // Emit the 'selectNode' event
+                // Emit 'selectNode' event
                 this.emit('selectNode', null);
 
                 // Updates list with new data
@@ -902,12 +888,12 @@ class InfiniteTree extends events.EventEmitter {
         if (this.state.selectedNode !== node) {
             this.state.selectedNode = node;
 
-            // Emit the 'selectNode' event
+            // Emit 'selectNode' event
             this.emit('selectNode', node);
         } else {
             this.state.selectedNode = null;
 
-            // Emit the 'selectNode' event
+            // Emit 'selectNode' event
             this.emit('selectNode', null);
         }
 
@@ -968,8 +954,17 @@ class InfiniteTree extends events.EventEmitter {
     }
     // Updates the tree.
     update() {
+        // Emit 'contentWillUpdate' event
+        this.emit('contentWillUpdate');
+
         // Update the list with new data
         this.clusterize.update(this.rows);
+
+        // [DEPRECATED] it will be removed in v1.0
+        this.emit('update');
+
+        // Emit 'contentWillUpdate' event
+        this.emit('contentDidUpdate');
     }
     // Updates the data of a node.
     // @param {Node} node The Node object.
