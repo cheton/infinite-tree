@@ -108,8 +108,12 @@ addEventListener(draggableElement, 'dragend', function(e) {
 });
 
 const load = () => {
-    // Select the first node
-    tree.selectNode(tree.getChildNodes()[0]);
+    const childNodes = tree.getChildNodes();
+
+    if (childNodes.length > 0) {
+        // Select the first node
+        tree.selectNode(childNodes[0]);
+    }
 };
 
 export {
