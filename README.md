@@ -43,16 +43,16 @@ require('infinite-tree/dist/infinite-tree.css');
 
 var data = {
     id: 'fruit',
-    label: 'Fruit',
+    name: 'Fruit',
     children: [{
         id: 'apple',
-        label: 'Apple'
+        name: 'Apple'
     }, {
         id: 'banana',
-        label: 'Banana',
+        name: 'Banana',
         children: [{
             id: 'cherry',
-            label: 'Cherry',
+            name: 'Cherry',
             loadOnDemand: true
         }]
     }]
@@ -81,7 +81,7 @@ var tree = new InfiniteTree({
     },
     // Render tree nodes with your own way
     rowRenderer: function(node, treeOptions) {
-        return '<div aria-id="<node-id>" class="tree-item">' + node.label + '</div>';
+        return '<div aria-id="<node-id>" class="tree-item">' + node.name + '</div>';
     }
 });
 ```
