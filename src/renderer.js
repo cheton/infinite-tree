@@ -1,7 +1,7 @@
 import { buildHTML, classNames, quoteattr } from './helper';
 
 const defaultRowRenderer = (node, treeOptions) => {
-    const { id, label, loadOnDemand = false, children, state } = node;
+    const { id, name, loadOnDemand = false, children, state } = node;
     const { depth, open, path, total, selected = false } = state;
     const childrenLength = Object.keys(children).length;
     const more = node.hasChildren();
@@ -30,7 +30,7 @@ const defaultRowRenderer = (node, treeOptions) => {
             return '';
         })()
     });
-    const title = buildHTML('span', quoteattr(label), {
+    const title = buildHTML('span', quoteattr(name), {
         'class': classNames('tree-title')
     });
     const treeNode = buildHTML('div', toggler + title, {

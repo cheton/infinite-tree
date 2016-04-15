@@ -1,22 +1,16 @@
-import InfiniteTree from '../src';
-import rowRenderer from './renderer';
-import '../src/index.styl';
+import InfiniteTree from '../../src';
+import renderer from './renderer';
+import './index.styl';
 import './animation.styl';
-import { addEventListener, preventDefault, stopPropagation, quoteattr } from '../src/helper';
-
-const data = [];
-const source = '{"id":"<root>","label":"<root>","props":{"droppable":true},"children":[{"id":"alpha","label":"Alpha","props":{"droppable":true}},{"id":"bravo","label":"Bravo","props":{"droppable":true},"children":[{"id":"charlie","label":"Charlie","props":{"droppable":true},"children":[{"id":"delta","label":"Delta","props":{"droppable":true},"children":[{"id":"echo","label":"Echo","props":{"droppable":true}},{"id":"foxtrot","label":"Foxtrot","props":{"droppable":true}}]},{"id":"golf","label":"Golf","props":{"droppable":true}}]},{"id":"hotel","label":"Hotel","props":{"droppable":true},"children":[{"id":"india","label":"India","props":{"droppable":true},"children":[{"id":"juliet","label":"Juliet","props":{"droppable":true}}]}]},{"id":"kilo","label":"(Load On Demand) Kilo","loadOnDemand":true,"props":{"droppable":true}}]}]}';
-
-for (let i = 0; i < 1000; ++i) {
-    data.push(JSON.parse(source.replace(/"(id|label)":"([^"]*)"/g, '"$1": "$2.' + i + '"')));
-}
+import { addEventListener, preventDefault, stopPropagation, quoteattr } from '../../src/helper';
+import data from './data.json';
 
 const updatePreview = (node) => {
-    const el = document.querySelector('#preview');
+    const el = document.querySelector('#classic [data-id="preview"]');
     if (node) {
         let o = {
             id: node.id,
-            label: node.label,
+            name: node.name,
             children: node.children ? node.children.length : 0,
             parent: node.parent ? node.parent.id : null,
             state: node.state
@@ -30,7 +24,7 @@ const updatePreview = (node) => {
     }
 };
 
-const tree = new InfiniteTree(document.querySelector('#tree'), {
+const tree = new InfiniteTree(document.querySelector('#classic [data-id="tree"]'), {
     autoOpen: true, // Defaults to false
     droppable: true, // Defaults to false
     loadNodes: (parentNode, done) => {
@@ -38,18 +32,18 @@ const tree = new InfiniteTree(document.querySelector('#tree'), {
         const nodes = [
             {
                 id: 'node1' + suffix,
-                label: 'Node 1'
+                name: 'Node 1'
             },
             {
                 id: 'node2' + suffix,
-                label: 'Node 2'
+                name: 'Node 2'
             }
         ];
         setTimeout(() => {
             done(null, nodes);
         }, 1000);
     },
-    rowRenderer: rowRenderer,
+    rowRenderer: renderer,
     selectable: true, // Defaults to true
     shouldSelectNode: (node) => { // Defaults to null
         if (!node || (node === tree.getSelectedNode())) {
@@ -59,10 +53,11 @@ const tree = new InfiniteTree(document.querySelector('#tree'), {
     }
 });
 
-tree.on('scrollProgress', (progress) => {
-    document.querySelector('#scrolling-progress').style.width = progress + '%';
+tree.on('contentWillUpdate', () => {
+    console.log('contentWillUpdate');
 });
-tree.on('update', () => {
+tree.on('contentDidUpdate', () => {
+    console.log('contentDidUpdate');
     const node = tree.getSelectedNode();
     updatePreview(node);
 });
@@ -73,21 +68,26 @@ tree.on('closeNode', (node) => {
     console.log('closeNode', node);
 });
 tree.on('dropNode', (node, e) => {
+    console.log('dropNode', node);
     const source = e.dataTransfer.getData('text');
-    console.log('Dragged an element ' + JSON.stringify(source) + ' and dropped to ' + JSON.stringify(node.label));
-    document.querySelector('#dropped-result').innerHTML = 'Dropped to <b>' + quoteattr(node.label) + '</b>';
+    const innerHTML = 'Dropped to <b>' + quoteattr(node.name) + '</b>';
+    document.querySelector('#classic [data-id="dropped-result"]').innerHTML = innerHTML;
 });
 tree.on('selectNode', (node) => {
+    console.log('selectNode', node);
     updatePreview(node);
 });
 
 tree.loadData(data);
 
-// Select the first node
-tree.selectNode(tree.getChildNodes()[0]);
+// Scroll Element
+addEventListener(tree.scrollElement, 'scroll', (e) => {
+    const progress = (tree.scrollElement.scrollTop / tree.contentElement.clientHeight) * 100 || 0;
+    document.querySelector('#classic [data-id="scrolling-progress"]').style.width = progress + '%';
+});
 
 // Draggable Element
-const draggableElement = document.querySelector('#draggable-element');
+const draggableElement = document.querySelector('#classic [data-id="draggable-element"]');
 
 // http://stackoverflow.com/questions/5500615/internet-explorer-9-drag-and-drop-dnd
 addEventListener(draggableElement, 'selectstart', (e) => {
@@ -101,10 +101,21 @@ addEventListener(draggableElement, 'dragstart', (e) => {
     e.dataTransfer.effectAllowed = 'move';
     const target = e.target || e.srcElement;
     e.dataTransfer.setData('text', target.id);
-    document.querySelector('#dropped-result').innerHTML = '';
+    document.querySelector('#classic [data-id="dropped-result"]').innerHTML = '';
 });
 
 addEventListener(draggableElement, 'dragend', function(e) {
 });
 
-window.tree = tree;
+const load = () => {
+    const childNodes = tree.getChildNodes();
+
+    if (childNodes.length > 0) {
+        // Select the first node
+        tree.selectNode(childNodes[0]);
+    }
+};
+
+export {
+    load
+}

@@ -1,4 +1,4 @@
-# infinite-tree [![build status](https://travis-ci.org/cheton/infinite-tree.svg?branch=master)](https://travis-ci.org/cheton/infinite-tree) [![Coverage Status](https://coveralls.io/repos/cheton/infinite-tree/badge.svg)](https://coveralls.io/r/cheton/infinite-tree)
+# Infinite Tree [![build status](https://travis-ci.org/cheton/infinite-tree.svg?branch=master)](https://travis-ci.org/cheton/infinite-tree) [![Coverage Status](https://coveralls.io/repos/cheton/infinite-tree/badge.svg)](https://coveralls.io/r/cheton/infinite-tree)
 [![NPM](https://nodei.co/npm/infinite-tree.png?downloads=true&stars=true)](https://nodei.co/npm/infinite-tree/)
 
 A browser-ready tree library that can efficiently display a large tree with smooth scrolling.
@@ -43,16 +43,16 @@ require('infinite-tree/dist/infinite-tree.css');
 
 var data = {
     id: 'fruit',
-    label: 'Fruit',
+    name: 'Fruit',
     children: [{
         id: 'apple',
-        label: 'Apple'
+        name: 'Apple'
     }, {
         id: 'banana',
-        label: 'Banana',
+        name: 'Banana',
         children: [{
             id: 'cherry',
-            label: 'Cherry',
+            name: 'Cherry',
             loadOnDemand: true
         }]
     }]
@@ -81,7 +81,7 @@ var tree = new InfiniteTree({
     },
     // Render tree nodes with your own way
     rowRenderer: function(node, treeOptions) {
-        return '<div aria-id="<node-id>" class="tree-item">' + node.label + '</div>';
+        return '<div aria-id="<node-id>" class="tree-item">' + node.name + '</div>';
     }
 });
 ```
@@ -104,8 +104,9 @@ console.log(node.getFirstChild().getPreviousSibling());
 #### Events Usage
 Learn more: [Events](https://github.com/cheton/infinite-tree/wiki/Events)
 ```js
-tree.on('update', function() {
-    console.log(tree.getSelectedNode());
+tree.on('contentWillUpdate', function() {
+});
+tree.on('contentDidUpdate', function() {
 });
 tree.on('openNode', function(node) {
 });
@@ -114,8 +115,6 @@ tree.on('closeNode', function(node) {
 tree.on('selectNode', function(node) {
 });
 tree.on('dropNode', function(node, evt) {
-});
-tree.on('scrollProgress', function(progress) {
 });
 ```
 

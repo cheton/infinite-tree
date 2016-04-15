@@ -1,7 +1,7 @@
-import { buildHTML, classNames, quoteattr } from '../src/helper';
+import { buildHTML, classNames, quoteattr } from '../../src/helper';
 
-const rowRenderer = (node, treeOptions) => {
-    const { id, label, loadOnDemand = false, children, state, props = {} } = node;
+const renderer = (node, treeOptions) => {
+    const { id, name, loadOnDemand = false, children, state, props = {} } = node;
     const droppable = (treeOptions.droppable) && (props.droppable);
     const { depth, open, path, total, loading = false, selected = false } = state;
     const childrenLength = Object.keys(children).length;
@@ -47,7 +47,7 @@ const rowRenderer = (node, treeOptions) => {
             { 'glyphicon-file': !more }
         )
     });
-    const title = buildHTML('span', quoteattr(label), {
+    const title = buildHTML('span', quoteattr(name), {
         'class': classNames('tree-title')
     });
     const loadingIcon = buildHTML('i', '', {
@@ -87,4 +87,4 @@ const rowRenderer = (node, treeOptions) => {
     return buildHTML('div', treeNode, treeNodeAttributes);
 };
 
-export default rowRenderer;
+export default renderer;

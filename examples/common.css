@@ -1,0 +1,26 @@
+html, body {
+    font-family: Arial, Helvetica, sans-serif;
+}
+.navbar .navbar-brand {
+    color: #f0f0f0;
+}
+.head {
+    min-height: 400px;
+    text-align: center;
+    padding-top: 100px;
+    font-weight: 300;
+}
+.head .lead {
+    font-weight: bold;
+    font-size: 64px;
+    font-family: "Open sans", Helvetica, Arial;
+    margin-bottom: 6px;
+    line-height: 1.15em;
+}
+.head .tagline {
+    margin-bottom: 25px;
+    font-size: 30px;
+}
+.top-space {
+    margin-top: 60px;
+}

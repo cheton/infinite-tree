@@ -15,9 +15,20 @@ import {
     isDOMElement
 } from './helper';
 
+const error = (...args) => {
+    if (console && console.error) {
+        const prefix = '[InfiniteTree]';
+        console.error.apply(console, [prefix].concat(args));
+    }
+};
+
 const ensureNodeInstance = (node) => {
+    if (!node) { // undefined or null
+        return false;
+    }
     if (!(node instanceof Node)) {
-        throw new Error('The node must be a Node object.');
+        error('The node must be a Node object.');
+        return false;
     }
     return true;
 };
@@ -25,9 +36,13 @@ const ensureNodeInstance = (node) => {
 class InfiniteTree extends events.EventEmitter {
     options = {
         autoOpen: false,
+        dragoverClass: 'dragover',
         droppable: false,
         el: null,
+        layout: 'div',
         loadNodes: null,
+        noDataClass: 'infinite-tree-no-data',
+        noDataText: 'No data',
         rowRenderer: defaultRowRenderer,
         selectable: true,
         shouldSelectNode: null
@@ -104,7 +119,7 @@ class InfiniteTree extends events.EventEmitter {
             }
 
             if (this.dragoverElement !== itemTarget) {
-                removeClass(this.dragoverElement, 'highlight'); // remove 'highlight' class
+                removeClass(this.dragoverElement, this.options.dragoverClass);
                 this.dragoverElement = null;
 
                 if (!(itemTarget.hasAttribute('droppable'))) {
@@ -113,7 +128,7 @@ class InfiniteTree extends events.EventEmitter {
 
                 const canDrop = !(itemTarget.getAttribute('droppable').match(/false/i));
                 if (canDrop) {
-                    addClass(itemTarget, 'highlight');
+                    addClass(itemTarget, this.options.dragoverClass);
                     this.dragoverElement = itemTarget;
                 }
             }
@@ -122,7 +137,7 @@ class InfiniteTree extends events.EventEmitter {
         // The dragend event is fired when a drag operation is being ended (by releasing a mouse button or hitting the escape key).
         'dragend': (e) => {
             if (this.dragoverElement) {
-                removeClass(this.dragoverElement, 'highlight'); // remove 'highlight' class
+                removeClass(this.dragoverElement, this.options.dragoverClass);
                 this.dragoverElement = null;
             }
         },
@@ -143,7 +158,7 @@ class InfiniteTree extends events.EventEmitter {
                 const id = this.dragoverElement.getAttribute('aria-id');
                 const node = this.getNodeById(id);
 
-                removeClass(this.dragoverElement, 'highlight');
+                removeClass(this.dragoverElement, this.options.dragoverClass);
                 this.dragoverElement = null;
 
                 this.emit('dropNode', node, e);
@@ -178,47 +193,57 @@ class InfiniteTree extends events.EventEmitter {
     }
     create() {
         if (!this.options.el) {
-            throw new Error('The element option is not specified.');
+            error('The element option is not specified.');
         }
 
-        const scrollElement = document.createElement('div');
-        scrollElement.className = classNames(
+        let tag = null;
+
+        this.scrollElement = document.createElement('div');
+
+        if (this.options.layout === 'table') {
+            const tableElement = document.createElement('table');
+            tableElement.className = classNames(
+                'infinite-tree',
+                'infinite-tree-table'
+            );
+            const contentElement = document.createElement('tbody');
+            tableElement.appendChild(contentElement);
+            this.scrollElement.appendChild(tableElement);
+            this.contentElement = contentElement;
+
+            // The tag name for supporting elements
+            tag = 'tr';
+        } else {
+            const contentElement = document.createElement('div');
+            this.scrollElement.appendChild(contentElement);
+            this.contentElement = contentElement;
+
+            // The tag name for supporting elements
+            tag = 'div';
+        }
+
+        this.scrollElement.className = classNames(
             'infinite-tree',
             'infinite-tree-scroll'
         );
-        const contentElement = document.createElement('div');
-        contentElement.className = classNames(
+        this.contentElement.className = classNames(
             'infinite-tree',
             'infinite-tree-content'
         );
 
-        scrollElement.appendChild(contentElement);
-        this.options.el.appendChild(scrollElement);
+        this.options.el.appendChild(this.scrollElement);
 
         this.clusterize = new Clusterize({
-            tag: 'div',
+            tag: tag,
             rows: [],
-            scrollElem: scrollElement,
-            contentElem: contentElement,
-            no_data_class: 'infinite-tree-no-data',
-            callbacks: {
-                // Will be called right before replacing previous cluster with new one.
-                clusterWillChange: () => {
-                },
-                // Will be called right after replacing previous cluster with new one.
-                clusterChanged: () => {
-                },
-                // Will be called on scrolling. Returns progress position.
-                scrollingProgress: (progress) => {
-                    this.emit('scrollProgress', progress);
-                }
-            }
+            scrollElem: this.scrollElement,
+            contentElem: this.contentElement,
+            no_data_text: this.options.noDataText,
+            no_data_class: this.options.noDataClass
         });
 
-        this.scrollElement = scrollElement;
-        this.contentElement = contentElement;
-
         addEventListener(this.contentElement, 'click', this.contentListener.click);
+
         if (this.options.droppable) {
             addEventListener(document, 'dragend', this.contentListener.dragend);
             addEventListener(this.contentElement, 'dragenter', this.contentListener.dragenter);
@@ -280,7 +305,9 @@ class InfiniteTree extends events.EventEmitter {
             parentNode = parentNode || this.state.rootNode; // Defaults to rootNode if not specified
         }
 
-        ensureNodeInstance(parentNode);
+        if (!ensureNodeInstance(parentNode)) {
+            return false;
+        }
 
         // Assign parent
         newNodes.forEach((newNode) => {
@@ -336,7 +363,11 @@ class InfiniteTree extends events.EventEmitter {
     appendChildNode(newNode, parentNode) {
         // Defaults to rootNode if the parentNode is not specified
         parentNode = parentNode || this.state.rootNode;
-        ensureNodeInstance(parentNode);
+
+        if (!ensureNodeInstance(parentNode)) {
+            return false;
+        }
+
         const index = parentNode.children.length;
         const newNodes = [].concat(newNode || []); // Ensure array
         return this.addChildNodes(newNodes, index, parentNode);
@@ -355,12 +386,15 @@ class InfiniteTree extends events.EventEmitter {
     // @param {Node} node The Node object.
     // @return {boolean} Returns true on success, false otherwise.
     closeNode(node) {
-        ensureNodeInstance(node);
+        if (!ensureNodeInstance(node)) {
+            return false;
+        }
 
         // Retrieve node index
         const nodeIndex = this.nodes.indexOf(node);
         if (nodeIndex < 0) {
-            throw new Error('Invalid node index');
+            error('Invalid node index');
+            return false;
         }
 
         // Check if the closeNode action can be performed
@@ -402,7 +436,7 @@ class InfiniteTree extends events.EventEmitter {
         // Update the row corresponding to the node
         this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
 
-        // Emit the 'closeNode' event
+        // Emit 'closeNode' event
         this.emit('closeNode', node);
 
         // Updates list with new data
@@ -418,20 +452,20 @@ class InfiniteTree extends events.EventEmitter {
         // Defaults to rootNode if the parentNode is not specified
         parentNode = parentNode || this.state.rootNode;
 
-        ensureNodeInstance(parentNode);
+        if (!ensureNodeInstance(parentNode)) {
+            return [];
+        }
 
-        const list = [];
-
-        // Ignore parent node
-        let node = parentNode.getFirstChild();
+        let list = [];
+        let node = parentNode.getFirstChild(); // Ignore parent node
         while (node) {
             list.push(node);
             if (node.hasChildren()) {
                 node = node.getFirstChild();
             } else {
-                // find the parent level
+                // Find the parent level
                 while ((node.getNextSibling() === null) && (node.parent !== parentNode)) {
-                    // use child-parent link to get to the parent level
+                    // Use child-parent link to get to the parent level
                     node = node.getParent();
                 }
 
@@ -456,7 +490,9 @@ class InfiniteTree extends events.EventEmitter {
         // Defaults to rootNode if the parentNode is not specified
         parentNode = parentNode || this.state.rootNode;
 
-        ensureNodeInstance(parentNode);
+        if (!ensureNodeInstance(parentNode)) {
+            return [];
+        }
 
         return parentNode.children;
     }
@@ -496,10 +532,14 @@ class InfiniteTree extends events.EventEmitter {
     // @param {Node} referenceNode The Node object that defines the reference node.
     // @return {boolean} Returns true on success, false otherwise.
     insertNodeAfter(newNode, referenceNode) {
-        ensureNodeInstance(referenceNode);
+        if (!ensureNodeInstance(referenceNode)) {
+            return false;
+        }
+
         const parentNode = referenceNode.getParent();
         const index = parentNode.children.indexOf(referenceNode) + 1;
         const newNodes = [].concat(newNode || []); // Ensure array
+
         return this.addChildNodes(newNodes, index, parentNode);
     }
     // Inserts the specified node before the reference node.
@@ -507,10 +547,14 @@ class InfiniteTree extends events.EventEmitter {
     // @param {Node} referenceNode The Node object that defines the reference node.
     // @return {boolean} Returns true on success, false otherwise.
     insertNodeBefore(newNode, referenceNode) {
-        ensureNodeInstance(referenceNode);
+        if (!ensureNodeInstance(referenceNode)) {
+            return false;
+        }
+
         const parentNode = referenceNode.getParent();
         const index = parentNode.children.indexOf(referenceNode);
         const newNodes = [].concat(newNode || []); // Ensure array
+
         return this.addChildNodes(newNodes, index, parentNode);
     }
     // Loads data in the tree.
@@ -528,15 +572,17 @@ class InfiniteTree extends events.EventEmitter {
                 node = node.parent;
             }
             return node;
-        })(this.nodes[0]);
+        })((this.nodes.length > 0) ? this.nodes[0] : null);
         this.state.selectedNode = null;
 
-        // Update the lookup table with newly added nodes
-        this.flattenChildNodes(this.state.rootNode).forEach((node) => {
-            if (node.id !== undefined) {
-                this.nodeTable.set(node.id, node);
-            }
-        });
+        if (this.state.rootNode) {
+            // Update the lookup table with newly added nodes
+            this.flattenChildNodes(this.state.rootNode).forEach((node) => {
+                if (node.id !== undefined) {
+                    this.nodeTable.set(node.id, node);
+                }
+            });
+        }
 
         // Update rows
         this.rows = this.nodes.map(node => this.options.rowRenderer(node, this.options));
@@ -548,12 +594,15 @@ class InfiniteTree extends events.EventEmitter {
     // @param {Node} node The Node object.
     // @return {boolean} Returns true on success, false otherwise.
     openNode(node) {
-        ensureNodeInstance(node);
+        if (!ensureNodeInstance(node)) {
+            return false;
+        }
 
         // Retrieve node index
         const nodeIndex = this.nodes.indexOf(node);
         if (nodeIndex < 0) {
-            throw new Error('Invalid node index');
+            error('Invalid node index');
+            return false;
         }
 
         // Check if the openNode action can be performed
@@ -582,6 +631,14 @@ class InfiniteTree extends events.EventEmitter {
                 this.update();
 
                 if (err) {
+                    return;
+                }
+                if (!nodes) {
+                    return;
+                }
+
+                nodes = [].concat(nodes || []); // Ensure array
+                if (nodes.length === 0) {
                     return;
                 }
 
@@ -623,7 +680,7 @@ class InfiniteTree extends events.EventEmitter {
             });
         }
 
-        // Emit the 'openNode' event
+        // Emit 'openNode' event
         this.emit('openNode', node);
 
         // Updates list with new data
@@ -635,7 +692,9 @@ class InfiniteTree extends events.EventEmitter {
     // @param {Node} parentNode The Node object that defines the parent node.
     // @return {boolean} Returns true on success, false otherwise.
     removeChildNodes(parentNode) {
-        ensureNodeInstance(parentNode);
+        if (!ensureNodeInstance(parentNode)) {
+            return false;
+        }
 
         if (parentNode.children.length === 0) {
             return false;
@@ -701,7 +760,9 @@ class InfiniteTree extends events.EventEmitter {
     // @param {Node} node The Node object.
     // @return {boolean} Returns true on success, false otherwise.
     removeNode(node) {
-        ensureNodeInstance(node);
+        if (!ensureNodeInstance(node)) {
+            return false;
+        }
 
         const parentNode = node.parent;
         if (!parentNode) {
@@ -775,25 +836,29 @@ class InfiniteTree extends events.EventEmitter {
     }
     // Sets the current scroll position to this node.
     // @param {Node} node The Node object.
-    // @return {number} Returns the vertical scroll position, or -1 on error.
+    // @return {boolean} Returns true on success, false otherwise.
     scrollToNode(node) {
-        ensureNodeInstance(node);
+        if (!ensureNodeInstance(node)) {
+            return false;
+        }
 
         // Retrieve node index
         const nodeIndex = this.nodes.indexOf(node);
         if (nodeIndex < 0) {
-            return -1;
+            return false;
         }
         if (!this.contentElement) {
-            return -1;
+            return false;
         }
         // Get the offset height of the first child element that contains the "tree-item" class
         const firstChild = this.contentElement.querySelectorAll('.tree-item')[0];
         const rowHeight = (firstChild && firstChild.offsetHeight) || 0;
-        return this.scrollTop(nodeIndex * rowHeight);
+        this.scrollTop(nodeIndex * rowHeight);
+
+        return true;
     }
     // Gets (or sets) the current vertical position of the scroll bar.
-    // @param {number} [value] An integer that indicates the new position to set the scroll bar to.
+    // @param {number} [value] If the value is specified, indicates the new position to set the scroll bar to.
     // @return {number} Returns the vertical scroll position.
     scrollTop(value) {
         if (!this.scrollElement) {
@@ -827,7 +892,7 @@ class InfiniteTree extends events.EventEmitter {
                 this.rows[selectedIndex] = this.options.rowRenderer(selectedNode, this.options);
                 this.state.selectedNode = null;
 
-                // Emit the 'selectNode' event
+                // Emit 'selectNode' event
                 this.emit('selectNode', null);
 
                 // Updates list with new data
@@ -839,12 +904,15 @@ class InfiniteTree extends events.EventEmitter {
             return false;
         }
 
-        ensureNodeInstance(node);
+        if (!ensureNodeInstance(node)) {
+            return false;
+        }
 
         // Retrieve node index
         const nodeIndex = this.nodes.indexOf(node);
         if (nodeIndex < 0) {
-            throw new Error('Invalid node index');
+            error('Invalid node index');
+            return false;
         }
 
         // Select this node
@@ -866,12 +934,12 @@ class InfiniteTree extends events.EventEmitter {
         if (this.state.selectedNode !== node) {
             this.state.selectedNode = node;
 
-            // Emit the 'selectNode' event
+            // Emit 'selectNode' event
             this.emit('selectNode', node);
         } else {
             this.state.selectedNode = null;
 
-            // Emit the 'selectNode' event
+            // Emit 'selectNode' event
             this.emit('selectNode', null);
         }
 
@@ -932,17 +1000,25 @@ class InfiniteTree extends events.EventEmitter {
     }
     // Updates the tree.
     update() {
+        // Emit 'contentWillUpdate' event
+        this.emit('contentWillUpdate');
+
         // Update the list with new data
         this.clusterize.update(this.rows);
 
-        // Emit the 'update' event
+        // [DEPRECATED] it will be removed in v1.0
         this.emit('update');
+
+        // Emit 'contentWillUpdate' event
+        this.emit('contentDidUpdate');
     }
     // Updates the data of a node.
     // @param {Node} node The Node object.
     // @param {Object} data The data object.
     updateNode(node, data) {
-        ensureNodeInstance(node);
+        if (!ensureNodeInstance(node)) {
+            return;
+        }
 
         // Clone a new one
         data = extend({}, data);

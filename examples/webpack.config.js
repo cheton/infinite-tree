@@ -6,13 +6,20 @@ var webpack = require('webpack');
 module.exports = {
     debug: true,
     devtool: 'source-map',
-    entry: path.resolve('index.js'),
+    entry: {
+        navbar: path.resolve(__dirname, 'navbar.js'),
+        examples: path.resolve(__dirname, 'examples.js')
+    },
     output: {
-        path: path.join(__dirname),
-        filename: 'bundle.js'
+        path: __dirname,
+        filename: 'dist/[name].js'
     },
     module: {
         loaders: [
+            {
+                test: /\.json$/,
+                loader: 'json'
+            },
             {
                 test: /\.jsx?$/,
                 loader: 'babel',
@@ -48,6 +55,7 @@ module.exports = {
         ]
     },
     plugins: [
+        new webpack.optimize.CommonsChunkPlugin('dist/common.js'),
         new webpack.optimize.UglifyJsPlugin({
             compress: {
                 warnings: false
