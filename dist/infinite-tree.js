@@ -1,4 +1,4 @@
-/*! infinite-tree v0.8.2 | (c) 2016 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
+/*! infinite-tree v0.9.0 | (c) 2016 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -101,9 +101,25 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+	var error = function error() {
+	    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+	        args[_key] = arguments[_key];
+	    }
+
+	    if (console && console.error) {
+	        var prefix = '[InfiniteTree]';
+	        console.error.apply(console, [prefix].concat(args));
+	    }
+	};
+
 	var ensureNodeInstance = function ensureNodeInstance(node) {
+	    if (!node) {
+	        // undefined or null
+	        return false;
+	    }
 	    if (!(node instanceof _flattree.Node)) {
-	        throw new Error('The node must be a Node object.');
+	        error('The node must be a Node object.');
+	        return false;
 	    }
 	    return true;
 	};
@@ -120,11 +136,12 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        _this.options = {
 	            autoOpen: false,
-	            containerView: 'div',
 	            dragoverClass: 'dragover',
 	            droppable: false,
 	            el: null,
+	            layout: 'div',
 	            loadNodes: null,
+	            noDataClass: 'infinite-tree-no-data',
 	            noDataText: 'No data',
 	            rowRenderer: _renderer.defaultRowRenderer,
 	            selectable: true,
@@ -275,17 +292,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 
 	    InfiniteTree.prototype.create = function create() {
-	        var _this2 = this;
-
 	        if (!this.options.el) {
-	            throw new Error('The element option is not specified.');
+	            error('The element option is not specified.');
 	        }
 
 	        var tag = null;
 
 	        this.scrollElement = document.createElement('div');
 
-	        if (this.options.containerView === 'table') {
+	        if (this.options.layout === 'table') {
 	            var tableElement = document.createElement('table');
 	            tableElement.className = (0, _helper.classNames)('infinite-tree', 'infinite-tree-table');
 	            var contentElement = document.createElement('tbody');
@@ -315,21 +330,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            scrollElem: this.scrollElement,
 	            contentElem: this.contentElement,
 	            no_data_text: this.options.noDataText,
-	            no_data_class: 'infinite-tree-no-data',
-	            callbacks: {
-	                // Will be called right before replacing previous cluster with new one.
-	                clusterWillChange: function clusterWillChange() {},
-	                // Will be called right after replacing previous cluster with new one.
-	                clusterChanged: function clusterChanged() {
-	                    // Emit the update event
-	                    _this2.emit('update');
-	                },
-	                // Will be called on scrolling. Returns progress position.
-	                scrollingProgress: function scrollingProgress(progress) {
-	                    // Emit the scrollProgress event
-	                    _this2.emit('scrollProgress', progress);
-	                }
-	            }
+	            no_data_class: this.options.noDataClass
 	        });
 
 	        (0, _helper.addEventListener)(this.contentElement, 'click', this.contentListener.click);
@@ -386,7 +387,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 	    InfiniteTree.prototype.addChildNodes = function addChildNodes(newNodes, index, parentNode) {
-	        var _this3 = this;
+	        var _this2 = this;
 
 	        newNodes = [].concat(newNodes || []); // Ensure array
 	        if (newNodes.length === 0) {
@@ -401,7 +402,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	            parentNode = parentNode || this.state.rootNode; // Defaults to rootNode if not specified
 	        }
 
-	        ensureNodeInstance(parentNode);
+	        if (!ensureNodeInstance(parentNode)) {
+	            return false;
+	        }
 
 	        // Assign parent
 	        newNodes.forEach(function (newNode) {
@@ -417,7 +420,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var deleteCount = parentNode.state.total;
 	        var nodes = (0, _flattree.flatten)(parentNode.children, { openNodes: this.state.openNodes });
 	        var rows = nodes.map(function (node) {
-	            return _this3.options.rowRenderer(node, _this3.options);
+	            return _this2.options.rowRenderer(node, _this2.options);
 	        });
 
 	        if (parentNode === this.state.rootNode) {
@@ -437,9 +440,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        // Update the lookup table with newly added nodes
 	        parentNode.children.slice(index).forEach(function (childNode) {
-	            _this3.flattenNode(childNode).forEach(function (node) {
+	            _this2.flattenNode(childNode).forEach(function (node) {
 	                if (node.id !== undefined) {
-	                    _this3.nodeTable.set(node.id, node);
+	                    _this2.nodeTable.set(node.id, node);
 	                }
 	            });
 	        });
@@ -461,7 +464,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    InfiniteTree.prototype.appendChildNode = function appendChildNode(newNode, parentNode) {
 	        // Defaults to rootNode if the parentNode is not specified
 	        parentNode = parentNode || this.state.rootNode;
-	        ensureNodeInstance(parentNode);
+
+	        if (!ensureNodeInstance(parentNode)) {
+	            return false;
+	        }
+
 	        var index = parentNode.children.length;
 	        var newNodes = [].concat(newNode || []); // Ensure array
 	        return this.addChildNodes(newNodes, index, parentNode);
@@ -484,12 +491,15 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 	    InfiniteTree.prototype.closeNode = function closeNode(node) {
-	        ensureNodeInstance(node);
+	        if (!ensureNodeInstance(node)) {
+	            return false;
+	        }
 
 	        // Retrieve node index
 	        var nodeIndex = this.nodes.indexOf(node);
 	        if (nodeIndex < 0) {
-	            throw new Error('Invalid node index');
+	            error('Invalid node index');
+	            return false;
 	        }
 
 	        // Check if the closeNode action can be performed
@@ -533,7 +543,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        // Update the row corresponding to the node
 	        this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
 
-	        // Emit the 'closeNode' event
+	        // Emit 'closeNode' event
 	        this.emit('closeNode', node);
 
 	        // Updates list with new data
@@ -551,20 +561,20 @@ return /******/ (function(modules) { // webpackBootstrap
 	        // Defaults to rootNode if the parentNode is not specified
 	        parentNode = parentNode || this.state.rootNode;
 
-	        ensureNodeInstance(parentNode);
+	        if (!ensureNodeInstance(parentNode)) {
+	            return [];
+	        }
 
 	        var list = [];
-
-	        // Ignore parent node
-	        var node = parentNode.getFirstChild();
+	        var node = parentNode.getFirstChild(); // Ignore parent node
 	        while (node) {
 	            list.push(node);
 	            if (node.hasChildren()) {
 	                node = node.getFirstChild();
 	            } else {
-	                // find the parent level
+	                // Find the parent level
 	                while (node.getNextSibling() === null && node.parent !== parentNode) {
-	                    // use child-parent link to get to the parent level
+	                    // Use child-parent link to get to the parent level
 	                    node = node.getParent();
 	                }
 
@@ -593,7 +603,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	        // Defaults to rootNode if the parentNode is not specified
 	        parentNode = parentNode || this.state.rootNode;
 
-	        ensureNodeInstance(parentNode);
+	        if (!ensureNodeInstance(parentNode)) {
+	            return [];
+	        }
 
 	        return parentNode.children;
 	    };
@@ -645,10 +657,14 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 	    InfiniteTree.prototype.insertNodeAfter = function insertNodeAfter(newNode, referenceNode) {
-	        ensureNodeInstance(referenceNode);
+	        if (!ensureNodeInstance(referenceNode)) {
+	            return false;
+	        }
+
 	        var parentNode = referenceNode.getParent();
 	        var index = parentNode.children.indexOf(referenceNode) + 1;
 	        var newNodes = [].concat(newNode || []); // Ensure array
+
 	        return this.addChildNodes(newNodes, index, parentNode);
 	    };
 	    // Inserts the specified node before the reference node.
@@ -658,10 +674,14 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 	    InfiniteTree.prototype.insertNodeBefore = function insertNodeBefore(newNode, referenceNode) {
-	        ensureNodeInstance(referenceNode);
+	        if (!ensureNodeInstance(referenceNode)) {
+	            return false;
+	        }
+
 	        var parentNode = referenceNode.getParent();
 	        var index = parentNode.children.indexOf(referenceNode);
 	        var newNodes = [].concat(newNode || []); // Ensure array
+
 	        return this.addChildNodes(newNodes, index, parentNode);
 	    };
 	    // Loads data in the tree.
@@ -669,7 +689,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 	    InfiniteTree.prototype.loadData = function loadData() {
-	        var _this4 = this;
+	        var _this3 = this;
 
 	        var data = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
 
@@ -689,19 +709,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	                node = node.parent;
 	            }
 	            return node;
-	        }(this.nodes[0]);
+	        }(this.nodes.length > 0 ? this.nodes[0] : null);
 	        this.state.selectedNode = null;
 
-	        // Update the lookup table with newly added nodes
-	        this.flattenChildNodes(this.state.rootNode).forEach(function (node) {
-	            if (node.id !== undefined) {
-	                _this4.nodeTable.set(node.id, node);
-	            }
-	        });
+	        if (this.state.rootNode) {
+	            // Update the lookup table with newly added nodes
+	            this.flattenChildNodes(this.state.rootNode).forEach(function (node) {
+	                if (node.id !== undefined) {
+	                    _this3.nodeTable.set(node.id, node);
+	                }
+	            });
+	        }
 
 	        // Update rows
 	        this.rows = this.nodes.map(function (node) {
-	            return _this4.options.rowRenderer(node, _this4.options);
+	            return _this3.options.rowRenderer(node, _this3.options);
 	        });
 
 	        // Updates list with new data
@@ -713,14 +735,17 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 	    InfiniteTree.prototype.openNode = function openNode(node) {
-	        var _this5 = this;
+	        var _this4 = this;
 
-	        ensureNodeInstance(node);
+	        if (!ensureNodeInstance(node)) {
+	            return false;
+	        }
 
 	        // Retrieve node index
 	        var nodeIndex = this.nodes.indexOf(node);
 	        if (nodeIndex < 0) {
-	            throw new Error('Invalid node index');
+	            error('Invalid node index');
+	            return false;
 	        }
 
 	        // Check if the openNode action can be performed
@@ -743,10 +768,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	            this.options.loadNodes(node, function (err, nodes) {
 	                // Set loading state to false
 	                node.state.loading = false;
-	                _this5.rows[nodeIndex] = _this5.options.rowRenderer(node, _this5.options);
+	                _this4.rows[nodeIndex] = _this4.options.rowRenderer(node, _this4.options);
 
 	                // Updates list with new data
-	                _this5.update();
+	                _this4.update();
 
 	                if (err) {
 	                    return;
@@ -762,13 +787,13 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	                // Append child nodes
 	                nodes.forEach(function (childNode) {
-	                    _this5.appendChildNode(childNode, node);
+	                    _this4.appendChildNode(childNode, node);
 	                });
 
 	                // Ensure the node has children to prevent from infinite loop
 	                if (node.hasChildren()) {
 	                    // Call openNode again
-	                    _this5.openNode(node);
+	                    _this4.openNode(node);
 	                }
 	            });
 
@@ -781,7 +806,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        var nodes = (0, _flattree.flatten)(node.children, { openNodes: this.state.openNodes });
 	        var rows = nodes.map(function (node) {
-	            return _this5.options.rowRenderer(node, _this5.options);
+	            return _this4.options.rowRenderer(node, _this4.options);
 	        });
 
 	        // Update nodes & rows
@@ -795,12 +820,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (nodes.length > 0 && !this.nodeTable.get(nodes[0])) {
 	            nodes.forEach(function (node) {
 	                if (node.id !== undefined) {
-	                    _this5.nodeTable.set(node.id, node);
+	                    _this4.nodeTable.set(node.id, node);
 	                }
 	            });
 	        }
 
-	        // Emit the 'openNode' event
+	        // Emit 'openNode' event
 	        this.emit('openNode', node);
 
 	        // Updates list with new data
@@ -814,9 +839,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 	    InfiniteTree.prototype.removeChildNodes = function removeChildNodes(parentNode) {
-	        var _this6 = this;
+	        var _this5 = this;
 
-	        ensureNodeInstance(parentNode);
+	        if (!ensureNodeInstance(parentNode)) {
+	            return false;
+	        }
 
 	        if (parentNode.children.length === 0) {
 	            return false;
@@ -864,14 +891,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	        {
 	            (function () {
 	                // Update open nodes and lookup table
-	                var childNodes = _this6.flattenChildNodes(parentNode);
+	                var childNodes = _this5.flattenChildNodes(parentNode);
 
-	                _this6.state.openNodes = _this6.state.openNodes.filter(function (node) {
+	                _this5.state.openNodes = _this5.state.openNodes.filter(function (node) {
 	                    return childNodes.indexOf(node) < 0;
 	                });
 
 	                childNodes.forEach(function (node) {
-	                    _this6.nodeTable.unset(node.id);
+	                    _this5.nodeTable.unset(node.id);
 	                });
 	            })();
 	        }
@@ -887,9 +914,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 	    InfiniteTree.prototype.removeNode = function removeNode(node) {
-	        var _this7 = this;
+	        var _this6 = this;
 
-	        ensureNodeInstance(node);
+	        if (!ensureNodeInstance(node)) {
+	            return false;
+	        }
 
 	        var parentNode = node.parent;
 	        if (!parentNode) {
@@ -947,14 +976,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	        {
 	            (function () {
 	                // Update open nodes and lookup table
-	                var nodes = _this7.flattenNode(node);
+	                var nodes = _this6.flattenNode(node);
 
-	                _this7.state.openNodes = _this7.state.openNodes.filter(function (node) {
+	                _this6.state.openNodes = _this6.state.openNodes.filter(function (node) {
 	                    return nodes.indexOf(node) < 0;
 	                });
 
 	                nodes.forEach(function (node) {
-	                    _this7.nodeTable.unset(node.id);
+	                    _this6.nodeTable.unset(node.id);
 	                });
 	            })();
 	        }
@@ -966,27 +995,31 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    // Sets the current scroll position to this node.
 	    // @param {Node} node The Node object.
-	    // @return {number} Returns the vertical scroll position, or -1 on error.
+	    // @return {boolean} Returns true on success, false otherwise.
 
 
 	    InfiniteTree.prototype.scrollToNode = function scrollToNode(node) {
-	        ensureNodeInstance(node);
+	        if (!ensureNodeInstance(node)) {
+	            return false;
+	        }
 
 	        // Retrieve node index
 	        var nodeIndex = this.nodes.indexOf(node);
 	        if (nodeIndex < 0) {
-	            return -1;
+	            return false;
 	        }
 	        if (!this.contentElement) {
-	            return -1;
+	            return false;
 	        }
 	        // Get the offset height of the first child element that contains the "tree-item" class
 	        var firstChild = this.contentElement.querySelectorAll('.tree-item')[0];
 	        var rowHeight = firstChild && firstChild.offsetHeight || 0;
-	        return this.scrollTop(nodeIndex * rowHeight);
+	        this.scrollTop(nodeIndex * rowHeight);
+
+	        return true;
 	    };
 	    // Gets (or sets) the current vertical position of the scroll bar.
-	    // @param {number} [value] An integer that indicates the new position to set the scroll bar to.
+	    // @param {number} [value] If the value is specified, indicates the new position to set the scroll bar to.
 	    // @return {number} Returns the vertical scroll position.
 
 
@@ -1028,7 +1061,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                this.rows[selectedIndex] = this.options.rowRenderer(selectedNode, this.options);
 	                this.state.selectedNode = null;
 
-	                // Emit the 'selectNode' event
+	                // Emit 'selectNode' event
 	                this.emit('selectNode', null);
 
 	                // Updates list with new data
@@ -1040,12 +1073,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	            return false;
 	        }
 
-	        ensureNodeInstance(node);
+	        if (!ensureNodeInstance(node)) {
+	            return false;
+	        }
 
 	        // Retrieve node index
 	        var nodeIndex = this.nodes.indexOf(node);
 	        if (nodeIndex < 0) {
-	            throw new Error('Invalid node index');
+	            error('Invalid node index');
+	            return false;
 	        }
 
 	        // Select this node
@@ -1067,12 +1103,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (this.state.selectedNode !== node) {
 	            this.state.selectedNode = node;
 
-	            // Emit the 'selectNode' event
+	            // Emit 'selectNode' event
 	            this.emit('selectNode', node);
 	        } else {
 	            this.state.selectedNode = null;
 
-	            // Emit the 'selectNode' event
+	            // Emit 'selectNode' event
 	            this.emit('selectNode', null);
 	        }
 
@@ -1148,8 +1184,17 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 	    InfiniteTree.prototype.update = function update() {
+	        // Emit 'contentWillUpdate' event
+	        this.emit('contentWillUpdate');
+
 	        // Update the list with new data
 	        this.clusterize.update(this.rows);
+
+	        // [DEPRECATED] it will be removed in v1.0
+	        this.emit('update');
+
+	        // Emit 'contentWillUpdate' event
+	        this.emit('contentDidUpdate');
 	    };
 	    // Updates the data of a node.
 	    // @param {Node} node The Node object.
@@ -1157,7 +1202,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 	    InfiniteTree.prototype.updateNode = function updateNode(node, data) {
-	        ensureNodeInstance(node);
+	        if (!ensureNodeInstance(node)) {
+	            return;
+	        }
 
 	        // Clone a new one
 	        data = (0, _helper.extend)({}, data);
@@ -2266,7 +2313,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var defaultRowRenderer = function defaultRowRenderer(node, treeOptions) {
 	    var id = node.id;
-	    var label = node.label;
+	    var name = node.name;
 	    var _node$loadOnDemand = node.loadOnDemand;
 	    var loadOnDemand = _node$loadOnDemand === undefined ? false : _node$loadOnDemand;
 	    var children = node.children;
@@ -2305,7 +2352,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            return '';
 	        }()
 	    });
-	    var title = (0, _helper.buildHTML)('span', (0, _helper.quoteattr)(label), {
+	    var title = (0, _helper.buildHTML)('span', (0, _helper.quoteattr)(name), {
 	        'class': (0, _helper.classNames)('tree-title')
 	    });
 	    var treeNode = (0, _helper.buildHTML)('div', toggler + title, {
