@@ -11,6 +11,7 @@ import {
     removeEventListener,
     classNames,
     addClass,
+    hasClass,
     removeClass,
     isDOMElement
 } from './helper';
@@ -36,7 +37,7 @@ const ensureNodeInstance = (node) => {
 class InfiniteTree extends events.EventEmitter {
     options = {
         autoOpen: false,
-        dragoverClass: 'dragover',
+        dragoverClass: 'infinite-tree-dragover',
         droppable: false,
         el: null,
         layout: 'div',
@@ -45,7 +46,8 @@ class InfiniteTree extends events.EventEmitter {
         noDataText: 'No data',
         rowRenderer: defaultRowRenderer,
         selectable: true,
-        shouldSelectNode: null
+        shouldSelectNode: null,
+        togglerClass: 'infinite-tree-toggler'
     };
     state = {
         openNodes: [],
@@ -63,7 +65,7 @@ class InfiniteTree extends events.EventEmitter {
     contentListener = {
         'click': (e) => {
             let itemTarget = null;
-            let handleToggler = false;
+            let clickToggler = false;
 
             stopPropagation(e);
 
@@ -74,8 +76,8 @@ class InfiniteTree extends events.EventEmitter {
             }
 
             while (itemTarget && itemTarget.parentElement !== this.contentElement) {
-                if (itemTarget.className.indexOf('tree-toggler') >= 0) {
-                    handleToggler = true;
+                if (hasClass(itemTarget, this.options.togglerClass)) {
+                    clickToggler = true;
                 }
                 itemTarget = itemTarget.parentElement;
             }
@@ -92,7 +94,7 @@ class InfiniteTree extends events.EventEmitter {
             }
 
             // Click on the toggler to open/close a tree node
-            if (handleToggler) {
+            if (clickToggler) {
                 this.toggleNode(node);
                 return;
             }
@@ -855,8 +857,8 @@ class InfiniteTree extends events.EventEmitter {
         if (!this.contentElement) {
             return false;
         }
-        // Get the offset height of the first child element that contains the "tree-item" class
-        const firstChild = this.contentElement.querySelectorAll('.tree-item')[0];
+        // Get the offset height of the first child
+        const firstChild = this.contentElement.firstChild;
         const rowHeight = (firstChild && firstChild.offsetHeight) || 0;
         this.scrollTop(nodeIndex * rowHeight);
 

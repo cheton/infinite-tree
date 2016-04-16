@@ -19,22 +19,22 @@ const defaultRowRenderer = (node, treeOptions) => {
     const toggler = buildHTML('a', togglerContent, {
         'class': (() => {
             if (more && open) {
-                return classNames('tree-toggler');
+                return classNames('infinite-tree-toggler');
             }
             if (more && !open) {
-                return classNames('tree-toggler', 'tree-closed');
+                return classNames('infinite-tree-toggler', 'infinite-tree-closed');
             }
             if (!more && loadOnDemand) {
-                return classNames('tree-toggler', 'tree-closed');
+                return classNames('infinite-tree-toggler', 'infinite-tree-closed');
             }
             return '';
         })()
     });
     const title = buildHTML('span', quoteattr(name), {
-        'class': classNames('tree-title')
+        'class': classNames('infinite-tree-title')
     });
     const treeNode = buildHTML('div', toggler + title, {
-        'class': 'tree-node',
+        'class': 'infinite-tree-node',
         'style': 'margin-left: ' + depth * 18 + 'px'
     });
 
@@ -47,8 +47,8 @@ const defaultRowRenderer = (node, treeOptions) => {
         'aria-children': childrenLength,
         'aria-total': total,
         'class': classNames(
-            'tree-item',
-            { 'tree-selected': selected }
+            'infinite-tree-item',
+            { 'infinite-tree-selected': selected }
         ),
         'droppable': true
     });
