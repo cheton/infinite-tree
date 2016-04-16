@@ -42,6 +42,7 @@ class InfiniteTree extends events.EventEmitter {
         el: null,
         layout: 'div',
         loadNodes: null,
+        nodeIdAttr: 'data-id',
         noDataClass: 'infinite-tree-no-data',
         noDataText: 'No data',
         rowRenderer: defaultRowRenderer,
@@ -86,7 +87,7 @@ class InfiniteTree extends events.EventEmitter {
                 return;
             }
 
-            const id = itemTarget.getAttribute('aria-id');
+            const id = itemTarget.getAttribute(this.options.nodeIdAttr);
             const node = this.getNodeById(id);
 
             if (!node) {
@@ -157,7 +158,7 @@ class InfiniteTree extends events.EventEmitter {
             preventDefault(e);
 
             if (this.dragoverElement) {
-                const id = this.dragoverElement.getAttribute('aria-id');
+                const id = this.dragoverElement.getAttribute(this.options.nodeIdAttr);
                 const node = this.getNodeById(id);
 
                 removeClass(this.dragoverElement, this.options.dragoverClass);
