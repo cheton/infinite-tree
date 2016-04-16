@@ -58,23 +58,23 @@ var data = {
 var tree = new InfiniteTree({
     el: document.querySelector('#tree'),
     data: data,
-    autoOpen: true, // open all nodes
-    droppable: true, // droppable
-    loadNodes: function(parentNode, done) { // load node on demand
+    autoOpen: true, // True to open all nodes on initial loading
+    droppable: true,
+    loadNodes: function(parentNode, done) { // Load node on demand
         var nodes = [];
         setTimeout(function() { // Loading...
             done(null, nodes);
         }, 1000);
     },
     nodeIdAttr: 'data-id', // the node id attribute
-    shouldSelectNode: function(node) { // determine if the node is selectable
+    rowRenderer: function(node, treeOptions) { // Customizable renderer
+        return '<div aria-id="<node-id>" class="tree-item">' + node.name + '</div>';
+    },
+    shouldSelectNode: function(node) { // Determine if the node is selectable
         if (!node || (node === tree.getSelectedNode())) {
-            return false; // prevent from deselecting the current node
+            return false; // Prevent from deselecting the current node
         }
         return true;
-    },
-    rowRenderer: function(node, treeOptions) { // customizable renderer
-        return '<div aria-id="<node-id>" class="tree-item">' + node.name + '</div>';
     }
 });
 ```
