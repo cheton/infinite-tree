@@ -2,10 +2,6 @@
 
 #filebrowser {
 
-    [data-id="tree"] {
-        border: 1px solid #ccc;
-        background-color: #fff;
-    }
     .nowrap {
         white-space: nowrap;
     }
@@ -17,17 +13,18 @@
         border: 1px solid #ccc;
         background-color: #fff;
     }
-    .tree-toggler {
+
+    .infinite-tree-toggler {
         text-align: center;
         margin-right: 5px;
     }
-    .tree-folder-icon {
+    .infinite-tree-folder-icon {
         width: 19px;
     }
-    .tree-folder-icon:first-child {
+    .infinite-tree-folder-icon:first-child {
         margin-left: 20px;
     }
-    .tree-folder-icon:before {
+    .infinite-tree-folder-icon:before {
         margin-right: 5px;
     }
 
@@ -48,34 +45,34 @@
         // Outline removes default browser's borders for focused element.
         outline: 0;
 
-        .tree-selected.tree-item,
-        .tree-selected.tree-item:hover {
+        .infinite-tree-selected.infinite-tree-item,
+        .infinite-tree-selected.infinite-tree-item:hover {
             background: #deecfd;
             //border: 1px solid #0066cc;
         }
-        .tree-item {
+        .infinite-tree-item {
             border: 1px solid transparent;
             cursor: default;
         }
-        .tree-item:hover {
+        .infinite-tree-item:hover {
             background: #f2fdff;
         }
-        .tree-item.dragover {
+        .infinite-tree-item.dragover {
             border: 1px dotted #ccc;
             background-color: #f5f6f7;
         }
-        .tree-node {
+        .infinite-tree-node {
             position: relative;
         }
-        .tree-toggler {
+        .infinite-tree-toggler {
             color: #666;
             user-select: none;
         }
-        .tree-toggler:hover {
+        .infinite-tree-toggler:hover {
             color: #333;
             text-decoration: none;
         }
-        .tree-title {
+        .infinite-tree-title {
             cursor: pointer;
             user-select: none;
         }
