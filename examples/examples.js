@@ -18,7 +18,7 @@ const routes = {
 
 const sidebar = document.getElementById('sidebar');
 
-let activeSectionId = window.location.hash.substr(2) || 'classic';
+let activeSectionId = window.location.hash.substr(2) || 'default';
 
 addClass(document.querySelector('#sidebar [data-section-id="' + activeSectionId + '"]').parentNode, 'active');
 addClass(document.querySelector('section[id="' + activeSectionId + '"]'), 'active');
