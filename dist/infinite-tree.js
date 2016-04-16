@@ -138,11 +138,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	            autoOpen: false,
 	            dragoverClass: 'infinite-tree-dragover',
 	            droppable: false,
+	            droppableAttr: 'droppable',
 	            el: null,
 	            layout: 'div',
 	            loadNodes: null,
 	            noDataClass: 'infinite-tree-no-data',
 	            noDataText: 'No data',
+	            nodeIdAttr: 'data-id',
 	            rowRenderer: _renderer.defaultRowRenderer,
 	            selectable: true,
 	            shouldSelectNode: null,
@@ -185,7 +187,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    return;
 	                }
 
-	                var id = itemTarget.getAttribute('aria-id');
+	                var id = itemTarget.getAttribute(_this.options.nodeIdAttr);
 	                var node = _this.getNodeById(id);
 
 	                if (!node) {
@@ -224,11 +226,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    (0, _helper.removeClass)(_this.dragoverElement, _this.options.dragoverClass);
 	                    _this.dragoverElement = null;
 
-	                    if (!itemTarget.hasAttribute('droppable')) {
+	                    if (!itemTarget.hasAttribute(_this.options.droppableAttr)) {
 	                        return;
 	                    }
 
-	                    var canDrop = !itemTarget.getAttribute('droppable').match(/false/i);
+	                    var canDrop = !itemTarget.getAttribute(_this.options.droppableAttr).match(/false/i);
 	                    if (canDrop) {
 	                        (0, _helper.addClass)(itemTarget, _this.options.dragoverClass);
 	                        _this.dragoverElement = itemTarget;
@@ -257,7 +259,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                (0, _helper.preventDefault)(e);
 
 	                if (_this.dragoverElement) {
-	                    var id = _this.dragoverElement.getAttribute('aria-id');
+	                    var id = _this.dragoverElement.getAttribute(_this.options.nodeIdAttr);
 	                    var node = _this.getNodeById(id);
 
 	                    (0, _helper.removeClass)(_this.dragoverElement, _this.options.dragoverClass);
@@ -2367,13 +2369,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	    });
 
 	    return (0, _helper.buildHTML)('div', treeNode, {
-	        'aria-id': id,
-	        'aria-expanded': more && open,
-	        'aria-depth': depth,
-	        'aria-path': path,
-	        'aria-selected': selected,
-	        'aria-children': childrenLength,
-	        'aria-total': total,
+	        'data-id': id,
+	        'data-expanded': more && open,
+	        'data-depth': depth,
+	        'data-path': path,
+	        'data-selected': selected,
+	        'data-children': childrenLength,
+	        'data-total': total,
 	        'class': (0, _helper.classNames)('infinite-tree-item', { 'infinite-tree-selected': selected }),
 	        'droppable': true
 	    });
