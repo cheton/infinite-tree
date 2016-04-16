@@ -1,4 +1,5 @@
 import { addClass, removeClass, addEventListener } from '../src/helper';
+import '../src/index.styl';
 import * as classic from './classic';
 import * as filebrowser from './filebrowser';
 
@@ -13,7 +14,7 @@ const routes = {
 
 const sidebar = document.getElementById('sidebar');
 
-let activeSectionId = 'classic';
+let activeSectionId = window.location.hash.substr(2) || 'classic';
 
 addClass(document.querySelector('#sidebar [data-section-id="' + activeSectionId + '"]').parentNode, 'active');
 addClass(document.querySelector('section[id="' + activeSectionId + '"]'), 'active');

@@ -28,57 +28,17 @@
         margin-right: 5px;
     }
 
-    /* Change the max-height to suit your needs. */
     .infinite-tree-content {
+        .infinite-tree-selected.infinite-tree-item,
+        .infinite-tree-selected.infinite-tree-item:hover {
+            background: #deecfd;
+            border-color: transparent;
+        }
     }
-    .infinite-tree {
-    }
+
     .infinite-tree-scroll {
         overflow-y: auto;
         overflow-x: hidden;
         max-height: 400px;
-    }
-    .infinite-tree-table {
-        width: 100%;
-    }
-    .infinite-tree-content {
-        // Outline removes default browser's borders for focused element.
-        outline: 0;
-
-        .infinite-tree-selected.infinite-tree-item,
-        .infinite-tree-selected.infinite-tree-item:hover {
-            background: #deecfd;
-            //border: 1px solid #0066cc;
-        }
-        .infinite-tree-item {
-            border: 1px solid transparent;
-            cursor: default;
-        }
-        .infinite-tree-item:hover {
-            background: #f2fdff;
-        }
-        .infinite-tree-item.dragover {
-            border: 1px dotted #ccc;
-            background-color: #f5f6f7;
-        }
-        .infinite-tree-node {
-            position: relative;
-        }
-        .infinite-tree-toggler {
-            color: #666;
-            user-select: none;
-        }
-        .infinite-tree-toggler:hover {
-            color: #333;
-            text-decoration: none;
-        }
-        .infinite-tree-title {
-            cursor: pointer;
-            user-select: none;
-        }
-    }
-    // centering message that appears when no data provided
-    .infinite-tree-no-data {
-        text-align: center;
     }
 }
