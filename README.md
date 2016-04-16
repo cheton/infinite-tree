@@ -72,6 +72,8 @@ var tree = new InfiniteTree({
             done(null, nodes);
         }, 1000);
     },
+    // The id attribute of the node
+    nodeIdAttr: 'data-id',
     // Return false to prevent selecting a node
     shouldSelectNode: function(node) {
         if (!node || (node === tree.getSelectedNode())) {
