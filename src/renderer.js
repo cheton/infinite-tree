@@ -39,13 +39,13 @@ const defaultRowRenderer = (node, treeOptions) => {
     });
 
     return buildHTML('div', treeNode, {
-        'aria-id': id,
-        'aria-expanded': more && open,
-        'aria-depth': depth,
-        'aria-path': path,
-        'aria-selected': selected,
-        'aria-children': childrenLength,
-        'aria-total': total,
+        'data-id': id,
+        'data-expanded': more && open,
+        'data-depth': depth,
+        'data-path': path,
+        'data-selected': selected,
+        'data-children': childrenLength,
+        'data-total': total,
         'class': classNames(
             'infinite-tree-item',
             { 'infinite-tree-selected': selected }
