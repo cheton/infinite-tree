@@ -11,6 +11,7 @@ import {
     removeEventListener,
     classNames,
     addClass,
+    hasClass,
     removeClass,
     isDOMElement
 } from './helper';
@@ -36,16 +37,19 @@ const ensureNodeInstance = (node) => {
 class InfiniteTree extends events.EventEmitter {
     options = {
         autoOpen: false,
-        dragoverClass: 'dragover',
+        dragoverClass: 'infinite-tree-dragover',
         droppable: false,
+        droppableAttr: 'droppable',
         el: null,
         layout: 'div',
         loadNodes: null,
         noDataClass: 'infinite-tree-no-data',
         noDataText: 'No data',
+        nodeIdAttr: 'data-id',
         rowRenderer: defaultRowRenderer,
         selectable: true,
-        shouldSelectNode: null
+        shouldSelectNode: null,
+        togglerClass: 'infinite-tree-toggler'
     };
     state = {
         openNodes: [],
@@ -63,7 +67,7 @@ class InfiniteTree extends events.EventEmitter {
     contentListener = {
         'click': (e) => {
             let itemTarget = null;
-            let handleToggler = false;
+            let clickToggler = false;
 
             stopPropagation(e);
 
@@ -74,8 +78,8 @@ class InfiniteTree extends events.EventEmitter {
             }
 
             while (itemTarget && itemTarget.parentElement !== this.contentElement) {
-                if (itemTarget.className.indexOf('tree-toggler') >= 0) {
-                    handleToggler = true;
+                if (hasClass(itemTarget, this.options.togglerClass)) {
+                    clickToggler = true;
                 }
                 itemTarget = itemTarget.parentElement;
             }
@@ -84,7 +88,7 @@ class InfiniteTree extends events.EventEmitter {
                 return;
             }
 
-            const id = itemTarget.getAttribute('aria-id');
+            const id = itemTarget.getAttribute(this.options.nodeIdAttr);
             const node = this.getNodeById(id);
 
             if (!node) {
@@ -92,7 +96,7 @@ class InfiniteTree extends events.EventEmitter {
             }
 
             // Click on the toggler to open/close a tree node
-            if (handleToggler) {
+            if (clickToggler) {
                 this.toggleNode(node);
                 return;
             }
@@ -122,11 +126,11 @@ class InfiniteTree extends events.EventEmitter {
                 removeClass(this.dragoverElement, this.options.dragoverClass);
                 this.dragoverElement = null;
 
-                if (!(itemTarget.hasAttribute('droppable'))) {
+                if (!(itemTarget.hasAttribute(this.options.droppableAttr))) {
                     return;
                 }
 
-                const canDrop = !(itemTarget.getAttribute('droppable').match(/false/i));
+                const canDrop = !(itemTarget.getAttribute(this.options.droppableAttr).match(/false/i));
                 if (canDrop) {
                     addClass(itemTarget, this.options.dragoverClass);
                     this.dragoverElement = itemTarget;
@@ -155,7 +159,7 @@ class InfiniteTree extends events.EventEmitter {
             preventDefault(e);
 
             if (this.dragoverElement) {
-                const id = this.dragoverElement.getAttribute('aria-id');
+                const id = this.dragoverElement.getAttribute(this.options.nodeIdAttr);
                 const node = this.getNodeById(id);
 
                 removeClass(this.dragoverElement, this.options.dragoverClass);
@@ -855,8 +859,8 @@ class InfiniteTree extends events.EventEmitter {
         if (!this.contentElement) {
             return false;
         }
-        // Get the offset height of the first child element that contains the "tree-item" class
-        const firstChild = this.contentElement.querySelectorAll('.tree-item')[0];
+        // Get the offset height of the first child
+        const firstChild = this.contentElement.firstChild;
         const rowHeight = (firstChild && firstChild.offsetHeight) || 0;
         this.scrollTop(nodeIndex * rowHeight);
 

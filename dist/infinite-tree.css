@@ -8,37 +8,37 @@
 .infinite-tree-content {
   outline: 0;
 }
-.infinite-tree-content .tree-selected.tree-item,
-.infinite-tree-content .tree-selected.tree-item:hover {
+.infinite-tree-content .infinite-tree-selected.infinite-tree-item,
+.infinite-tree-content .infinite-tree-selected.infinite-tree-item:hover {
   background: #deecfd;
   border: 1px solid #06c;
 }
-.infinite-tree-content .tree-item {
+.infinite-tree-content .infinite-tree-item {
   border: 1px solid transparent;
   cursor: default;
 }
-.infinite-tree-content .tree-item:hover {
+.infinite-tree-content .infinite-tree-item:hover {
   background: #f2fdff;
 }
-.infinite-tree-content .tree-item.dragover {
+.infinite-tree-content .infinite-tree-item.infinite-tree-dragover {
   border: 1px dotted #ccc;
   background-color: #f5f6f7;
 }
-.infinite-tree-content .tree-node {
+.infinite-tree-content .infinite-tree-node {
   position: relative;
 }
-.infinite-tree-content .tree-toggler {
+.infinite-tree-content .infinite-tree-toggler {
   color: #666;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
 }
-.infinite-tree-content .tree-toggler:hover {
+.infinite-tree-content .infinite-tree-toggler:hover {
   color: #333;
   text-decoration: none;
 }
-.infinite-tree-content .tree-title {
+.infinite-tree-content .infinite-tree-title {
   cursor: pointer;
   -webkit-user-select: none;
   -moz-user-select: none;

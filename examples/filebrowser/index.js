@@ -7,7 +7,7 @@ import data from './data';
 
 // Makes header columns equal width to content columns
 const fitHeaderColumns = () => {
-    const row = document.querySelector('#filebrowser .infinite-tree-content tr.tree-item');
+    const row = document.querySelector('#filebrowser .infinite-tree-content tr.infinite-tree-item');
     const headers = document.querySelectorAll('#filebrowser table.filebrowser-header > thead > tr > th');
     for (let c = row.firstChild, i = 0; c !== null && i < headers.length; c = c.nextSibling, ++i) {
         headers[i].style.width = c.clientWidth + 'px';

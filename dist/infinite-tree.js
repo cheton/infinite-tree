@@ -136,16 +136,19 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        _this.options = {
 	            autoOpen: false,
-	            dragoverClass: 'dragover',
+	            dragoverClass: 'infinite-tree-dragover',
 	            droppable: false,
+	            droppableAttr: 'droppable',
 	            el: null,
 	            layout: 'div',
 	            loadNodes: null,
 	            noDataClass: 'infinite-tree-no-data',
 	            noDataText: 'No data',
+	            nodeIdAttr: 'data-id',
 	            rowRenderer: _renderer.defaultRowRenderer,
 	            selectable: true,
-	            shouldSelectNode: null
+	            shouldSelectNode: null,
+	            togglerClass: 'infinite-tree-toggler'
 	        };
 	        _this.state = {
 	            openNodes: [],
@@ -162,7 +165,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        _this.contentListener = {
 	            'click': function click(e) {
 	                var itemTarget = null;
-	                var handleToggler = false;
+	                var clickToggler = false;
 
 	                (0, _helper.stopPropagation)(e);
 
@@ -174,8 +177,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	                }
 
 	                while (itemTarget && itemTarget.parentElement !== _this.contentElement) {
-	                    if (itemTarget.className.indexOf('tree-toggler') >= 0) {
-	                        handleToggler = true;
+	                    if ((0, _helper.hasClass)(itemTarget, _this.options.togglerClass)) {
+	                        clickToggler = true;
 	                    }
 	                    itemTarget = itemTarget.parentElement;
 	                }
@@ -184,7 +187,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    return;
 	                }
 
-	                var id = itemTarget.getAttribute('aria-id');
+	                var id = itemTarget.getAttribute(_this.options.nodeIdAttr);
 	                var node = _this.getNodeById(id);
 
 	                if (!node) {
@@ -192,7 +195,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                }
 
 	                // Click on the toggler to open/close a tree node
-	                if (handleToggler) {
+	                if (clickToggler) {
 	                    _this.toggleNode(node);
 	                    return;
 	                }
@@ -223,11 +226,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    (0, _helper.removeClass)(_this.dragoverElement, _this.options.dragoverClass);
 	                    _this.dragoverElement = null;
 
-	                    if (!itemTarget.hasAttribute('droppable')) {
+	                    if (!itemTarget.hasAttribute(_this.options.droppableAttr)) {
 	                        return;
 	                    }
 
-	                    var canDrop = !itemTarget.getAttribute('droppable').match(/false/i);
+	                    var canDrop = !itemTarget.getAttribute(_this.options.droppableAttr).match(/false/i);
 	                    if (canDrop) {
 	                        (0, _helper.addClass)(itemTarget, _this.options.dragoverClass);
 	                        _this.dragoverElement = itemTarget;
@@ -256,7 +259,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                (0, _helper.preventDefault)(e);
 
 	                if (_this.dragoverElement) {
-	                    var id = _this.dragoverElement.getAttribute('aria-id');
+	                    var id = _this.dragoverElement.getAttribute(_this.options.nodeIdAttr);
 	                    var node = _this.getNodeById(id);
 
 	                    (0, _helper.removeClass)(_this.dragoverElement, _this.options.dragoverClass);
@@ -1016,8 +1019,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (!this.contentElement) {
 	            return false;
 	        }
-	        // Get the offset height of the first child element that contains the "tree-item" class
-	        var firstChild = this.contentElement.querySelectorAll('.tree-item')[0];
+	        // Get the offset height of the first child
+	        var firstChild = this.contentElement.firstChild;
 	        var rowHeight = firstChild && firstChild.offsetHeight || 0;
 	        this.scrollTop(nodeIndex * rowHeight);
 
@@ -2346,34 +2349,34 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var toggler = (0, _helper.buildHTML)('a', togglerContent, {
 	        'class': function () {
 	            if (more && open) {
-	                return (0, _helper.classNames)('tree-toggler');
+	                return (0, _helper.classNames)('infinite-tree-toggler');
 	            }
 	            if (more && !open) {
-	                return (0, _helper.classNames)('tree-toggler', 'tree-closed');
+	                return (0, _helper.classNames)('infinite-tree-toggler', 'infinite-tree-closed');
 	            }
 	            if (!more && loadOnDemand) {
-	                return (0, _helper.classNames)('tree-toggler', 'tree-closed');
+	                return (0, _helper.classNames)('infinite-tree-toggler', 'infinite-tree-closed');
 	            }
 	            return '';
 	        }()
 	    });
 	    var title = (0, _helper.buildHTML)('span', (0, _helper.quoteattr)(name), {
-	        'class': (0, _helper.classNames)('tree-title')
+	        'class': (0, _helper.classNames)('infinite-tree-title')
 	    });
 	    var treeNode = (0, _helper.buildHTML)('div', toggler + title, {
-	        'class': 'tree-node',
+	        'class': 'infinite-tree-node',
 	        'style': 'margin-left: ' + depth * 18 + 'px'
 	    });
 
 	    return (0, _helper.buildHTML)('div', treeNode, {
-	        'aria-id': id,
-	        'aria-expanded': more && open,
-	        'aria-depth': depth,
-	        'aria-path': path,
-	        'aria-selected': selected,
-	        'aria-children': childrenLength,
-	        'aria-total': total,
-	        'class': (0, _helper.classNames)('tree-item', { 'tree-selected': selected }),
+	        'data-id': id,
+	        'data-expanded': more && open,
+	        'data-depth': depth,
+	        'data-path': path,
+	        'data-selected': selected,
+	        'data-children': childrenLength,
+	        'data-total': total,
+	        'class': (0, _helper.classNames)('infinite-tree-item', { 'infinite-tree-selected': selected }),
 	        'droppable': true
 	    });
 	};

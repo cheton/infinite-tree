@@ -1,5 +1,6 @@
 html, body {
     font-family: Arial, Helvetica, sans-serif;
+    min-width: 800px;
 }
 .navbar .navbar-brand {
     color: #f0f0f0;

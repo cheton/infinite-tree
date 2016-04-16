@@ -1,8 +1,13 @@
 import { addClass, removeClass, addEventListener } from '../src/helper';
+import '../src/index.styl';
+import * as _default from './default';
 import * as classic from './classic';
 import * as filebrowser from './filebrowser';
 
 const routes = {
+    'default': () => {
+        _default.load();
+    },
     'classic': () => {
         classic.load();
     },
@@ -11,15 +16,14 @@ const routes = {
     }
 };
 
-const sidebar = document.getElementById('sidebar');
+let activeSectionId = window.location.hash.substr(2) || 'default';
 
-let activeSectionId = 'classic';
-
+addClass(document.querySelector('#main .loading'), 'hidden');
 addClass(document.querySelector('#sidebar [data-section-id="' + activeSectionId + '"]').parentNode, 'active');
 addClass(document.querySelector('section[id="' + activeSectionId + '"]'), 'active');
 routes[activeSectionId] && routes[activeSectionId]();
 
-addEventListener(sidebar, 'click', (e) => {
+addEventListener(document.getElementById('sidebar'), 'click', (e) => {
     const target = e.target || e.srcElement;
     let itemTarget = target;
 
