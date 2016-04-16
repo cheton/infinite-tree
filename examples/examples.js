@@ -16,15 +16,14 @@ const routes = {
     }
 };
 
-const sidebar = document.getElementById('sidebar');
-
 let activeSectionId = window.location.hash.substr(2) || 'default';
 
+addClass(document.querySelector('#main .loading'), 'hidden');
 addClass(document.querySelector('#sidebar [data-section-id="' + activeSectionId + '"]').parentNode, 'active');
 addClass(document.querySelector('section[id="' + activeSectionId + '"]'), 'active');
 routes[activeSectionId] && routes[activeSectionId]();
 
-addEventListener(sidebar, 'click', (e) => {
+addEventListener(document.getElementById('sidebar'), 'click', (e) => {
     const target = e.target || e.srcElement;
     let itemTarget = target;
 
