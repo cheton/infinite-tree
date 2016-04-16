@@ -68,7 +68,7 @@ var tree = new InfiniteTree({
     },
     nodeIdAttr: 'data-id', // the node id attribute
     rowRenderer: function(node, treeOptions) { // Customizable renderer
-        return '<div aria-id="<node-id>" class="tree-item">' + node.name + '</div>';
+        return '<div data-id="<node-id>" class="infinite-tree-item">' + node.name + '</div>';
     },
     shouldSelectNode: function(node) { // Determine if the node is selectable
         if (!node || (node === tree.getSelectedNode())) {
