@@ -61,28 +61,22 @@ var data = {
 var tree = new InfiniteTree({
     el: document.querySelector('#tree'),
     data: data,
-    // Open all nodes
-    autoOpen: true,
-    // Droppable elements
-    droppable: true,
-    // Load nodes on demand
-    loadNodes: function(parentNode, done) {
+    autoOpen: true, // open all nodes
+    droppable: true, // droppable
+    loadNodes: function(parentNode, done) { // load node on demand
         var nodes = [];
         setTimeout(function() { // Loading...
             done(null, nodes);
         }, 1000);
     },
-    // The id attribute of the node
-    nodeIdAttr: 'data-id',
-    // Return false to prevent selecting a node
-    shouldSelectNode: function(node) {
+    nodeIdAttr: 'data-id', // the node id attribute
+    shouldSelectNode: function(node) { // determine if the node is selectable
         if (!node || (node === tree.getSelectedNode())) {
-            return false; // Prevent from deselecting the current node
+            return false; // prevent from deselecting the current node
         }
         return true;
     },
-    // Render tree nodes with your own way
-    rowRenderer: function(node, treeOptions) {
+    rowRenderer: function(node, treeOptions) { // customizable renderer
         return '<div aria-id="<node-id>" class="tree-item">' + node.name + '</div>';
     }
 });
