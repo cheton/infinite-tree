@@ -39,6 +39,7 @@ class InfiniteTree extends events.EventEmitter {
         autoOpen: false,
         dragoverClass: 'infinite-tree-dragover',
         droppable: false,
+        droppableAttr: 'droppable',
         el: null,
         layout: 'div',
         loadNodes: null,
@@ -125,11 +126,11 @@ class InfiniteTree extends events.EventEmitter {
                 removeClass(this.dragoverElement, this.options.dragoverClass);
                 this.dragoverElement = null;
 
-                if (!(itemTarget.hasAttribute('droppable'))) {
+                if (!(itemTarget.hasAttribute(this.options.droppableAttr))) {
                     return;
                 }
 
-                const canDrop = !(itemTarget.getAttribute('droppable').match(/false/i));
+                const canDrop = !(itemTarget.getAttribute(this.options.droppableAttr).match(/false/i));
                 if (canDrop) {
                     addClass(itemTarget, this.options.dragoverClass);
                     this.dragoverElement = itemTarget;
