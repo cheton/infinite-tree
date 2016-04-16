@@ -758,6 +758,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	                return false;
 	            }
 
+	            // Reentrancy not allowed
+	            if (node.state.loading === true) {
+	                return false;
+	            }
+
 	            // Set loading state to true
 	            node.state.loading = true;
 	            this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
