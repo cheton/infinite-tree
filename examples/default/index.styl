@@ -1,0 +1,62 @@
+@import 'nib'
+
+#default {
+    .preview {
+        font-family: Consolas;
+        font-size: 14px;
+        font-weight: bold;
+        white-space: pre-wrap;
+        background-color: #282c34;
+        border: solid 1px #ccc;
+        color: #9197a3;
+        padding: 20px;
+        min-height: 400px;
+    }
+    .progress-bar {
+        -webkit-transition: none;
+        -moz-transition: none;
+        -ms-transition: none;
+        -o-transition: none;
+        transition: none;
+    }
+    .dropped-result {
+        font-size: 16px;
+        line-height: 42px;
+    }
+    .tree {
+        border: 1px solid #ccc;
+        background-color: #fff;
+    }
+
+    .infinite-tree-toggler {
+        text-align: center;
+        margin-right: 5px;
+    }
+    .infinite-tree-folder-icon {
+        width: 19px;
+    }
+    .infinite-tree-folder-icon:first-child {
+        margin-left: 20px;
+    }
+    .infinite-tree-folder-icon:before {
+        margin-right: 5px;
+    }
+
+    .infinite-tree-node .count {
+        position: absolute;
+        right: 4px;
+        padding: 0 8px;
+        height: 18px;
+        line-height: 18px;
+        background-color: #D8DFEA;
+        color: #3B5998;
+        font-style: normal;
+        font-weight: bold;
+        text-align: center;
+        border-radius: 2px;
+    }
+    .infinite-tree-scroll {
+        overflow: auto;
+        max-height: 400px;
+    }
+}

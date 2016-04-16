@@ -1,9 +1,13 @@
 import { addClass, removeClass, addEventListener } from '../src/helper';
 import '../src/index.styl';
+import * as _default from './default';
 import * as classic from './classic';
 import * as filebrowser from './filebrowser';
 
 const routes = {
+    'default': () => {
+        _default.load();
+    },
     'classic': () => {
         classic.load();
     },
