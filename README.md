@@ -26,9 +26,6 @@ Need to include [es5-shim](https://github.com/es-shims/es5-shim#example-of-apply
 ## React Support
 Check out <b>react-infinite-tree</b> at https://github.com/cheton/react-infinite-tree.
 
-## Notice
-<i>The project is under heavy development and a lot of things are changing. Stay tuned for further updates.</i>
-
 ## Installation
 ```bash
 npm install --save infinite-tree
