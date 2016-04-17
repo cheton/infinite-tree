@@ -76,7 +76,7 @@ tree.on('selectNode', (node) => {
     updatePreview(node);
 });
 
-tree.loadData(data);
+tree.loadData(JSON.parse(JSON.stringify(data)));
 
 // Scroll Element
 addEventListener(tree.scrollElement, 'scroll', (e) => {

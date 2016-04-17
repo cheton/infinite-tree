@@ -1,4 +1,4 @@
-/*! infinite-tree v1.0.0 | (c) 2016 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
+/*! infinite-tree v1.0.1 | (c) 2016 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -2326,6 +2326,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var loadOnDemand = _node$loadOnDemand === undefined ? false : _node$loadOnDemand;
 	    var children = node.children;
 	    var state = node.state;
+
+	    var droppable = treeOptions.droppable;
 	    var depth = state.depth;
 	    var open = state.open;
 	    var path = state.path;
@@ -2337,25 +2339,25 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var more = node.hasChildren();
 
 	    var togglerContent = '';
+	    if (!more && loadOnDemand) {
+	        togglerContent = '►';
+	    }
 	    if (more && open) {
 	        togglerContent = '▼';
 	    }
 	    if (more && !open) {
 	        togglerContent = '►';
 	    }
-	    if (!more && loadOnDemand) {
-	        togglerContent = '►';
-	    }
 	    var toggler = (0, _helper.buildHTML)('a', togglerContent, {
 	        'class': function () {
+	            if (!more && loadOnDemand) {
+	                return (0, _helper.classNames)(treeOptions.togglerClass, 'infinite-tree-closed');
+	            }
 	            if (more && open) {
-	                return (0, _helper.classNames)('infinite-tree-toggler');
+	                return (0, _helper.classNames)(treeOptions.togglerClass);
 	            }
 	            if (more && !open) {
-	                return (0, _helper.classNames)('infinite-tree-toggler', 'infinite-tree-closed');
-	            }
-	            if (!more && loadOnDemand) {
-	                return (0, _helper.classNames)('infinite-tree-toggler', 'infinite-tree-closed');
+	                return (0, _helper.classNames)(treeOptions.togglerClass, 'infinite-tree-closed');
 	            }
 	            return '';
 	        }()
@@ -2377,7 +2379,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        'data-children': childrenLength,
 	        'data-total': total,
 	        'class': (0, _helper.classNames)('infinite-tree-item', { 'infinite-tree-selected': selected }),
-	        'droppable': true
+	        'droppable': droppable
 	    });
 	};
 

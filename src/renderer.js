@@ -2,30 +2,31 @@ import { buildHTML, classNames, quoteattr } from './helper';
 
 const defaultRowRenderer = (node, treeOptions) => {
     const { id, name, loadOnDemand = false, children, state } = node;
+    const droppable = treeOptions.droppable;
     const { depth, open, path, total, selected = false } = state;
     const childrenLength = Object.keys(children).length;
     const more = node.hasChildren();
 
     let togglerContent = '';
+    if (!more && loadOnDemand) {
+        togglerContent = '►';
+    }
     if (more && open) {
         togglerContent = '▼';
     }
     if (more && !open) {
         togglerContent = '►';
     }
-    if (!more && loadOnDemand) {
-        togglerContent = '►';
-    }
     const toggler = buildHTML('a', togglerContent, {
         'class': (() => {
+            if (!more && loadOnDemand) {
+                return classNames(treeOptions.togglerClass, 'infinite-tree-closed');
+            }
             if (more && open) {
-                return classNames('infinite-tree-toggler');
+                return classNames(treeOptions.togglerClass);
             }
             if (more && !open) {
-                return classNames('infinite-tree-toggler', 'infinite-tree-closed');
-            }
-            if (!more && loadOnDemand) {
-                return classNames('infinite-tree-toggler', 'infinite-tree-closed');
+                return classNames(treeOptions.togglerClass, 'infinite-tree-closed');
             }
             return '';
         })()
@@ -50,7 +51,7 @@ const defaultRowRenderer = (node, treeOptions) => {
             'infinite-tree-item',
             { 'infinite-tree-selected': selected }
         ),
-        'droppable': true
+        'droppable': droppable
     });
 };
 
