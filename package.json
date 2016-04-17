@@ -8,7 +8,7 @@
     "prepublish": "npm run lint && npm test && npm run build && npm run dist && npm run stylus && npm run build-examples && npm run release",
     "build": "babel --out-dir ./lib ./src",
     "build-examples": "cd examples; webpack",
-    "pack-examples": "npm run build-examples && zip -r examples.zip examples/{dist,*.html,*.css}",
+    "pack-examples": "npm run build-examples && zip -r examples.zip examples/{dist,vendor,*.html,*.css}",
     "test": "./babel-tap --coverage test/*.js",
     "dist": "webpack; BUILD_ENV=dist webpack",
     "release": "mkdir -p releases; cp -f dist/infinite-tree.css releases/infinite-tree-${npm_package_version}.css; cp -f dist/infinite-tree.js releases/infinite-tree-${npm_package_version}.js; cp -f dist/infinite-tree.min.js releases/infinite-tree-${npm_package_version}.min.js",
