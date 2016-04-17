@@ -3,7 +3,7 @@ import { buildHTML, classNames, quoteattr } from './helper';
 const defaultRowRenderer = (node, treeOptions) => {
     const { id, name, loadOnDemand = false, children, state } = node;
     const droppable = treeOptions.droppable;
-    const { depth, open, path, total, loading = false, selected = false } = state;
+    const { depth, open, path, total, selected = false } = state;
     const childrenLength = Object.keys(children).length;
     const more = node.hasChildren();
 
