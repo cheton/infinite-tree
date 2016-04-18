@@ -194,7 +194,7 @@ class InfiniteTree extends events.EventEmitter {
                     type: 'drop',
                     draggableTarget: this.draggableTarget,
                     droppableTarget: this.droppableTarget,
-                    node: node,
+                    node: node
                 });
             }
 
@@ -202,7 +202,7 @@ class InfiniteTree extends events.EventEmitter {
                 drop.call(this, e, {
                     draggableTarget: this.draggableTarget,
                     droppableTarget: this.droppableTarget,
-                    node: node,
+                    node: node
                 });
             }
 
