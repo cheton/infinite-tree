@@ -1,4 +1,4 @@
-/*! infinite-tree v1.0.1 | (c) 2016 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
+/*! infinite-tree v1.1.0 | (c) 2016 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -136,9 +136,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        _this.options = {
 	            autoOpen: false,
-	            dragoverClass: 'infinite-tree-dragover',
 	            droppable: false,
-	            droppableAttr: 'droppable',
 	            el: null,
 	            layout: 'div',
 	            loadNodes: null,
@@ -161,7 +159,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        _this.rows = [];
 	        _this.scrollElement = null;
 	        _this.contentElement = null;
-	        _this.dragoverElement = null;
+	        _this.draggableTarget = null;
+	        _this.droppableTarget = null;
 	        _this.contentListener = {
 	            'click': function click(e) {
 	                var itemTarget = null;
@@ -202,6 +201,27 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	                _this.selectNode(node);
 	            },
+	            // https://developer.mozilla.org/en-US/docs/Web/Events/dragstart
+	            // The dragstart event is fired when the user starts dragging an element or text selection.
+	            'dragstart': function dragstart(e) {
+	                _this.draggableTarget = e.target || e.srcElement;
+	            },
+	            // https://developer.mozilla.org/en-US/docs/Web/Events/dragend
+	            // The dragend event is fired when a drag operation is being ended (by releasing a mouse button or hitting the escape key).
+	            'dragend': function dragend(e) {
+	                var _this$options$droppab = _this.options.droppable.hoverClass;
+	                var hoverClass = _this$options$droppab === undefined ? '' : _this$options$droppab;
+
+	                // Draggable
+
+	                _this.draggableTarget = null;
+
+	                // Droppable
+	                if (_this.droppableTarget) {
+	                    (0, _helper.removeClass)(_this.droppableTarget, hoverClass);
+	                    _this.droppableTarget = null;
+	                }
+	            },
 	            // https://developer.mozilla.org/en-US/docs/Web/Events/dragenter
 	            // The dragenter event is fired when a dragged element or text selection enters a valid drop target.
 	            'dragenter': function dragenter(e) {
@@ -222,35 +242,42 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    return;
 	                }
 
-	                if (_this.dragoverElement !== itemTarget) {
-	                    (0, _helper.removeClass)(_this.dragoverElement, _this.options.dragoverClass);
-	                    _this.dragoverElement = null;
-
-	                    if (!itemTarget.hasAttribute(_this.options.droppableAttr)) {
-	                        return;
-	                    }
-
-	                    var canDrop = !itemTarget.getAttribute(_this.options.droppableAttr).match(/false/i);
-	                    if (canDrop) {
-	                        (0, _helper.addClass)(itemTarget, _this.options.dragoverClass);
-	                        _this.dragoverElement = itemTarget;
-	                    }
+	                if (_this.droppableTarget === itemTarget) {
+	                    return;
 	                }
-	            },
-	            // https://developer.mozilla.org/en-US/docs/Web/Events/dragend
-	            // The dragend event is fired when a drag operation is being ended (by releasing a mouse button or hitting the escape key).
-	            'dragend': function dragend(e) {
-	                if (_this.dragoverElement) {
-	                    (0, _helper.removeClass)(_this.dragoverElement, _this.options.dragoverClass);
-	                    _this.dragoverElement = null;
+
+	                var _this$options$droppab2 = _this.options.droppable;
+	                var accept = _this$options$droppab2.accept;
+	                var _this$options$droppab3 = _this$options$droppab2.hoverClass;
+	                var hoverClass = _this$options$droppab3 === undefined ? '' : _this$options$droppab3;
+
+
+	                (0, _helper.removeClass)(_this.droppableTarget, hoverClass);
+	                _this.droppableTarget = null;
+
+	                var canDrop = true; // Defaults to true
+
+	                if (typeof accept === 'function') {
+	                    var id = itemTarget.getAttribute(_this.options.nodeIdAttr);
+	                    var node = _this.getNodeById(id);
+
+	                    canDrop = !!accept.call(_this, {
+	                        type: 'dragenter',
+	                        draggableTarget: _this.draggableTarget,
+	                        droppableTarget: itemTarget,
+	                        node: node
+	                    });
+	                }
+
+	                if (canDrop) {
+	                    (0, _helper.addClass)(itemTarget, hoverClass);
+	                    _this.droppableTarget = itemTarget;
 	                }
 	            },
 	            // https://developer.mozilla.org/en-US/docs/Web/Events/dragover
 	            // The dragover event is fired when an element or text selection is being dragged over a valid drop target (every few hundred milliseconds).
 	            'dragover': function dragover(e) {
 	                (0, _helper.preventDefault)(e);
-	                e.dataTransfer.dropEffect = 'move';
-	                return false;
 	            },
 	            // https://developer.mozilla.org/en-US/docs/Web/Events/drop
 	            // The drop event is fired when an element or text selection is dropped on a valid drop target.
@@ -258,15 +285,40 @@ return /******/ (function(modules) { // webpackBootstrap
 	                // prevent default action (open as link for some elements)
 	                (0, _helper.preventDefault)(e);
 
-	                if (_this.dragoverElement) {
-	                    var id = _this.dragoverElement.getAttribute(_this.options.nodeIdAttr);
-	                    var node = _this.getNodeById(id);
-
-	                    (0, _helper.removeClass)(_this.dragoverElement, _this.options.dragoverClass);
-	                    _this.dragoverElement = null;
-
-	                    _this.emit('dropNode', node, e);
+	                if (!(_this.draggableTarget && _this.droppableTarget)) {
+	                    return;
 	                }
+
+	                var _this$options$droppab4 = _this.options.droppable;
+	                var accept = _this$options$droppab4.accept;
+	                var drop = _this$options$droppab4.drop;
+	                var _this$options$droppab5 = _this$options$droppab4.hoverClass;
+	                var hoverClass = _this$options$droppab5 === undefined ? '' : _this$options$droppab5;
+
+	                var id = _this.droppableTarget.getAttribute(_this.options.nodeIdAttr);
+	                var node = _this.getNodeById(id);
+
+	                var canDrop = true; // Defaults to true
+
+	                if (typeof accept === 'function') {
+	                    canDrop = !!accept.call(_this, {
+	                        type: 'drop',
+	                        draggableTarget: _this.draggableTarget,
+	                        droppableTarget: _this.droppableTarget,
+	                        node: node
+	                    });
+	                }
+
+	                if (canDrop && typeof drop === 'function') {
+	                    drop.call(_this, e, {
+	                        draggableTarget: _this.draggableTarget,
+	                        droppableTarget: _this.droppableTarget,
+	                        node: node
+	                    });
+	                }
+
+	                (0, _helper.removeClass)(_this.droppableTarget, hoverClass);
+	                _this.droppableTarget = null;
 	            }
 	        };
 
@@ -339,8 +391,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	        (0, _helper.addEventListener)(this.contentElement, 'click', this.contentListener.click);
 
 	        if (this.options.droppable) {
+	            (0, _helper.addEventListener)(document, 'dragstart', this.contentListener.dragstart);
 	            (0, _helper.addEventListener)(document, 'dragend', this.contentListener.dragend);
 	            (0, _helper.addEventListener)(this.contentElement, 'dragenter', this.contentListener.dragenter);
+	            (0, _helper.addEventListener)(this.contentElement, 'dragleave', this.contentListener.dragleave);
 	            (0, _helper.addEventListener)(this.contentElement, 'dragover', this.contentListener.dragover);
 	            (0, _helper.addEventListener)(this.contentElement, 'drop', this.contentListener.drop);
 	        }
@@ -349,8 +403,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    InfiniteTree.prototype.destroy = function destroy() {
 	        (0, _helper.removeEventListener)(this.contentElement, 'click', this.contentListener);
 	        if (this.options.droppable) {
+	            (0, _helper.removeEventListener)(document, 'dragstart', this.contentListener.dragstart);
 	            (0, _helper.removeEventListener)(document, 'dragend', this.contentListener.dragend);
 	            (0, _helper.removeEventListener)(this.contentElement, 'dragenter', this.contentListener.dragenter);
+	            (0, _helper.removeEventListener)(this.contentElement, 'dragleave', this.contentListener.dragleave);
 	            (0, _helper.removeEventListener)(this.contentElement, 'dragover', this.contentListener.dragover);
 	            (0, _helper.removeEventListener)(this.contentElement, 'drop', this.contentListener.drop);
 	        }
@@ -1197,9 +1253,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        // Update the list with new data
 	        this.clusterize.update(this.rows);
-
-	        // [DEPRECATED] it will be removed in v1.0
-	        this.emit('update');
 
 	        // Emit 'contentWillUpdate' event
 	        this.emit('contentDidUpdate');

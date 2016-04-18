@@ -20,10 +20,6 @@
 .infinite-tree-content .infinite-tree-item:hover {
   background: #f2fdff;
 }
-.infinite-tree-content .infinite-tree-item.infinite-tree-dragover {
-  border: 1px dotted #ccc;
-  background-color: #f5f6f7;
-}
 .infinite-tree-content .infinite-tree-node {
   position: relative;
 }
