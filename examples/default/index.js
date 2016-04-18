@@ -40,7 +40,7 @@ const tree = new InfiniteTree(document.querySelector('#default [data-id="tree"]'
             console.log('drop:', e, e.dataTransfer.getData('text'));
 
             const innerHTML = 'Dropped to <b>' + quoteattr(node.name) + '</b>';
-            document.querySelector('#classic [data-id="dropped-result"]').innerHTML = innerHTML;
+            document.querySelector('#default [data-id="dropped-result"]').innerHTML = innerHTML;
         }
     },
     loadNodes: (parentNode, done) => {
