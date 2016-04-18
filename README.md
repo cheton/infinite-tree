@@ -58,8 +58,15 @@ var data = {
 var tree = new InfiniteTree({
     el: document.querySelector('#tree'),
     data: data,
-    autoOpen: true, // True to open all nodes on initial loading
-    droppable: true,
+    autoOpen: true, // Defaults to false
+    droppable: { // Defaults to false
+        hoverClass: 'infinite-tree-drop-hover',
+        accept: function(opts) {
+            return true;
+        },
+        drop: function(e, opts) {
+        }
+    },
     loadNodes: function(parentNode, done) { // Load node on demand
         var nodes = [];
         setTimeout(function() { // Loading...
@@ -106,8 +113,6 @@ tree.on('openNode', function(node) {
 tree.on('closeNode', function(node) {
 });
 tree.on('selectNode', function(node) {
-});
-tree.on('dropNode', function(node, evt) {
 });
 ```
 

@@ -26,7 +26,24 @@ const updatePreview = (node) => {
 
 const tree = new InfiniteTree(document.querySelector('#classic [data-id="tree"]'), {
     autoOpen: true, // Defaults to false
-    droppable: true, // Defaults to false
+    droppable: {
+        hoverClass: 'infinite-tree-drop-hover',
+        accept: function(opts) {
+            const { type, draggableTarget, droppableTarget, node } = opts;
+
+            console.log(opts);
+
+            return true;
+        },
+        drop: function(e, opts) {
+            const { draggableTarget, droppableTarget, node } = opts;
+
+            console.log('drop:', e, e.dataTransfer.getData('text'));
+
+            const innerHTML = 'Dropped to <b>' + quoteattr(node.name) + '</b>';
+            document.querySelector('#classic [data-id="dropped-result"]').innerHTML = innerHTML;
+        }
+    },
     loadNodes: (parentNode, done) => {
         const suffix = parentNode.id.replace(/(\w)+/, '');
         const nodes = [
@@ -67,12 +84,6 @@ tree.on('openNode', (node) => {
 tree.on('closeNode', (node) => {
     console.log('closeNode', node);
 });
-tree.on('dropNode', (node, e) => {
-    console.log('dropNode', node);
-    const source = e.dataTransfer.getData('text');
-    const innerHTML = 'Dropped to <b>' + quoteattr(node.name) + '</b>';
-    document.querySelector('#classic [data-id="dropped-result"]').innerHTML = innerHTML;
-});
 tree.on('selectNode', (node) => {
     console.log('selectNode', node);
     updatePreview(node);
@@ -100,7 +111,7 @@ addEventListener(draggableElement, 'selectstart', (e) => {
 addEventListener(draggableElement, 'dragstart', (e) => {
     e.dataTransfer.effectAllowed = 'move';
     const target = e.target || e.srcElement;
-    e.dataTransfer.setData('text', target.id);
+    e.dataTransfer.setData('text', target.getAttribute('data-id'));
     document.querySelector('#classic [data-id="dropped-result"]').innerHTML = '';
 });
 

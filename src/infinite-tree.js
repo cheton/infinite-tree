@@ -37,9 +37,7 @@ const ensureNodeInstance = (node) => {
 class InfiniteTree extends events.EventEmitter {
     options = {
         autoOpen: false,
-        dragoverClass: 'infinite-tree-dragover',
         droppable: false,
-        droppableAttr: 'droppable',
         el: null,
         layout: 'div',
         loadNodes: null,
@@ -62,7 +60,8 @@ class InfiniteTree extends events.EventEmitter {
     rows = [];
     scrollElement = null;
     contentElement = null;
-    dragoverElement = null;
+    draggableTarget = null;
+    droppableTarget = null;
 
     contentListener = {
         'click': (e) => {
@@ -103,6 +102,25 @@ class InfiniteTree extends events.EventEmitter {
 
             this.selectNode(node);
         },
+        // https://developer.mozilla.org/en-US/docs/Web/Events/dragstart
+        // The dragstart event is fired when the user starts dragging an element or text selection.
+        'dragstart': (e) => {
+            this.draggableTarget = e.target || e.srcElement;
+        },
+        // https://developer.mozilla.org/en-US/docs/Web/Events/dragend
+        // The dragend event is fired when a drag operation is being ended (by releasing a mouse button or hitting the escape key).
+        'dragend': (e) => {
+            const { hoverClass = '' } = this.options.droppable;
+
+            // Draggable
+            this.draggableTarget = null;
+
+            // Droppable
+            if (this.droppableTarget) {
+                removeClass(this.droppableTarget, hoverClass);
+                this.droppableTarget = null;
+            }
+        },
         // https://developer.mozilla.org/en-US/docs/Web/Events/dragenter
         // The dragenter event is fired when a dragged element or text selection enters a valid drop target.
         'dragenter': (e) => {
@@ -122,35 +140,38 @@ class InfiniteTree extends events.EventEmitter {
                 return;
             }
 
-            if (this.dragoverElement !== itemTarget) {
-                removeClass(this.dragoverElement, this.options.dragoverClass);
-                this.dragoverElement = null;
-
-                if (!(itemTarget.hasAttribute(this.options.droppableAttr))) {
-                    return;
-                }
-
-                const canDrop = !(itemTarget.getAttribute(this.options.droppableAttr).match(/false/i));
-                if (canDrop) {
-                    addClass(itemTarget, this.options.dragoverClass);
-                    this.dragoverElement = itemTarget;
-                }
+            if (this.droppableTarget === itemTarget) {
+                return;
             }
-        },
-        // https://developer.mozilla.org/en-US/docs/Web/Events/dragend
-        // The dragend event is fired when a drag operation is being ended (by releasing a mouse button or hitting the escape key).
-        'dragend': (e) => {
-            if (this.dragoverElement) {
-                removeClass(this.dragoverElement, this.options.dragoverClass);
-                this.dragoverElement = null;
+
+            const { accept, hoverClass = '' } = this.options.droppable;
+
+            removeClass(this.droppableTarget, hoverClass);
+            this.droppableTarget = null;
+
+            let canDrop = true; // Defaults to true
+
+            if (typeof accept === 'function') {
+                const id = itemTarget.getAttribute(this.options.nodeIdAttr);
+                const node = this.getNodeById(id);
+
+                canDrop = !!accept.call(this, {
+                    type: 'dragenter',
+                    draggableTarget: this.draggableTarget,
+                    droppableTarget: itemTarget,
+                    node: node
+                });
+            }
+
+            if (canDrop) {
+                addClass(itemTarget, hoverClass);
+                this.droppableTarget = itemTarget;
             }
         },
         // https://developer.mozilla.org/en-US/docs/Web/Events/dragover
         // The dragover event is fired when an element or text selection is being dragged over a valid drop target (every few hundred milliseconds).
         'dragover': (e) => {
             preventDefault(e);
-            e.dataTransfer.dropEffect = 'move';
-            return false;
         },
         // https://developer.mozilla.org/en-US/docs/Web/Events/drop
         // The drop event is fired when an element or text selection is dropped on a valid drop target.
@@ -158,15 +179,35 @@ class InfiniteTree extends events.EventEmitter {
             // prevent default action (open as link for some elements)
             preventDefault(e);
 
-            if (this.dragoverElement) {
-                const id = this.dragoverElement.getAttribute(this.options.nodeIdAttr);
-                const node = this.getNodeById(id);
-
-                removeClass(this.dragoverElement, this.options.dragoverClass);
-                this.dragoverElement = null;
-
-                this.emit('dropNode', node, e);
+            if (!(this.draggableTarget && this.droppableTarget)) {
+                return;
             }
+
+            const { accept, drop, hoverClass = '' } = this.options.droppable;
+            const id = this.droppableTarget.getAttribute(this.options.nodeIdAttr);
+            const node = this.getNodeById(id);
+
+            let canDrop = true; // Defaults to true
+
+            if (typeof accept === 'function') {
+                canDrop = !!accept.call(this, {
+                    type: 'drop',
+                    draggableTarget: this.draggableTarget,
+                    droppableTarget: this.droppableTarget,
+                    node: node,
+                });
+            }
+
+            if (canDrop && typeof drop === 'function') {
+                drop.call(this, e, {
+                    draggableTarget: this.draggableTarget,
+                    droppableTarget: this.droppableTarget,
+                    node: node,
+                });
+            }
+
+            removeClass(this.droppableTarget, hoverClass);
+            this.droppableTarget = null;
         }
     };
 
@@ -249,8 +290,10 @@ class InfiniteTree extends events.EventEmitter {
         addEventListener(this.contentElement, 'click', this.contentListener.click);
 
         if (this.options.droppable) {
+            addEventListener(document, 'dragstart', this.contentListener.dragstart);
             addEventListener(document, 'dragend', this.contentListener.dragend);
             addEventListener(this.contentElement, 'dragenter', this.contentListener.dragenter);
+            addEventListener(this.contentElement, 'dragleave', this.contentListener.dragleave);
             addEventListener(this.contentElement, 'dragover', this.contentListener.dragover);
             addEventListener(this.contentElement, 'drop', this.contentListener.drop);
         }
@@ -258,8 +301,10 @@ class InfiniteTree extends events.EventEmitter {
     destroy() {
         removeEventListener(this.contentElement, 'click', this.contentListener);
         if (this.options.droppable) {
+            removeEventListener(document, 'dragstart', this.contentListener.dragstart);
             removeEventListener(document, 'dragend', this.contentListener.dragend);
             removeEventListener(this.contentElement, 'dragenter', this.contentListener.dragenter);
+            removeEventListener(this.contentElement, 'dragleave', this.contentListener.dragleave);
             removeEventListener(this.contentElement, 'dragover', this.contentListener.dragover);
             removeEventListener(this.contentElement, 'drop', this.contentListener.drop);
         }
@@ -1014,9 +1059,6 @@ class InfiniteTree extends events.EventEmitter {
 
         // Update the list with new data
         this.clusterize.update(this.rows);
-
-        // [DEPRECATED] it will be removed in v1.0
-        this.emit('update');
 
         // Emit 'contentWillUpdate' event
         this.emit('contentDidUpdate');
