@@ -68,8 +68,6 @@ class InfiniteTree extends events.EventEmitter {
             let itemTarget = null;
             let clickToggler = false;
 
-            stopPropagation(e);
-
             if (e.target && e.currentTarget) {
                 itemTarget = (e.target !== e.currentTarget) ? e.target : null;
             } else if (e.srcElement) { // IE8
@@ -100,7 +98,9 @@ class InfiniteTree extends events.EventEmitter {
                 return;
             }
 
-            this.selectNode(node);
+            setTimeout(() => {
+                this.selectNode(node);
+            }, 0);
         },
         // https://developer.mozilla.org/en-US/docs/Web/Events/dragstart
         // The dragstart event is fired when the user starts dragging an element or text selection.
