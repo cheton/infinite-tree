@@ -197,8 +197,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    return;
 	                }
 
+	                // Use setTimeout(fn, 0) to re-queues the selectNode operation, it allows the click event to bubble up to higher level event handlers.
 	                setTimeout(function () {
-	                    _this.selectNode(node);
+	                    _this.selectNode(node); // selectNode will re-render the tree
 	                }, 0);
 	            },
 	            // https://developer.mozilla.org/en-US/docs/Web/Events/dragstart
