@@ -6,7 +6,6 @@ import { defaultRowRenderer } from './renderer';
 import {
     extend,
     preventDefault,
-    stopPropagation,
     addEventListener,
     removeEventListener,
     classNames,
