@@ -1,4 +1,4 @@
-/*! infinite-tree v1.1.0 | (c) 2016 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
+/*! infinite-tree v1.1.1 | (c) 2016 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -166,8 +166,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	                var itemTarget = null;
 	                var clickToggler = false;
 
-	                (0, _helper.stopPropagation)(e);
-
 	                if (e.target && e.currentTarget) {
 	                    itemTarget = e.target !== e.currentTarget ? e.target : null;
 	                } else if (e.srcElement) {
@@ -199,7 +197,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    return;
 	                }
 
-	                _this.selectNode(node);
+	                // Use setTimeout(fn, 0) to re-queues the selectNode operation, it allows the click event to bubble up to higher level event handlers.
+	                setTimeout(function () {
+	                    _this.selectNode(node); // selectNode will re-render the tree
+	                }, 0);
 	            },
 	            // https://developer.mozilla.org/en-US/docs/Web/Events/dragstart
 	            // The dragstart event is fired when the user starts dragging an element or text selection.
