@@ -1,3 +1,4 @@
+/* eslint no-restricted-syntax: 0 */
 const extend = (target, ...sources) => {
     target = target || {};
     for (let index = 0; index < sources.length; index++) {
