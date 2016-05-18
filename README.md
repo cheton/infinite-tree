@@ -122,6 +122,48 @@ tree.on('selectNode', function(node) {
 * [Functions: Node](https://github.com/cheton/infinite-tree/wiki/Functions:-Node)
 * [Events](https://github.com/cheton/infinite-tree/wiki/Events)
 
+## FAQ
+
+#### How to attach event listeners to nodes?
+
+Use <b>event delegation</b> <sup>[[1](http://javascript.info/tutorial/event-delegation), [2](http://davidwalsh.name/event-delegate)]</sup>
+
+```js
+// JavaScript
+var el = document.getElementById('tree');
+var tree = new InfiniteTree(el, { /* options */ });
+
+el.querySelector('.infinite-tree-content').onclick = function(e) {
+    e = e || event;
+    var target = e.target || e.srcElement;
+
+    console.log(target);
+    
+    if (!hasClass(target, 'my-specific-class')) {
+        return;
+    }
+    
+    // do stuff with node
+};
+
+// Checks if an element contains a specific class
+var hasClass = function(el, className) {
+    if (!el) {
+        return false;
+    }
+    var classes = el.className.split(' ');
+    return (classes.indexOf(className) >= 0);
+};
+```
+
+Event delegation with jQuery:
+```js
+// jQuery
+$('#tree .infinite-tree-content').on('click', 'your-event-selector', function() {
+  // do stuff with node
+});
+```
+
 ## License
 
 Copyright (c) 2016 Cheton Wu
