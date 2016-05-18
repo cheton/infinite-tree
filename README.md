@@ -133,9 +133,9 @@ Use <b>event delegation</b> <sup>[[1](http://javascript.info/tutorial/event-dele
 var el = document.getElementById('tree');
 var tree = new InfiniteTree(el, { /* options */ });
 
-el.querySelector('.infinite-tree-content').onclick = function(e) {
-    e = e || event;
-    var target = e.target || e.srcElement;
+el.querySelector('.infinite-tree-content').onclick = function(event) {
+    event = event || window.event;
+    var target = event.target || event.srcElement;
 
     console.log(target);
     
