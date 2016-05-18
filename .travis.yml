@@ -1,20 +1,31 @@
+sudo: required
+dist: trusty
+group: edge
+
 language: node_js
+
+os:
+  - linux
+
 node_js:
   - '5'
   - '4'
   - '0.12'
   - '0.10'
   - 'iojs'
+
 after_success:
   - npm run coveralls
   - npm run coverage-clean
+
 before_deploy:
   - echo "Deploying to GitHub releases"
   - ls -al releases
+
 deploy:
   provider: releases
   api_key:
-    secure: "x9nz3bvNesYVCesjj36yFYlYIAVykchBR4Ffzzysd4Tk1v+0eh0mRc9jmTzfF7xYsAjpKRCMGCjWG39aPwVG7rbs0EZDrXVxT7KObZ31HS9A1VWkOs/LKAlDrwjylx4umNswmVWAW+pVr9N431Be21+mZg4Xu8z6iDnLgHWxhK9n2IewKanPVV3pbB6hNVKpshnbYMraqwnJQE4gOVhBc2EBHUAUIhtVN1ntmRL76+trlpPFTzbhBVywf0TRvW4J67wYQO0was/qRww+wKmUvymD+7vk8P/23+uVi9pDpUix2TMZfyCPUG1PpQ0cZfIaaUg4POQD3hqFCJGeAgxZzIPEHOVd+TLF+B2eZjSMlTDyrVI2+JzVwx9SIPBkLgsRy1xNGFfMHXidJGOnkG9efv2artjkNblx3SGkx9EgAd1fsfM/epvggaJvW3rsU0AlRN9IKOeHToYVkWGJIJNjFGt1AL7a98SvtQ56xsXocUeLjLRnh14VFxZ22IeBRClOpyMGVLuTBy+m4hJMSB8JbjdBkJW45Ou6Pdswt5cW6WWXM1sepmxjttStp0FyiOr0qCkQfJsEEg1fYF0Rj7zNfUTFlRCX9+JWhQ/Lb61kEsBjqKc7/lPFOiKB/iLkQo+gQNb5ToaQMZIK0vmYf4gZZ6tkFkicbp8JjZu6mlNKdSE="
+    secure: "nmJ4pJNw6XfDDML0HjMOemNWq8Bhl1CdyQbTMXFNwY6o7aCv64vQLrOJM6ikgptXByLAHmgTxl9sVAxtDm8VrjuTkN1fPs3cMvkWpeBuy70vWUvn1qHNj5pPvKAclxN+TAZoYh2NEcXFK1/64ciSEeJW9nIjkSDg/ff6pa6vK67fAVHWF12B3gkWY2nDtuSxecu13oz8Qbi9opZpv/MVU/QWliFkueKYCxK8eD8VCFekl213yjrW6DEzDmZVfGch3P49Ed30kazLdDsIo0is6hTUvoYD4P1+AwekpyVvt/xR+iqCiqkX4vn0LaVrLqb0JE5576SjKZHtKFRfTtq2j8LkIJ9vNpEwF2yWIEC1vZ0WNZe7Wie5zlLZ1UZezldbU+t3kt5HRXhqglOoRw+0BEQ+co5vHJAtNJCYFEszpYykz8lB0DpnAYFhoVd9fwj1ny63clPoB88K1rnQFg/iNhg3qI3OZX285MJQPz4ozKZ8IWqh/h/NzSbPqyF1k+5fYk/UQ3mQLs6eDOp4kq1wlntQBMCgYlj03pE+QH9oiGStoAUX8FCh6EcV5wJvCRT9DvulemLnvc8FdRPe1YvXljXh2elEYOYNM/GVVRIAI5BeLYT2/Wlo4IaDVqYBEQWRe0PS4hCKYTsnVBUnK6HOYoScdmkHOnyZVZJZ+YsvB/Y="
   file_glob: true
   file:
     - 'releases/*.*'
