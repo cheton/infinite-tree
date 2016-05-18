@@ -1,16 +1,27 @@
+sudo: required
+dist: trusty
+group: edge
+
 language: node_js
+
+os:
+  - linux
+
 node_js:
   - '5'
   - '4'
   - '0.12'
   - '0.10'
   - 'iojs'
+
 after_success:
   - npm run coveralls
   - npm run coverage-clean
+
 before_deploy:
   - echo "Deploying to GitHub releases"
   - ls -al releases
+
 deploy:
   provider: releases
   api_key:
