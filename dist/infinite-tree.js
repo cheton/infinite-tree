@@ -162,43 +162,69 @@ return /******/ (function(modules) { // webpackBootstrap
 	        _this.draggableTarget = null;
 	        _this.droppableTarget = null;
 	        _this.contentListener = {
-	            'click': function click(e) {
-	                var itemTarget = null;
-	                var clickToggler = false;
+	            'click': function click(event) {
+	                event = event || window.event;
 
-	                if (e.target && e.currentTarget) {
-	                    itemTarget = e.target !== e.currentTarget ? e.target : null;
-	                } else if (e.srcElement) {
-	                    // IE8
-	                    itemTarget = e.srcElement;
-	                }
-
-	                while (itemTarget && itemTarget.parentElement !== _this.contentElement) {
-	                    if ((0, _helper.hasClass)(itemTarget, _this.options.togglerClass)) {
-	                        clickToggler = true;
+	                // Wrap stopPropagation that allows to stop execution of subsequent calls
+	                var stopPropagation = event.stopPropagation;
+	                event.stopPropagation = function () {
+	                    // Setting the cancelBubble property in browsers that don't support it doesn't hurt.
+	                    // Of course it doesn't actually cancel the bubbling, but the assignment itself is safe.
+	                    event.cancelBubble = true;
+	                    if (stopPropagation) {
+	                        stopPropagation.call(event);
 	                    }
-	                    itemTarget = itemTarget.parentElement;
-	                }
+	                };
 
-	                if (!itemTarget) {
-	                    return;
-	                }
-
-	                var id = itemTarget.getAttribute(_this.options.nodeIdAttr);
-	                var node = _this.getNodeById(id);
-
-	                if (!node) {
-	                    return;
-	                }
-
-	                // Click on the toggler to open/close a tree node
-	                if (clickToggler) {
-	                    _this.toggleNode(node);
-	                    return;
-	                }
-
-	                // Use setTimeout(fn, 0) to re-queues the selectNode operation, it allows the click event to bubble up to higher level event handlers.
+	                // Use setTimeout(fn, 0) to re-queues the selectNode operation, it
+	                // allows the click event to bubble up to higher level event handlers.
 	                setTimeout(function () {
+	                    // Prevent execution of subsequent calls if the cancelBubble property is set to true
+	                    if (event.cancelBubble) {
+	                        return;
+	                    }
+
+	                    var itemTarget = null;
+	                    var clickToggler = false;
+
+	                    if (event.target && event.currentTarget) {
+	                        itemTarget = event.target !== event.currentTarget ? event.target : null;
+	                    } else if (event.srcElement) {
+	                        // IE8
+	                        itemTarget = event.srcElement;
+	                    }
+
+	                    while (itemTarget && itemTarget.parentElement !== _this.contentElement) {
+	                        if ((0, _helper.hasClass)(itemTarget, _this.options.togglerClass)) {
+	                            clickToggler = true;
+	                        }
+	                        itemTarget = itemTarget.parentElement;
+	                    }
+
+	                    if (!itemTarget) {
+	                        return;
+	                    }
+
+	                    // Emit 'click' event
+	                    _this.emit('click', event);
+
+	                    if (event.cancelBubble) {
+	                        // Stop execution of subsequent event bindings
+	                        return;
+	                    }
+
+	                    var id = itemTarget.getAttribute(_this.options.nodeIdAttr);
+	                    var node = _this.getNodeById(id);
+	                    if (!node) {
+	                        return;
+	                    }
+
+	                    // Click on the toggler to open/close a tree node
+	                    if (clickToggler) {
+	                        _this.toggleNode(node);
+	                        return;
+	                    }
+
 	                    _this.selectNode(node); // selectNode will re-render the tree
 	                }, 0);
 	            },
