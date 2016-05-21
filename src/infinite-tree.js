@@ -66,22 +66,32 @@ class InfiniteTree extends events.EventEmitter {
         'click': (event) => {
             event = event || window.event;
 
-            // Wrap stopPropagation that allows to stop execution of subsequent calls
+            // Wrap stopPropagation that allows click event handler to stop execution
+            // by setting the cancelBubble property
             const stopPropagation = event.stopPropagation;
             event.stopPropagation = function() {
                 // Setting the cancelBubble property in browsers that don't support it doesn't hurt.
                 // Of course it doesn't actually cancel the bubbling, but the assignment itself is safe.
                 event.cancelBubble = true;
+
                 if (stopPropagation) {
                     stopPropagation.call(event);
                 }
             };
 
-            // Use setTimeout(fn, 0) to re-queues the selectNode operation, it
-            // allows the click event to bubble up to higher level event handlers.
+            // Call setTimeout(fn, 0) to re-queues the execution of subsequent calls, it allows the
+            // click event to bubble up to higher level event handlers before handling tree events.
             setTimeout(() => {
-                // Prevent execution of subsequent calls if the cancelBubble property is set to true
-                if (event.cancelBubble) {
+                // Stop execution if the cancelBubble property is set to true by higher level event handlers
+                if (event.cancelBubble === true) {
+                    return;
+                }
+
+                // Emit 'click' event
+                this.emit('click', event);
+
+                // Stop execution if the cancelBubble property is set to true after emitting the click event
+                if (event.cancelBubble === true) {
                     return;
                 }
 
@@ -102,14 +112,6 @@ class InfiniteTree extends events.EventEmitter {
                 }
 
                 if (!itemTarget) {
-                    return;
-                }
-
-                // Emit 'click' event
-                this.emit('click', event);
-
-                if (event.cancelBubble) {
-                    // Stop execution of subsequent event bindings
                     return;
                 }
 
