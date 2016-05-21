@@ -104,6 +104,8 @@ console.log(node.getFirstChild().getPreviousSibling());
 #### Events Usage
 Learn more: [Events](https://github.com/cheton/infinite-tree/wiki/Events)
 ```js
+tree.on('click', function(event) {
+});
 tree.on('contentWillUpdate', function() {
 });
 tree.on('contentDidUpdate', function() {
@@ -121,6 +123,51 @@ tree.on('selectNode', function(node) {
 * [Functions: Tree](https://github.com/cheton/infinite-tree/wiki/Functions:-Tree)
 * [Functions: Node](https://github.com/cheton/infinite-tree/wiki/Functions:-Node)
 * [Events](https://github.com/cheton/infinite-tree/wiki/Events)
+
+## FAQ
+
+#### How to attach click event listeners to nodes?
+
+Use <b>event delegation</b> <sup>[[1](http://javascript.info/tutorial/event-delegation), [2](http://davidwalsh.name/event-delegate)]</sup>
+
+```js
+// JavaScript
+var el = document.querySelector('#tree');
+var tree = new InfiniteTree(el, { /* options */ });
+
+tree.on('click', function(event) {
+    event = event || window.event;
+    var target = event.target || event.srcElement;
+
+    // do stuff with node
+    console.log(target);
+    
+    // Check if the target element contains a specific class
+    if (!hasClass(target, 'my-specific-class')) {
+        return;
+    }
+};
+
+// Checks if an element contains a specific class
+var hasClass = function(el, className) {
+    if (!el) {
+        return false;
+    }
+    var classes = el.className.split(' ');
+    return (classes.indexOf(className) >= 0);
+};
+```
+
+Event delegation with jQuery:
+```js
+var el = document.querySelector('#tree');
+var tree = new InfiniteTree(el, { /* options */ });
+
+// jQuery
+$(tree.contentElement).on('click', 'your-event-selector', function() {
+  // do stuff with node
+});
+```
 
 ## License
 
