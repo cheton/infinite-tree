@@ -40,6 +40,9 @@ const tree = new InfiniteTree(document.querySelector('#filebrowser [data-id="tre
     }
 });
 
+tree.on('click', (event) => {
+    console.log('click', event);
+});
 tree.on('contentWillUpdate', () => {
     console.log('contentWillUpdate');
 });

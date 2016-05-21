@@ -68,6 +68,9 @@ const tree = new InfiniteTree(document.querySelector('#default [data-id="tree"]'
     }
 });
 
+tree.on('click', (event) => {
+    console.log('click', event);
+});
 tree.on('contentWillUpdate', () => {
     console.log('contentWillUpdate');
 });
