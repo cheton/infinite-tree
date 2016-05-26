@@ -98,7 +98,7 @@ class InfiniteTree extends events.EventEmitter {
                 let itemTarget = null;
                 let clickToggler = false;
 
-                if (event.target && event.currentTarget) {
+                if (event.target) {
                     itemTarget = (event.target !== event.currentTarget) ? event.target : null;
                 } else if (event.srcElement) { // IE8
                     itemTarget = event.srcElement;
@@ -132,12 +132,16 @@ class InfiniteTree extends events.EventEmitter {
         },
         // https://developer.mozilla.org/en-US/docs/Web/Events/dragstart
         // The dragstart event is fired when the user starts dragging an element or text selection.
-        'dragstart': (e) => {
-            this.draggableTarget = e.target || e.srcElement;
+        'dragstart': (event) => {
+            event = event || window.event;
+
+            this.draggableTarget = event.target || event.srcElement;
         },
         // https://developer.mozilla.org/en-US/docs/Web/Events/dragend
         // The dragend event is fired when a drag operation is being ended (by releasing a mouse button or hitting the escape key).
-        'dragend': (e) => {
+        'dragend': (event) => {
+            event = event || window.event;
+
             const { hoverClass = '' } = this.options.droppable;
 
             // Draggable
@@ -151,13 +155,15 @@ class InfiniteTree extends events.EventEmitter {
         },
         // https://developer.mozilla.org/en-US/docs/Web/Events/dragenter
         // The dragenter event is fired when a dragged element or text selection enters a valid drop target.
-        'dragenter': (e) => {
+        'dragenter': (event) => {
+            event = event || window.event;
+
             let itemTarget = null;
 
-            if (e.target && e.currentTarget) {
-                itemTarget = (e.target !== e.currentTarget) ? e.target : null;
-            } else if (e.srcElement) { // IE8
-                itemTarget = e.srcElement;
+            if (event.target) {
+                itemTarget = (event.target !== event.currentTarget) ? event.target : null;
+            } else if (event.srcElement) { // IE8
+                itemTarget = event.srcElement;
             }
 
             while (itemTarget && itemTarget.parentElement !== this.contentElement) {
@@ -198,14 +204,18 @@ class InfiniteTree extends events.EventEmitter {
         },
         // https://developer.mozilla.org/en-US/docs/Web/Events/dragover
         // The dragover event is fired when an element or text selection is being dragged over a valid drop target (every few hundred milliseconds).
-        'dragover': (e) => {
-            preventDefault(e);
+        'dragover': (event) => {
+            event = event || window.event;
+
+            preventDefault(event);
         },
         // https://developer.mozilla.org/en-US/docs/Web/Events/drop
         // The drop event is fired when an element or text selection is dropped on a valid drop target.
-        'drop': (e) => {
+        'drop': (event) => {
+            event = event || window.event;
+
             // prevent default action (open as link for some elements)
-            preventDefault(e);
+            preventDefault(event);
 
             if (!(this.draggableTarget && this.droppableTarget)) {
                 return;
@@ -227,7 +237,7 @@ class InfiniteTree extends events.EventEmitter {
             }
 
             if (canDrop && typeof drop === 'function') {
-                drop.call(this, e, {
+                drop.call(this, event, {
                     draggableTarget: this.draggableTarget,
                     droppableTarget: this.droppableTarget,
                     node: node
