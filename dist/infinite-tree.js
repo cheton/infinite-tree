@@ -197,7 +197,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    var itemTarget = null;
 	                    var clickToggler = false;
 
-	                    if (event.target && event.currentTarget) {
+	                    if (event.target) {
 	                        itemTarget = event.target !== event.currentTarget ? event.target : null;
 	                    } else if (event.srcElement) {
 	                        // IE8
@@ -232,12 +232,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	            },
 	            // https://developer.mozilla.org/en-US/docs/Web/Events/dragstart
 	            // The dragstart event is fired when the user starts dragging an element or text selection.
-	            'dragstart': function dragstart(e) {
-	                _this.draggableTarget = e.target || e.srcElement;
+	            'dragstart': function dragstart(event) {
+	                event = event || window.event;
+
+	                _this.draggableTarget = event.target || event.srcElement;
 	            },
 	            // https://developer.mozilla.org/en-US/docs/Web/Events/dragend
 	            // The dragend event is fired when a drag operation is being ended (by releasing a mouse button or hitting the escape key).
-	            'dragend': function dragend(e) {
+	            'dragend': function dragend(event) {
+	                event = event || window.event;
+
 	                var _this$options$droppab = _this.options.droppable.hoverClass;
 	                var hoverClass = _this$options$droppab === undefined ? '' : _this$options$droppab;
 
@@ -253,14 +257,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	            },
 	            // https://developer.mozilla.org/en-US/docs/Web/Events/dragenter
 	            // The dragenter event is fired when a dragged element or text selection enters a valid drop target.
-	            'dragenter': function dragenter(e) {
+	            'dragenter': function dragenter(event) {
+	                event = event || window.event;
+
 	                var itemTarget = null;
 
-	                if (e.target && e.currentTarget) {
-	                    itemTarget = e.target !== e.currentTarget ? e.target : null;
-	                } else if (e.srcElement) {
+	                if (event.target) {
+	                    itemTarget = event.target !== event.currentTarget ? event.target : null;
+	                } else if (event.srcElement) {
 	                    // IE8
-	                    itemTarget = e.srcElement;
+	                    itemTarget = event.srcElement;
 	                }
 
 	                while (itemTarget && itemTarget.parentElement !== _this.contentElement) {
@@ -305,14 +311,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	            },
 	            // https://developer.mozilla.org/en-US/docs/Web/Events/dragover
 	            // The dragover event is fired when an element or text selection is being dragged over a valid drop target (every few hundred milliseconds).
-	            'dragover': function dragover(e) {
-	                (0, _helper.preventDefault)(e);
+	            'dragover': function dragover(event) {
+	                event = event || window.event;
+
+	                (0, _helper.preventDefault)(event);
 	            },
 	            // https://developer.mozilla.org/en-US/docs/Web/Events/drop
 	            // The drop event is fired when an element or text selection is dropped on a valid drop target.
-	            'drop': function drop(e) {
+	            'drop': function drop(event) {
+	                event = event || window.event;
+
 	                // prevent default action (open as link for some elements)
-	                (0, _helper.preventDefault)(e);
+	                (0, _helper.preventDefault)(event);
 
 	                if (!(_this.draggableTarget && _this.droppableTarget)) {
 	                    return;
@@ -339,7 +349,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                }
 
 	                if (canDrop && typeof drop === 'function') {
-	                    drop.call(_this, e, {
+	                    drop.call(_this, event, {
 	                        draggableTarget: _this.draggableTarget,
 	                        droppableTarget: _this.droppableTarget,
 	                        node: node
