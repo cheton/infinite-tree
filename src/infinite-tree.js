@@ -189,7 +189,7 @@ class InfiniteTree extends events.EventEmitter {
                 const id = itemTarget.getAttribute(this.options.nodeIdAttr);
                 const node = this.getNodeById(id);
 
-                canDrop = !!accept.call(this, {
+                canDrop = !!accept.call(this, event, {
                     type: 'dragenter',
                     draggableTarget: this.draggableTarget,
                     droppableTarget: itemTarget,
@@ -228,7 +228,7 @@ class InfiniteTree extends events.EventEmitter {
             let canDrop = true; // Defaults to true
 
             if (typeof accept === 'function') {
-                canDrop = !!accept.call(this, {
+                canDrop = !!accept.call(this, event, {
                     type: 'drop',
                     draggableTarget: this.draggableTarget,
                     droppableTarget: this.droppableTarget,
@@ -322,7 +322,15 @@ class InfiniteTree extends events.EventEmitter {
             scrollElem: this.scrollElement,
             contentElem: this.contentElement,
             no_data_text: this.options.noDataText,
-            no_data_class: this.options.noDataClass
+            no_data_class: this.options.noDataClass,
+            callbacks: {
+                clusterWillChange: () => {
+                    this.emit('clusterWillChange');
+                },
+                clusterChanged: () => {
+                    this.emit('clusterDidChange');
+                }
+            }
         });
 
         addEventListener(this.contentElement, 'click', this.contentListener.click);

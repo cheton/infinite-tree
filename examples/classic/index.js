@@ -2,7 +2,7 @@ import InfiniteTree from '../../src';
 import renderer from './renderer';
 import './index.styl';
 import './animation.styl';
-import { addEventListener, preventDefault, stopPropagation, quoteattr } from '../../src/helper';
+import { classNames, addClass, removeClass, hasClass, addEventListener, preventDefault, stopPropagation, quoteattr } from '../../src/helper';
 import data from '../data.json';
 
 const updatePreview = (node) => {
@@ -31,15 +31,26 @@ const tree = new InfiniteTree(document.querySelector('#classic [data-id="tree"]'
         accept: function(opts) {
             const { type, draggableTarget, droppableTarget, node } = opts;
 
-            console.log(opts);
+            if (hasClass(event.target, 'infinite-tree-overlay')) {
+                addClass(event.target, 'hover'); // add hover class
+            } else {
+                const el = tree.contentElement.querySelector('.infinite-tree-overlay');
+                removeClass(el, 'hover'); // remove hover class
+            }
 
             return true;
         },
         drop: function(e, opts) {
             const { draggableTarget, droppableTarget, node } = opts;
 
-            console.log('drop:', e, e.dataTransfer.getData('text'));
+            if (hasClass(event.target, 'infinite-tree-overlay')) {
+                removeClass(event.target, 'hover'); // remove hover class
+                const innerHTML = 'Dropped to an overlay element';
+                document.querySelector('#classic [data-id="dropped-result"]').innerHTML = innerHTML;
+                return;
+            }
 
+            console.log('drop:', event, event.dataTransfer.getData('text'));
             const innerHTML = 'Dropped to <b>' + quoteattr(node.name) + '</b>';
             document.querySelector('#classic [data-id="dropped-result"]').innerHTML = innerHTML;
         }
@@ -90,6 +101,20 @@ tree.on('closeNode', (node) => {
 tree.on('selectNode', (node) => {
     console.log('selectNode', node);
     updatePreview(node);
+});
+tree.on('clusterDidChange', () => {
+    const overlayElement = document.createElement('div');
+    const top = tree.nodes.indexOf(tree.getNodeById('<root>.1'));
+    const bottom = tree.nodes.indexOf(tree.getNodeById('<root>.2'));
+
+    overlayElement.className = classNames(
+        'infinite-tree-overlay'
+    );
+    overlayElement.style.top = top * 22 + 'px';
+    overlayElement.style.height = (bottom - top) * 22 + 'px';
+    overlayElement.style.lineHeight = (bottom - top) * 22 + 'px';
+    overlayElement.appendChild(document.createTextNode('OVERLAY'));
+    tree.contentElement.appendChild(overlayElement);
 });
 
 tree.loadData(JSON.parse(JSON.stringify(data)));
