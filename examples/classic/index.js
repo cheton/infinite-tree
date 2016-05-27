@@ -106,13 +106,15 @@ tree.on('clusterDidChange', () => {
     const overlayElement = document.createElement('div');
     const top = tree.nodes.indexOf(tree.getNodeById('<root>.1'));
     const bottom = tree.nodes.indexOf(tree.getNodeById('<root>.2'));
+    const el = tree.contentElement.querySelector('.infinite-tree-item');
+    const height = parseFloat(getComputedStyle(el).height);
 
     overlayElement.className = classNames(
         'infinite-tree-overlay'
     );
-    overlayElement.style.top = top * 22 + 'px';
-    overlayElement.style.height = (bottom - top) * 22 + 'px';
-    overlayElement.style.lineHeight = (bottom - top) * 22 + 'px';
+    overlayElement.style.top = top * height + 'px';
+    overlayElement.style.height = (bottom - top) * height + 'px';
+    overlayElement.style.lineHeight = (bottom - top) * height + 'px';
     overlayElement.appendChild(document.createTextNode('OVERLAY'));
     tree.contentElement.appendChild(overlayElement);
 });
