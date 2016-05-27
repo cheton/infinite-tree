@@ -322,7 +322,15 @@ class InfiniteTree extends events.EventEmitter {
             scrollElem: this.scrollElement,
             contentElem: this.contentElement,
             no_data_text: this.options.noDataText,
-            no_data_class: this.options.noDataClass
+            no_data_class: this.options.noDataClass,
+            callbacks: {
+                clusterWillChange: () => {
+                    this.emit('clusterWillChange');
+                },
+                clusterChanged: () => {
+                    this.emit('clusterDidChange');
+                }
+            }
         });
 
         addEventListener(this.contentElement, 'click', this.contentListener.click);
