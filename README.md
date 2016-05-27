@@ -60,11 +60,11 @@ var tree = new InfiniteTree({
     data: data,
     autoOpen: true, // Defaults to false
     droppable: { // Defaults to false
-        hoverClass: 'infinite-tree-drop-hover',
-        accept: function(opts) {
+        hoverClass: 'infinite-tree-droppable-hover',
+        accept: function(event, options) {
             return true;
         },
-        drop: function(e, opts) {
+        drop: function(event, options) {
         }
     },
     loadNodes: function(parentNode, done) { // Load node on demand
