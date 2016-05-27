@@ -7,6 +7,7 @@
 }
 .infinite-tree-content {
   outline: 0;
+  position: relative;
 }
 .infinite-tree-content .infinite-tree-selected.infinite-tree-item,
 .infinite-tree-content .infinite-tree-selected.infinite-tree-item:hover {
