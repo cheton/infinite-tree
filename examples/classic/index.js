@@ -157,6 +157,13 @@ const load = () => {
     }
 };
 
+window.examples = {
+    ...window.examples,
+    classic: {
+        tree: tree
+    }
+};
+
 export {
     load
 }

@@ -155,6 +155,13 @@ const load = () => {
     }
 };
 
+window.examples = {
+    ...window.examples,
+    default: {
+        tree: tree
+    }
+};
+
 export {
     load
 }

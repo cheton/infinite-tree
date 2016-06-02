@@ -71,6 +71,13 @@ const load = () => {
     setHeaderWidth();
 };
 
+window.examples = {
+    ...window.examples,
+    filebrowser: {
+        tree: tree
+    }
+};
+
 export {
     load
 }
