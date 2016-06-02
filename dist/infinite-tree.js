@@ -1,4 +1,4 @@
-/*! infinite-tree v1.3.0 | (c) 2016 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
+/*! infinite-tree v1.3.1 | (c) 2016 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -124,6 +124,20 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return true;
 	};
 
+	var createRootNode = function createRootNode() {
+	    return new _flattree.Node({
+	        parent: null,
+	        children: [],
+	        state: {
+	            depth: -1,
+	            open: true, // always open
+	            path: '',
+	            prefixMask: '',
+	            total: 0
+	        }
+	    });
+	};
+
 	var InfiniteTree = function (_events$EventEmitter) {
 	    _inherits(InfiniteTree, _events$EventEmitter);
 
@@ -150,7 +164,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        };
 	        _this.state = {
 	            openNodes: [],
-	            rootNode: null,
+	            rootNode: createRootNode(),
 	            selectedNode: null
 	        };
 	        _this.clusterize = null;
@@ -590,7 +604,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.nodes = [];
 	        this.rows = [];
 	        this.state.openNodes = [];
-	        this.state.rootNode = null;
+	        this.state.rootNode = createRootNode();
 	        this.state.selectedNode = null;
 	    };
 	    // Closes a node to hide its children.
@@ -809,7 +823,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.state.openNodes = this.nodes.filter(function (node) {
 	            return node.hasChildren() && node.state.open;
 	        });
-	        this.state.rootNode = function () {
+	        this.state.selectedNode = null;
+
+	        var rootNode = function () {
 	            var node = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
 
 	            // Finding the root node
@@ -818,16 +834,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	            }
 	            return node;
 	        }(this.nodes.length > 0 ? this.nodes[0] : null);
-	        this.state.selectedNode = null;
 
-	        if (this.state.rootNode) {
-	            // Update the lookup table with newly added nodes
-	            this.flattenChildNodes(this.state.rootNode).forEach(function (node) {
-	                if (node.id !== undefined) {
-	                    _this4.nodeTable.set(node.id, node);
-	                }
-	            });
-	        }
+	        this.state.rootNode = rootNode || createRootNode(); // Create a new root node if rootNode is null
+
+	        // Update the lookup table with newly added nodes
+	        this.flattenChildNodes(this.state.rootNode).forEach(function (node) {
+	            if (node.id !== undefined) {
+	                _this4.nodeTable.set(node.id, node);
+	            }
+	        });
 
 	        // Update rows
 	        this.rows = this.nodes.map(function (node) {
