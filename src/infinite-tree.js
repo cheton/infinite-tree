@@ -33,6 +33,18 @@ const ensureNodeInstance = (node) => {
     return true;
 };
 
+const createRootNode = () => new Node({
+    parent: null,
+    children: [],
+    state: {
+        depth: -1,
+        open: true, // always open
+        path: '',
+        prefixMask: '',
+        total: 0
+    }
+});
+
 class InfiniteTree extends events.EventEmitter {
     options = {
         autoOpen: false,
@@ -50,7 +62,7 @@ class InfiniteTree extends events.EventEmitter {
     };
     state = {
         openNodes: [],
-        rootNode: null,
+        rootNode: createRootNode(),
         selectedNode: null
     };
     clusterize = null;
@@ -474,7 +486,7 @@ class InfiniteTree extends events.EventEmitter {
         this.nodes = [];
         this.rows = [];
         this.state.openNodes = [];
-        this.state.rootNode = null;
+        this.state.rootNode = createRootNode();
         this.state.selectedNode = null;
     }
     // Closes a node to hide its children.
@@ -661,23 +673,24 @@ class InfiniteTree extends events.EventEmitter {
         this.nodeTable.clear();
 
         this.state.openNodes = this.nodes.filter((node) => (node.hasChildren() && node.state.open));
-        this.state.rootNode = ((node = null) => {
+        this.state.selectedNode = null;
+
+        const rootNode = ((node = null) => {
             // Finding the root node
             while (node && node.parent !== null) {
                 node = node.parent;
             }
             return node;
         })((this.nodes.length > 0) ? this.nodes[0] : null);
-        this.state.selectedNode = null;
 
-        if (this.state.rootNode) {
-            // Update the lookup table with newly added nodes
-            this.flattenChildNodes(this.state.rootNode).forEach((node) => {
-                if (node.id !== undefined) {
-                    this.nodeTable.set(node.id, node);
-                }
-            });
-        }
+        this.state.rootNode = rootNode || createRootNode(); // Create a new root node if rootNode is null
+
+        // Update the lookup table with newly added nodes
+        this.flattenChildNodes(this.state.rootNode).forEach((node) => {
+            if (node.id !== undefined) {
+                this.nodeTable.set(node.id, node);
+            }
+        });
 
         // Update rows
         this.rows = this.nodes.map(node => this.options.rowRenderer(node, this.options));
