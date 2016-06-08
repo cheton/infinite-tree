@@ -26,6 +26,11 @@
     .infinite-tree-item:hover {
         background: #f2fdff;
     }
+    .infinite-tree-item:disabled,
+    .infinite-tree-item[disabled] {
+        cursor: not-allowed;
+        opacity: 0.5;
+    }
     .infinite-tree-node {
         position: relative;
     }

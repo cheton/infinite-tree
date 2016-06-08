@@ -21,6 +21,13 @@
 .infinite-tree-content .infinite-tree-item:hover {
   background: #f2fdff;
 }
+.infinite-tree-content .infinite-tree-item:disabled,
+.infinite-tree-content .infinite-tree-item[disabled] {
+  cursor: not-allowed;
+  opacity: 0.5;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
+  filter: alpha(opacity=50);
+}
 .infinite-tree-content .infinite-tree-node {
   position: relative;
 }

@@ -1,4 +1,4 @@
-/*! infinite-tree v1.3.1 | (c) 2016 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
+/*! infinite-tree v1.4.0 | (c) 2016 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -225,7 +225,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                        itemTarget = itemTarget.parentElement;
 	                    }
 
-	                    if (!itemTarget) {
+	                    if (!itemTarget || itemTarget.hasAttribute('disabled')) {
 	                        return;
 	                    }
 
@@ -2039,7 +2039,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	// @param {boolean} [options.openAllNodes] True to open all nodes. Defaults to false.
 	// @param {array} [options.openNodes] An array that contains the ids of open nodes
 	// @return {array}
-	/* eslint no-console: 0 */
 	var flatten = function flatten() {
 	    var nodes = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
 	    var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
@@ -2064,6 +2063,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            parentNode = new _node2['default'](parentNode);
 	        }
 	        var rootNode = parentNode || new _node2['default']({ // defaults
+	            label: '',
 	            parent: null,
 	            children: nodes,
 	            state: {
@@ -2098,7 +2098,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    if (options.throwOnError) {
 	                        throw new Error('The node might have been corrupted: id=' + JSON.stringify(p.id) + ', state=' + JSON.stringify(p.state));
 	                    } else {
-	                        console && console.log('Error: The node might have been corrupted: id=%s, parent=%s, children=%s, state=%s', JSON.stringify(p.id), p.parent, p.children, JSON.stringify(p.state));
+	                        console && console.log('Error: The node might have been corrupted: id=%s, label=%s, parent=%s, children=%s, state=%s', JSON.stringify(p.id), JSON.stringify(p.label), p.parent, p.children, JSON.stringify(p.state));
 	                    }
 	                }
 
@@ -2228,7 +2228,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	'use strict';
 
 	exports.__esModule = true;
-	/* eslint no-restricted-syntax: 0 */
 	var extend = function extend(target) {
 	    for (var _len = arguments.length, sources = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
 	        sources[_key - 1] = arguments[_key];
@@ -2275,6 +2274,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        _classCallCheck(this, Node);
 
 	        this.id = null;
+	        this.label = '';
 	        this.parent = null;
 	        this.children = [];
 	        this.state = {};

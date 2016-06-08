@@ -123,7 +123,7 @@ class InfiniteTree extends events.EventEmitter {
                     itemTarget = itemTarget.parentElement;
                 }
 
-                if (!itemTarget) {
+                if (!itemTarget || itemTarget.hasAttribute('disabled')) {
                     return;
                 }
 
