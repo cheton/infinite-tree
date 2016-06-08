@@ -1,4 +1,4 @@
-/*! infinite-tree v1.3.0 | (c) 2016 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
+/*! infinite-tree v1.4.0 | (c) 2016 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -211,7 +211,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                        itemTarget = itemTarget.parentElement;
 	                    }
 
-	                    if (!itemTarget) {
+	                    if (!itemTarget || itemTarget.hasAttribute('disabled')) {
 	                        return;
 	                    }
 
