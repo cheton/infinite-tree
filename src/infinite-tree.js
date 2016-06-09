@@ -99,7 +99,7 @@ class InfiniteTree extends events.EventEmitter {
                     return;
                 }
 
-                // Emit 'click' event
+                // Emit a "click" event
                 this.emit('click', event);
 
                 // Stop execution if the cancelBubble property is set to true after emitting the click event
@@ -266,13 +266,16 @@ class InfiniteTree extends events.EventEmitter {
         super();
 
         if (isDOMElement(el)) {
-            options.el = el;
+            options = { ...options, el };
         } else {
             options = el;
         }
 
         // Assign options
-        this.options = extend({}, this.options, options);
+        this.options = {
+            ...this.options,
+            ...options
+        };
 
         if (!this.options.el) {
             console.error('Failed to initialize infinite-tree: el is not specified.', options);
@@ -491,8 +494,12 @@ class InfiniteTree extends events.EventEmitter {
     }
     // Closes a node to hide its children.
     // @param {Node} node The Node object.
+    // @param {object} [options] The options object.
+    // @param {boolean} [options.silent] Pass true to prevent "selectNode" and "closeNode" events from being triggered.
     // @return {boolean} Returns true on success, false otherwise.
-    closeNode(node) {
+    closeNode(node, options) {
+        const { silent = false } = { ...options };
+
         if (!ensureNodeInstance(node)) {
             return false;
         }
@@ -521,7 +528,7 @@ class InfiniteTree extends events.EventEmitter {
             const rangeTo = nodeIndex + node.state.total;
 
             if ((rangeFrom <= selectedIndex) && (selectedIndex <= rangeTo)) {
-                this.selectNode(node);
+                this.selectNode(node, options);
             }
         }
 
@@ -543,8 +550,10 @@ class InfiniteTree extends events.EventEmitter {
         // Update the row corresponding to the node
         this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
 
-        // Emit 'closeNode' event
-        this.emit('closeNode', node);
+        if (!silent) {
+            // Emit a "closeNode" event
+            this.emit('closeNode', node);
+        }
 
         // Updates list with new data
         this.update();
@@ -700,8 +709,12 @@ class InfiniteTree extends events.EventEmitter {
     }
     // Opens a node to display its children.
     // @param {Node} node The Node object.
+    // @param {object} [options] The options object.
+    // @param {boolean} [options.silent] Pass true to prevent "openNode" event from being triggered.
     // @return {boolean} Returns true on success, false otherwise.
-    openNode(node) {
+    openNode(node, options) {
+        const { silent = false } = { ...options };
+
         if (!ensureNodeInstance(node)) {
             return false;
         }
@@ -763,7 +776,7 @@ class InfiniteTree extends events.EventEmitter {
                 // Ensure the node has children to prevent from infinite loop
                 if (node.hasChildren()) {
                     // Call openNode again
-                    this.openNode(node);
+                    this.openNode(node, options);
                 }
             });
 
@@ -793,8 +806,10 @@ class InfiniteTree extends events.EventEmitter {
             });
         }
 
-        // Emit 'openNode' event
-        this.emit('openNode', node);
+        if (!silent) {
+            // Emit a "openNode" event
+            this.emit('openNode', node);
+        }
 
         // Updates list with new data
         this.update();
@@ -803,8 +818,10 @@ class InfiniteTree extends events.EventEmitter {
     }
     // Removes all child nodes from a parent node.
     // @param {Node} parentNode The Node object that defines the parent node.
+    // @param {object} [options] The options object.
+    // @param {boolean} [options.silent] Pass true to prevent "selectNode" event from being triggered.
     // @return {boolean} Returns true on success, false otherwise.
-    removeChildNodes(parentNode) {
+    removeChildNodes(parentNode, options) {
         if (!ensureNodeInstance(parentNode)) {
             return false;
         }
@@ -827,7 +844,7 @@ class InfiniteTree extends events.EventEmitter {
             const rangeTo = parentNodeIndex + parentNode.state.total;
 
             if ((rangeFrom <= selectedIndex) && (selectedIndex <= rangeTo)) {
-                this.selectNode(parentNode);
+                this.selectNode(parentNode, options);
             }
         }
 
@@ -871,8 +888,10 @@ class InfiniteTree extends events.EventEmitter {
     }
     // Removes a node and all of its child nodes.
     // @param {Node} node The Node object.
+    // @param {object} [options] The options object.
+    // @param {boolean} [options.silent] Pass true to prevent "selectNode" event from being triggered.
     // @return {boolean} Returns true on success, false otherwise.
-    removeNode(node) {
+    removeNode(node, options) {
         if (!ensureNodeInstance(node)) {
             return false;
         }
@@ -903,7 +922,7 @@ class InfiniteTree extends events.EventEmitter {
                 // 2. previous sibling node
                 // 3. parent node
                 const selectedNode = node.getNextSibling() || node.getPreviousSibling() || node.getParent();
-                this.selectNode(selectedNode);
+                this.selectNode(selectedNode, options);
             }
         }
 
@@ -982,11 +1001,14 @@ class InfiniteTree extends events.EventEmitter {
         }
         return this.scrollElement.scrollTop;
     }
-    // Selects a node.
+    // Selects a node. Fires a "selectNode" event unless `silent` is passed as an option.
     // @param {Node} node The Node object. If null or undefined, deselects the current node.
+    // @param {object} [options] The options object.
+    // @param {boolean} [options.silent] Pass true to prevent "selectNode" event from being triggered.
     // @return {boolean} Returns true on success, false otherwise.
-    selectNode(node = null) {
+    selectNode(node = null, options) {
         const { selectable, shouldSelectNode } = this.options;
+        const { silent = false } = { ...options };
 
         if (!selectable) {
             return false;
@@ -1005,8 +1027,10 @@ class InfiniteTree extends events.EventEmitter {
                 this.rows[selectedIndex] = this.options.rowRenderer(selectedNode, this.options);
                 this.state.selectedNode = null;
 
-                // Emit 'selectNode' event
-                this.emit('selectNode', null);
+                if (!silent) {
+                    // Emit a "selectNode" event
+                    this.emit('selectNode', null);
+                }
 
                 // Updates list with new data
                 this.update();
@@ -1047,13 +1071,17 @@ class InfiniteTree extends events.EventEmitter {
         if (this.state.selectedNode !== node) {
             this.state.selectedNode = node;
 
-            // Emit 'selectNode' event
-            this.emit('selectNode', node);
+            if (!silent) {
+                // Emit a "selectNode" event
+                this.emit('selectNode', node);
+            }
         } else {
             this.state.selectedNode = null;
 
-            // Emit 'selectNode' event
-            this.emit('selectNode', null);
+            if (!silent) {
+                // Emit a "selectNode" event
+                this.emit('selectNode', null);
+            }
         }
 
         // Updates list with new data
@@ -1063,13 +1091,14 @@ class InfiniteTree extends events.EventEmitter {
     }
     // Toggles a node to display or hide its children.
     // @param {Node} node The Node object.
-    toggleNode(node) {
+    // @param {object} [options] The options object. See openNode() and closeNode() for details.
+    toggleNode(node, options) {
         if (this.state.openNodes.indexOf(node) >= 0) {
             // close node
-            this.closeNode(node);
+            this.closeNode(node, options);
         } else {
             // open node
-            this.openNode(node);
+            this.openNode(node, options);
         }
     }
     // Serializes the current state of a node to a JSON string.
@@ -1113,13 +1142,13 @@ class InfiniteTree extends events.EventEmitter {
     }
     // Updates the tree.
     update() {
-        // Emit 'contentWillUpdate' event
+        // Emit a "contentWillUpdate" event
         this.emit('contentWillUpdate');
 
         // Update the list with new data
         this.clusterize.update(this.rows);
 
-        // Emit 'contentWillUpdate' event
+        // Emit a "contentWillUpdate" event
         this.emit('contentDidUpdate');
     }
     // Updates the data of a node.
@@ -1131,14 +1160,14 @@ class InfiniteTree extends events.EventEmitter {
         }
 
         // Clone a new one
-        data = extend({}, data);
+        data = { ...data };
 
         // Ignore keys: children, parent, and state
         delete data.children;
         delete data.parent;
         delete data.state;
 
-        node = extend(node, data);
+        node = { ...node, data };
 
         // Retrieve node index
         const nodeIndex = this.nodes.indexOf(node);
