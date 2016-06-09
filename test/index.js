@@ -238,6 +238,61 @@ test('tree.getNodeById', (t) => {
     t.end();
 });
 
+test('tree.getOpenNodes', (t) => {
+    const el = getTreeElement();
+    const tree = new InfiniteTree(el, {
+        autoOpen: true,
+        data: { ...treeData }
+    })
+
+    const found = tree.getOpenNodes().map(node => node.id);
+    const wanted = ['<root>', 'bravo', 'charlie', 'delta', 'hotel', 'india'];
+    t.same(found, wanted);
+
+    t.end();
+});
+
+test('tree.getRootNode', (t) => {
+    const el = getTreeElement();
+    const tree = new InfiniteTree(el, {
+        data: { ...treeData }
+    });
+
+    const node = tree.getRootNode();
+    const found = {
+        id: node.id,
+        parent: node.parent,
+        state: node.state
+    };
+    const wanted = {
+        id: null,
+        parent: null,
+        state: {
+            depth: -1,
+            open: true,
+            path: '',
+            prefixMask: '',
+            total: 1
+        }
+    };
+    t.same(found, wanted);
+
+    t.end();
+});
+
+test('tree.getSelectedNode', (t) => {
+    const el = getTreeElement();
+    const tree = new InfiniteTree(el, {
+        data: { ...treeData }
+    });
+
+    const node = tree.getNodeById('<root>');
+    t.same(tree.selectNode(node), true);
+    t.same(tree.getSelectedNode(), node);
+
+    t.end();
+});
+
 test('tree.openNode', (t) => {
     const el = getTreeElement();
     const tree = new InfiniteTree(el, {
