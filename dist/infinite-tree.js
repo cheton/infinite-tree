@@ -1,4 +1,4 @@
-/*! infinite-tree v1.4.0 | (c) 2016 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
+/*! infinite-tree v1.5.0 | (c) 2016 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -74,6 +74,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.__esModule = true;
 
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 	var _events = __webpack_require__(2);
 
@@ -200,7 +202,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                        return;
 	                    }
 
-	                    // Emit 'click' event
+	                    // Emit a "click" event
 	                    _this.emit('click', event);
 
 	                    // Stop execution if the cancelBubble property is set to true after emitting the click event
@@ -377,13 +379,13 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 	        if ((0, _helper.isDOMElement)(el)) {
-	            options.el = el;
+	            options = _extends({}, options, { el: el });
 	        } else {
 	            options = el;
 	        }
 
 	        // Assign options
-	        _this.options = (0, _helper.extend)({}, _this.options, options);
+	        _this.options = _extends({}, _this.options, options);
 
 	        if (!_this.options.el) {
 	            console.error('Failed to initialize infinite-tree: el is not specified.', options);
@@ -609,10 +611,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    // Closes a node to hide its children.
 	    // @param {Node} node The Node object.
+	    // @param {object} [options] The options object.
+	    // @param {boolean} [options.silent] Pass true to prevent "selectNode" and "closeNode" events from being triggered.
 	    // @return {boolean} Returns true on success, false otherwise.
 
 
-	    InfiniteTree.prototype.closeNode = function closeNode(node) {
+	    InfiniteTree.prototype.closeNode = function closeNode(node, options) {
+	        var _options = _extends({}, options);
+
+	        var _options$silent = _options.silent;
+	        var silent = _options$silent === undefined ? false : _options$silent;
+
+
 	        if (!ensureNodeInstance(node)) {
 	            return false;
 	        }
@@ -641,7 +651,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var rangeTo = nodeIndex + node.state.total;
 
 	            if (rangeFrom <= selectedIndex && selectedIndex <= rangeTo) {
-	                this.selectNode(node);
+	                this.selectNode(node, options);
 	            }
 	        }
 
@@ -665,8 +675,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	        // Update the row corresponding to the node
 	        this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
 
-	        // Emit 'closeNode' event
-	        this.emit('closeNode', node);
+	        if (!silent) {
+	            // Emit a "closeNode" event
+	            this.emit('closeNode', node);
+	        }
 
 	        // Updates list with new data
 	        this.update();
@@ -854,11 +866,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    // Opens a node to display its children.
 	    // @param {Node} node The Node object.
+	    // @param {object} [options] The options object.
+	    // @param {boolean} [options.silent] Pass true to prevent "openNode" event from being triggered.
 	    // @return {boolean} Returns true on success, false otherwise.
 
 
-	    InfiniteTree.prototype.openNode = function openNode(node) {
+	    InfiniteTree.prototype.openNode = function openNode(node, options) {
 	        var _this5 = this;
+
+	        var _options2 = _extends({}, options);
+
+	        var _options2$silent = _options2.silent;
+	        var silent = _options2$silent === undefined ? false : _options2$silent;
+
 
 	        if (!ensureNodeInstance(node)) {
 	            return false;
@@ -921,7 +941,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                // Ensure the node has children to prevent from infinite loop
 	                if (node.hasChildren()) {
 	                    // Call openNode again
-	                    _this5.openNode(node);
+	                    _this5.openNode(node, options);
 	                }
 	            });
 
@@ -953,8 +973,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	            });
 	        }
 
-	        // Emit 'openNode' event
-	        this.emit('openNode', node);
+	        if (!silent) {
+	            // Emit a "openNode" event
+	            this.emit('openNode', node);
+	        }
 
 	        // Updates list with new data
 	        this.update();
@@ -963,10 +985,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    // Removes all child nodes from a parent node.
 	    // @param {Node} parentNode The Node object that defines the parent node.
+	    // @param {object} [options] The options object.
+	    // @param {boolean} [options.silent] Pass true to prevent "selectNode" event from being triggered.
 	    // @return {boolean} Returns true on success, false otherwise.
 
 
-	    InfiniteTree.prototype.removeChildNodes = function removeChildNodes(parentNode) {
+	    InfiniteTree.prototype.removeChildNodes = function removeChildNodes(parentNode, options) {
 	        var _this6 = this;
 
 	        if (!ensureNodeInstance(parentNode)) {
@@ -991,7 +1015,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var rangeTo = parentNodeIndex + parentNode.state.total;
 
 	            if (rangeFrom <= selectedIndex && selectedIndex <= rangeTo) {
-	                this.selectNode(parentNode);
+	                this.selectNode(parentNode, options);
 	            }
 	        }
 
@@ -1038,10 +1062,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    // Removes a node and all of its child nodes.
 	    // @param {Node} node The Node object.
+	    // @param {object} [options] The options object.
+	    // @param {boolean} [options.silent] Pass true to prevent "selectNode" event from being triggered.
 	    // @return {boolean} Returns true on success, false otherwise.
 
 
-	    InfiniteTree.prototype.removeNode = function removeNode(node) {
+	    InfiniteTree.prototype.removeNode = function removeNode(node, options) {
 	        var _this7 = this;
 
 	        if (!ensureNodeInstance(node)) {
@@ -1074,7 +1100,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                // 2. previous sibling node
 	                // 3. parent node
 	                var selectedNode = node.getNextSibling() || node.getPreviousSibling() || node.getParent();
-	                this.selectNode(selectedNode);
+	                this.selectNode(selectedNode, options);
 	            }
 	        }
 
@@ -1160,16 +1186,24 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	        return this.scrollElement.scrollTop;
 	    };
-	    // Selects a node.
+	    // Selects a node. Fires a "selectNode" event unless `silent` is passed as an option.
 	    // @param {Node} node The Node object. If null or undefined, deselects the current node.
+	    // @param {object} [options] The options object.
+	    // @param {boolean} [options.silent] Pass true to prevent "selectNode" event from being triggered.
 	    // @return {boolean} Returns true on success, false otherwise.
 
 
 	    InfiniteTree.prototype.selectNode = function selectNode() {
 	        var node = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
-	        var _options = this.options;
-	        var selectable = _options.selectable;
-	        var shouldSelectNode = _options.shouldSelectNode;
+	        var options = arguments[1];
+	        var _options3 = this.options;
+	        var selectable = _options3.selectable;
+	        var shouldSelectNode = _options3.shouldSelectNode;
+
+	        var _options4 = _extends({}, options);
+
+	        var _options4$silent = _options4.silent;
+	        var silent = _options4$silent === undefined ? false : _options4$silent;
 
 
 	        if (!selectable) {
@@ -1189,8 +1223,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	                this.rows[selectedIndex] = this.options.rowRenderer(selectedNode, this.options);
 	                this.state.selectedNode = null;
 
-	                // Emit 'selectNode' event
-	                this.emit('selectNode', null);
+	                if (!silent) {
+	                    // Emit a "selectNode" event
+	                    this.emit('selectNode', null);
+	                }
 
 	                // Updates list with new data
 	                this.update();
@@ -1231,13 +1267,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (this.state.selectedNode !== node) {
 	            this.state.selectedNode = node;
 
-	            // Emit 'selectNode' event
-	            this.emit('selectNode', node);
+	            if (!silent) {
+	                // Emit a "selectNode" event
+	                this.emit('selectNode', node);
+	            }
 	        } else {
 	            this.state.selectedNode = null;
 
-	            // Emit 'selectNode' event
-	            this.emit('selectNode', null);
+	            if (!silent) {
+	                // Emit a "selectNode" event
+	                this.emit('selectNode', null);
+	            }
 	        }
 
 	        // Updates list with new data
@@ -1247,15 +1287,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    // Toggles a node to display or hide its children.
 	    // @param {Node} node The Node object.
+	    // @param {object} [options] The options object. See openNode() and closeNode() for details.
 
 
-	    InfiniteTree.prototype.toggleNode = function toggleNode(node) {
+	    InfiniteTree.prototype.toggleNode = function toggleNode(node, options) {
 	        if (this.state.openNodes.indexOf(node) >= 0) {
 	            // close node
-	            this.closeNode(node);
+	            this.closeNode(node, options);
 	        } else {
 	            // open node
-	            this.openNode(node);
+	            this.openNode(node, options);
 	        }
 	    };
 	    // Serializes the current state of a node to a JSON string.
@@ -1312,13 +1353,13 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 	    InfiniteTree.prototype.update = function update() {
-	        // Emit 'contentWillUpdate' event
+	        // Emit a "contentWillUpdate" event
 	        this.emit('contentWillUpdate');
 
 	        // Update the list with new data
 	        this.clusterize.update(this.rows);
 
-	        // Emit 'contentWillUpdate' event
+	        // Emit a "contentWillUpdate" event
 	        this.emit('contentDidUpdate');
 	    };
 	    // Updates the data of a node.
@@ -1332,14 +1373,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 
 	        // Clone a new one
-	        data = (0, _helper.extend)({}, data);
+	        data = _extends({}, data);
 
 	        // Ignore keys: children, parent, and state
 	        delete data.children;
 	        delete data.parent;
 	        delete data.state;
 
-	        node = (0, _helper.extend)(node, data);
+	        node = _extends({}, node, { data: data });
 
 	        // Retrieve node index
 	        var nodeIndex = this.nodes.indexOf(node);
@@ -2513,26 +2554,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
 	/* eslint no-restricted-syntax: 0 */
-	var extend = function extend(target) {
-	    for (var _len = arguments.length, sources = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-	        sources[_key - 1] = arguments[_key];
-	    }
-
-	    target = target || {};
-	    for (var index = 0; index < sources.length; index++) {
-	        var obj = sources[index];
-	        if (!obj) {
-	            continue;
-	        }
-	        for (var key in obj) {
-	            if (obj.hasOwnProperty(key)) {
-	                target[key] = obj[key];
-	            }
-	        }
-	    }
-	    return target;
-	};
-
 	var preventDefault = function preventDefault(e) {
 	    if (typeof e.preventDefault !== 'undefined') {
 	        e.preventDefault();
@@ -2624,8 +2645,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 	var classNames = function classNames() {
-	    for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-	        args[_key2] = arguments[_key2];
+	    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+	        args[_key] = arguments[_key];
 	    }
 
 	    var classNames = [];
@@ -2737,7 +2758,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return h;
 	};
 
-	exports.extend = extend;
 	exports.preventDefault = preventDefault;
 	exports.stopPropagation = stopPropagation;
 	exports.dispatchEvent = dispatchEvent;
