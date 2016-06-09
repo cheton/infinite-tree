@@ -269,6 +269,21 @@ test('tree.openNode', (t) => {
     t.end();
 });
 
+test('tree.removeChildNodes', (t) => {
+    const el = getTreeElement();
+    const tree = new InfiniteTree(el, {
+        autoOpen: true,
+        data: { ...treeData }
+    });
+    const node = tree.getNodeById('<root>');
+
+    t.same(tree.nodes.length, 12);
+    tree.removeChildNodes(node);
+    t.same(tree.nodes.length, 1);
+
+    t.end();
+});
+
 test('tree.selectNode', (t) => {
     const el = getTreeElement();
     const tree = new InfiniteTree(el, {
