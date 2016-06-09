@@ -156,7 +156,7 @@ test('tree.flattenNode', (t) => {
         t.same(nodes, wanted);
     }
 
-    { // #3: Pass empty parameter
+    { // #3: Pass empty parameters
         const nodes = tree.flattenNode();
         const wanted = [];
         t.same(nodes, wanted);
@@ -275,11 +275,42 @@ test('tree.removeChildNodes', (t) => {
         autoOpen: true,
         data: { ...treeData }
     });
-    const node = tree.getNodeById('<root>');
 
-    t.same(tree.nodes.length, 12);
-    tree.removeChildNodes(node);
-    t.same(tree.nodes.length, 1);
+    { // #1: Pass empty parameters
+        t.same(tree.nodes.length, 12);
+        t.same(tree.removeChildNodes(), false);
+        t.same(tree.nodes.length, 12);
+    }
+
+    { // #2: Remove a node
+        const node = tree.getNodeById('<root>');
+        t.same(tree.nodes.length, 12);
+        t.same(tree.removeChildNodes(node), true);
+        t.same(tree.nodes.length, 1);
+    }
+
+    t.end();
+});
+
+test('tree.removeNode', (t) => {
+    const el = getTreeElement();
+    const tree = new InfiniteTree(el, {
+        autoOpen: true,
+        data: { ...treeData }
+    });
+
+    { // #1: Pass empty parameters
+        t.same(tree.nodes.length, 12);
+        t.same(tree.removeNode(), false);
+        t.same(tree.nodes.length, 12);
+    }
+
+    { // #2: Remove a node
+        const node = tree.getNodeById('<root>');
+        t.same(tree.nodes.length, 12);
+        t.same(tree.removeNode(node), true);
+        t.same(tree.nodes.length, 0);
+    }
 
     t.end();
 });
