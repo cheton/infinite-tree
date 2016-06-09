@@ -318,7 +318,6 @@ test('tree.selectNode', (t) => {
     t.end();
 });
 
-
 test('tree.toggleNode', (t) => {
     const el = getTreeElement();
     const tree = new InfiniteTree(el, {
@@ -355,6 +354,28 @@ test('tree.toggleNode', (t) => {
 
     // Check event fired count
     t.same(eventFiredCount, 5);
+
+    t.end();
+});
+
+test('tree.toString', (t) => {
+    const el = getTreeElement();
+    const tree = new InfiniteTree(el, {
+        autoOpen: false,
+        data: { ...treeData }
+    });
+
+    { // #1: Serialize the tree
+        const found = tree.toString();
+        const wanted = '[{"id":null,"label":"","children":[{"id":"<root>","label":"<root>","children":[],"state":{"depth":0,"open":false,"path":".0","prefixMask":"0","total":0}},{"id":"<root>","label":"<root>","children":[{"id":"bravo","label":"Bravo","children":[{"id":"charlie","label":"Charlie","children":[{"id":"delta","label":"Delta","children":[],"state":{"depth":3,"open":false,"path":".0.1.0.0","prefixMask":"0001","total":0,"selected":false}},{"id":"delta","label":"Delta","children":[],"state":{"depth":3,"open":false,"path":".0.1.0.0","prefixMask":"0001","total":0,"selected":false}}],"state":{"depth":2,"open":false,"path":".0.1.0","prefixMask":"000","total":0,"selected":false}},{"id":"charlie","label":"Charlie","children":[],"state":{"depth":2,"open":false,"path":".0.1.0","prefixMask":"000","total":0,"selected":false}}],"state":{"depth":1,"open":false,"path":".0.1","prefixMask":"00","total":0,"selected":false}},{"id":"bravo","label":"Bravo","children":[{"id":"hotel","label":"Hotel","children":[{"id":"india","label":"India","children":[],"state":{"depth":3,"open":false,"path":".0.1.1.0","prefixMask":"0001","total":0,"selected":false}}],"state":{"depth":2,"open":false,"path":".0.1.1","prefixMask":"000","total":0,"selected":false}}],"state":{"depth":1,"open":false,"path":".0.1","prefixMask":"00","total":0,"selected":false}},{"id":"bravo","label":"Bravo","children":[],"state":{"depth":1,"open":false,"path":".0.1","prefixMask":"00","total":0,"selected":false}}],"state":{"depth":0,"open":false,"path":".0","prefixMask":"0","total":0}}],"state":{"depth":-1,"open":true,"path":"","prefixMask":"","total":1}}]';
+        t.same(found, wanted);
+    }
+
+    { // #2: Serialize a node
+        const found = tree.toString(tree.getNodeById('bravo'));
+        const wanted = '[{"id":"bravo","label":"Bravo","children":[{"id":"charlie","label":"Charlie","children":[{"id":"delta","label":"Delta","children":[],"state":{"depth":3,"open":false,"path":".0.1.0.0","prefixMask":"0001","total":0,"selected":false}},{"id":"delta","label":"Delta","children":[],"state":{"depth":3,"open":false,"path":".0.1.0.0","prefixMask":"0001","total":0,"selected":false}}],"state":{"depth":2,"open":false,"path":".0.1.0","prefixMask":"000","total":0,"selected":false}},{"id":"charlie","label":"Charlie","children":[],"state":{"depth":2,"open":false,"path":".0.1.0","prefixMask":"000","total":0,"selected":false}}],"state":{"depth":1,"open":false,"path":".0.1","prefixMask":"00","total":0,"selected":false}},{"id":"bravo","label":"Bravo","children":[{"id":"hotel","label":"Hotel","children":[{"id":"india","label":"India","children":[],"state":{"depth":3,"open":false,"path":".0.1.1.0","prefixMask":"0001","total":0,"selected":false}}],"state":{"depth":2,"open":false,"path":".0.1.1","prefixMask":"000","total":0,"selected":false}}],"state":{"depth":1,"open":false,"path":".0.1","prefixMask":"00","total":0,"selected":false}},{"id":"bravo","label":"Bravo","children":[],"state":{"depth":1,"open":false,"path":".0.1","prefixMask":"00","total":0,"selected":false}}]';
+        t.same(found, wanted);
+    }
 
     t.end();
 });
