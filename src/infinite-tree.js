@@ -1170,7 +1170,7 @@ class InfiniteTree extends events.EventEmitter {
         delete data.parent;
         delete data.state;
 
-        node = { ...node, data };
+        node = Object.assign(node, data);
 
         // Retrieve node index
         const nodeIndex = this.nodes.indexOf(node);
