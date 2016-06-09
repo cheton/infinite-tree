@@ -612,7 +612,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    // Closes a node to hide its children.
 	    // @param {Node} node The Node object.
 	    // @param {object} [options] The options object.
-	    // @param {boolean} [options.silent] Pass true to prevent "selectNode" and "closeNode" events from being triggered.
+	    // @param {boolean} [options.silent] Pass true to prevent "closeNode" and "selectNode" events from being triggered.
 	    // @return {boolean} Returns true on success, false otherwise.
 
 
@@ -726,6 +726,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 	    InfiniteTree.prototype.flattenNode = function flattenNode(node) {
+	        if (!ensureNodeInstance(node)) {
+	            return [];
+	        }
+
 	        return [node].concat(this.flattenChildNodes(node));
 	    };
 	    // Gets a list of child nodes.
@@ -1186,7 +1190,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	        return this.scrollElement.scrollTop;
 	    };
-	    // Selects a node. Fires a "selectNode" event unless `silent` is passed as an option.
+	    // Selects a node.
 	    // @param {Node} node The Node object. If null or undefined, deselects the current node.
 	    // @param {object} [options] The options object.
 	    // @param {boolean} [options.silent] Pass true to prevent "selectNode" event from being triggered.
@@ -1287,16 +1291,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	    // Toggles a node to display or hide its children.
 	    // @param {Node} node The Node object.
-	    // @param {object} [options] The options object. See openNode() and closeNode() for details.
+	    // @param {object} [options] The options object.
+	    // @param {boolean} [options.silent] Pass true to prevent "closeNode", "openNode", and "selectNode" events from being triggered.
+	    // @return {boolean} Returns true on success, false otherwise.
 
 
 	    InfiniteTree.prototype.toggleNode = function toggleNode(node, options) {
+	        if (!ensureNodeInstance(node)) {
+	            return false;
+	        }
+
 	        if (this.state.openNodes.indexOf(node) >= 0) {
 	            // close node
-	            this.closeNode(node, options);
+	            return this.closeNode(node, options);
 	        } else {
 	            // open node
-	            this.openNode(node, options);
+	            return this.openNode(node, options);
 	        }
 	    };
 	    // Serializes the current state of a node to a JSON string.
@@ -1380,7 +1390,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        delete data.parent;
 	        delete data.state;
 
-	        node = _extends({}, node, { data: data });
+	        node = Object.assign(node, data);
 
 	        // Retrieve node index
 	        var nodeIndex = this.nodes.indexOf(node);
