@@ -1095,13 +1095,18 @@ class InfiniteTree extends events.EventEmitter {
     // Toggles a node to display or hide its children.
     // @param {Node} node The Node object.
     // @param {object} [options] The options object. See openNode() and closeNode() for details.
+    // @return {boolean} Returns true on success, false otherwise.
     toggleNode(node, options) {
+        if (!ensureNodeInstance(node)) {
+            return false;
+        }
+
         if (this.state.openNodes.indexOf(node) >= 0) {
             // close node
-            this.closeNode(node, options);
+            return this.closeNode(node, options);
         } else {
             // open node
-            this.openNode(node, options);
+            return this.openNode(node, options);
         }
     }
     // Serializes the current state of a node to a JSON string.
