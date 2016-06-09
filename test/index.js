@@ -127,8 +127,38 @@ test('tree.flattenChildNodes', (t) => {
     }
 
     { // #2: Flatten all child nodes of a node
-        const nodes = tree.flattenChildNodes(tree.getNodeById('<root>'));
-        const wanted = tree.nodes.slice(1);
+        const node = tree.getNodeById('<root>');
+        const nodes = tree.flattenChildNodes(node);
+        const wanted = tree.nodes.slice(tree.nodes.indexOf(node) + 1);
+        t.same(nodes, wanted);
+    }
+
+    t.end();
+});
+
+test('tree.flattenNode', (t) => {
+    const el = getTreeElement();
+    const tree = new InfiniteTree(el, {
+        autoOpen: true,
+        data: { ...treeData }
+    });
+
+    { // #1: Flatten a node
+        const node = tree.getNodeById('bravo');
+        const nodes = tree.flattenNode(node);
+        const wanted = tree.nodes.slice(tree.nodes.indexOf(node) + 0);
+        t.same(nodes, wanted);
+    }
+
+    { // #2: Pass null as a parameter
+        const nodes = tree.flattenNode(null);
+        const wanted = [];
+        t.same(nodes, wanted);
+    }
+
+    { // #3: Pass empty parameter
+        const nodes = tree.flattenNode();
+        const wanted = [];
         t.same(nodes, wanted);
     }
 
