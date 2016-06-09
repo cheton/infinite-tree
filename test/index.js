@@ -93,6 +93,8 @@ test('tree.closeNode', (t) => {
         ++eventFiredCount;
     });
 
+    // Close Node
+    t.same(tree.closeNode(), false);
     t.same(tree.nodes.length, 12);
     tree.closeNode(tree.getNodeById('india'));
     t.same(tree.nodes.length, 11);
@@ -156,7 +158,7 @@ test('tree.flattenNode', (t) => {
         t.same(nodes, wanted);
     }
 
-    { // #3: Pass empty parameter
+    { // #3: Pass empty parameters
         const nodes = tree.flattenNode();
         const wanted = [];
         t.same(nodes, wanted);
@@ -249,6 +251,8 @@ test('tree.openNode', (t) => {
         ++eventFiredCount;
     });
 
+    // Open Node
+    t.same(tree.openNode(), false);
     t.same(tree.nodes.length, 1);
     tree.openNode(tree.getNodeById('<root>'), { silent: true }); // Prevent event from being triggered
     t.same(tree.nodes.length, 3);
@@ -269,6 +273,52 @@ test('tree.openNode', (t) => {
     t.end();
 });
 
+test('tree.removeChildNodes', (t) => {
+    const el = getTreeElement();
+    const tree = new InfiniteTree(el, {
+        autoOpen: true,
+        data: { ...treeData }
+    });
+
+    { // #1: Pass empty parameters
+        t.same(tree.nodes.length, 12);
+        t.same(tree.removeChildNodes(), false);
+        t.same(tree.nodes.length, 12);
+    }
+
+    { // #2: Remove a node
+        const node = tree.getNodeById('<root>');
+        t.same(tree.nodes.length, 12);
+        t.same(tree.removeChildNodes(node), true);
+        t.same(tree.nodes.length, 1);
+    }
+
+    t.end();
+});
+
+test('tree.removeNode', (t) => {
+    const el = getTreeElement();
+    const tree = new InfiniteTree(el, {
+        autoOpen: true,
+        data: { ...treeData }
+    });
+
+    { // #1: Pass empty parameters
+        t.same(tree.nodes.length, 12);
+        t.same(tree.removeNode(), false);
+        t.same(tree.nodes.length, 12);
+    }
+
+    { // #2: Remove a node
+        const node = tree.getNodeById('<root>');
+        t.same(tree.nodes.length, 12);
+        t.same(tree.removeNode(node), true);
+        t.same(tree.nodes.length, 0);
+    }
+
+    t.end();
+});
+
 test('tree.selectNode', (t) => {
     const el = getTreeElement();
     const tree = new InfiniteTree(el, {
@@ -283,6 +333,7 @@ test('tree.selectNode', (t) => {
     });
 
     // Select Node
+    t.same(tree.selectNode(), false);
     t.same(tree.getSelectedNode(), null);
     tree.selectNode(tree.getNodeById('<root>'), { silent: true }); // Prevent event from being triggered
     t.same(tree.getSelectedNode(), tree.getNodeById('<root>'));
@@ -336,6 +387,7 @@ test('tree.toggleNode', (t) => {
     });
 
     // Toggle Node
+    t.same(tree.toggleNode(), false);
     t.same(tree.nodes.length, 1);
     tree.toggleNode(tree.getNodeById('<root>'), { silent: true }); // Prevent event from being triggered
     t.same(tree.nodes.length, 3);
