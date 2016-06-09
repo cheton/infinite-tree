@@ -494,7 +494,7 @@ class InfiniteTree extends events.EventEmitter {
     // Closes a node to hide its children.
     // @param {Node} node The Node object.
     // @param {object} [options] The options object.
-    // @param {boolean} [options.silent] Pass true to prevent "selectNode" and "closeNode" events from being triggered.
+    // @param {boolean} [options.silent] Pass true to prevent "closeNode" and "selectNode" events from being triggered.
     // @return {boolean} Returns true on success, false otherwise.
     closeNode(node, options) {
         const { silent = false } = { ...options };
@@ -1004,7 +1004,7 @@ class InfiniteTree extends events.EventEmitter {
         }
         return this.scrollElement.scrollTop;
     }
-    // Selects a node. Fires a "selectNode" event unless `silent` is passed as an option.
+    // Selects a node.
     // @param {Node} node The Node object. If null or undefined, deselects the current node.
     // @param {object} [options] The options object.
     // @param {boolean} [options.silent] Pass true to prevent "selectNode" event from being triggered.
@@ -1094,7 +1094,8 @@ class InfiniteTree extends events.EventEmitter {
     }
     // Toggles a node to display or hide its children.
     // @param {Node} node The Node object.
-    // @param {object} [options] The options object. See openNode() and closeNode() for details.
+    // @param {object} [options] The options object.
+    // @param {boolean} [options.silent] Pass true to prevent "closeNode", "openNode", and "selectNode" events from being triggered.
     // @return {boolean} Returns true on success, false otherwise.
     toggleNode(node, options) {
         if (!ensureNodeInstance(node)) {
