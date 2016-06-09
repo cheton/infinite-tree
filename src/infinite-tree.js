@@ -596,6 +596,10 @@ class InfiniteTree extends events.EventEmitter {
     // @param {Node} node The Node object.
     // @return {array} Returns a flattened list of Node objects.
     flattenNode(node) {
+        if (!ensureNodeInstance(node)) {
+            return [];
+        }
+
         return [node].concat(this.flattenChildNodes(node));
     }
     // Gets a list of child nodes.
