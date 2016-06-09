@@ -93,6 +93,8 @@ test('tree.closeNode', (t) => {
         ++eventFiredCount;
     });
 
+    // Close Node
+    t.same(tree.closeNode(), false);
     t.same(tree.nodes.length, 12);
     tree.closeNode(tree.getNodeById('india'));
     t.same(tree.nodes.length, 11);
@@ -249,6 +251,8 @@ test('tree.openNode', (t) => {
         ++eventFiredCount;
     });
 
+    // Open Node
+    t.same(tree.openNode(), false);
     t.same(tree.nodes.length, 1);
     tree.openNode(tree.getNodeById('<root>'), { silent: true }); // Prevent event from being triggered
     t.same(tree.nodes.length, 3);
@@ -329,6 +333,7 @@ test('tree.selectNode', (t) => {
     });
 
     // Select Node
+    t.same(tree.selectNode(), false);
     t.same(tree.getSelectedNode(), null);
     tree.selectNode(tree.getNodeById('<root>'), { silent: true }); // Prevent event from being triggered
     t.same(tree.getSelectedNode(), tree.getNodeById('<root>'));
@@ -382,6 +387,7 @@ test('tree.toggleNode', (t) => {
     });
 
     // Toggle Node
+    t.same(tree.toggleNode(), false);
     t.same(tree.nodes.length, 1);
     tree.toggleNode(tree.getNodeById('<root>'), { silent: true }); // Prevent event from being triggered
     t.same(tree.nodes.length, 3);
