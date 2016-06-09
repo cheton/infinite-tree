@@ -66,6 +66,38 @@ test('It should generate expected output for empty result', (t) => {
     t.end();
 });
 
+test('tree.closeNode', (t) => {
+    const el = getTreeElement();
+    const tree = new InfiniteTree(el, {
+        autoOpen: true,
+        data: { ...treeData }
+    });
+
+    let eventFiredCount = 0;
+
+    tree.on('closeNode', (node) => {
+        ++eventFiredCount;
+    });
+
+    t.same(tree.nodes.length, 12);
+    tree.closeNode(tree.getNodeById('india'));
+    t.same(tree.nodes.length, 11);
+    tree.closeNode(tree.getNodeById('delta'));
+    t.same(tree.nodes.length, 9);
+    tree.closeNode(tree.getNodeById('hotel'));
+    t.same(tree.nodes.length, 8);
+    tree.closeNode(tree.getNodeById('charlie'));
+    t.same(tree.nodes.length, 6);
+    tree.closeNode(tree.getNodeById('bravo'));
+    t.same(tree.nodes.length, 3);
+    tree.closeNode(tree.getNodeById('<root>'), { silent: true }); // Prevent event from being triggered
+    t.same(tree.nodes.length, 1);
+
+    t.same(eventFiredCount, 5);
+
+    t.end();
+});
+
 test('tree.getNodeById', (t) => {
     const el = getTreeElement();
     const tree = new InfiniteTree(el, {
@@ -112,7 +144,7 @@ test('tree.openNode', (t) => {
     t.end();
 });
 
-test('tree.closeNode', (t) => {
+test('tree.selectNode', (t) => {
     const el = getTreeElement();
     const tree = new InfiniteTree(el, {
         autoOpen: true,
@@ -121,25 +153,40 @@ test('tree.closeNode', (t) => {
 
     let eventFiredCount = 0;
 
-    tree.on('closeNode', (node) => {
+    tree.on('selectNode', (node) => {
         ++eventFiredCount;
     });
 
-    t.same(tree.nodes.length, 12);
-    tree.closeNode(tree.getNodeById('india'));
-    t.same(tree.nodes.length, 11);
-    tree.closeNode(tree.getNodeById('delta'));
-    t.same(tree.nodes.length, 9);
-    tree.closeNode(tree.getNodeById('hotel'));
-    t.same(tree.nodes.length, 8);
-    tree.closeNode(tree.getNodeById('charlie'));
-    t.same(tree.nodes.length, 6);
-    tree.closeNode(tree.getNodeById('bravo'));
-    t.same(tree.nodes.length, 3);
-    tree.closeNode(tree.getNodeById('<root>'), { silent: true }); // Prevent event from being triggered
-    t.same(tree.nodes.length, 1);
+    // Select Node
+    t.same(tree.getSelectedNode(), null);
+    tree.selectNode(tree.getNodeById('<root>'), { silent: true }); // Prevent event from being triggered
+    t.same(tree.getSelectedNode(), tree.getNodeById('<root>'));
+    tree.selectNode(tree.getNodeById('bravo'));
+    t.same(tree.getSelectedNode(), tree.getNodeById('bravo'));
+    tree.selectNode(tree.getNodeById('charlie'));
+    t.same(tree.getSelectedNode(), tree.getNodeById('charlie'));
+    tree.selectNode(tree.getNodeById('hotel'));
+    t.same(tree.getSelectedNode(), tree.getNodeById('hotel'));
+    tree.selectNode(tree.getNodeById('delta'));
+    t.same(tree.getSelectedNode(), tree.getNodeById('delta'));
+    tree.selectNode(tree.getNodeById('india'));
+    t.same(tree.getSelectedNode(), tree.getNodeById('india'));
+    tree.selectNode(tree.getNodeById('juliet'));
+    t.same(tree.getSelectedNode(), tree.getNodeById('juliet'));
 
-    t.same(eventFiredCount, 5);
+    t.same(eventFiredCount, 6);
+
+    // Close Node
+    tree.closeNode(tree.getNodeById('india'));
+    t.same(tree.getSelectedNode(), tree.getNodeById('india'));
+    tree.closeNode(tree.getNodeById('hotel'));
+    t.same(tree.getSelectedNode(), tree.getNodeById('hotel'));
+    tree.closeNode(tree.getNodeById('bravo'));
+    t.same(tree.getSelectedNode(), tree.getNodeById('bravo'));
+    tree.closeNode(tree.getNodeById('<root>'), { silent: true });
+    t.same(tree.getSelectedNode(), tree.getNodeById('<root>'));
+
+    t.same(eventFiredCount, 6 + 3);
 
     t.end();
 });
