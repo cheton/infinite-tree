@@ -165,6 +165,62 @@ test('tree.flattenNode', (t) => {
     t.end();
 });
 
+test('tree.getChildNodes', (t) => {
+    const el = getTreeElement();
+    const tree = new InfiniteTree(el, {
+        data: { ...treeData }
+    });
+
+    { // #1: Get child nodes of the root node
+        const nodes = tree.getChildNodes().map((node) => {
+            return {
+                id: node.id,
+                label: node.label,
+                children: node.children,
+                state: node.state
+            };
+        });
+        const wanted = [
+            tree.getNodeById('<root>')
+        ].map((node) => {
+            return {
+                id: node.id,
+                label: node.label,
+                children: node.children,
+                state: node.state
+            };
+        });
+        t.same(nodes, wanted);
+    }
+
+    { // #2: Get child nodes of a node
+        const node = tree.getNodeById('bravo');
+        const nodes = tree.getChildNodes(node).map((node) => {
+            return {
+                id: node.id,
+                label: node.label,
+                children: node.children,
+                state: node.state
+            };
+        });
+        const wanted = [
+            tree.getNodeById('charlie'),
+            tree.getNodeById('hotel'),
+            tree.getNodeById('kilo')
+        ].map((node) => {
+            return {
+                id: node.id,
+                label: node.label,
+                children: node.children,
+                state: node.state
+            };
+        });
+        t.same(nodes, wanted);
+    }
+
+    t.end();
+});
+
 test('tree.getNodeById', (t) => {
     const el = getTreeElement();
     const tree = new InfiniteTree(el, {
