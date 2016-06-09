@@ -113,6 +113,28 @@ test('tree.closeNode', (t) => {
     t.end();
 });
 
+test('tree.flattenChildNodes', (t) => {
+    const el = getTreeElement();
+    const tree = new InfiniteTree(el, {
+        autoOpen: true,
+        data: { ...treeData }
+    });
+
+    { // #1: Flatten all nodes within the tree
+        const nodes = tree.flattenChildNodes();
+        const wanted = tree.nodes;
+        t.same(nodes, wanted);
+    }
+
+    { // #2: Flatten all child nodes of a node
+        const nodes = tree.flattenChildNodes(tree.getNodeById('<root>'));
+        const wanted = tree.nodes.slice(1);
+        t.same(nodes, wanted);
+    }
+
+    t.end();
+});
+
 test('tree.getNodeById', (t) => {
     const el = getTreeElement();
     const tree = new InfiniteTree(el, {
