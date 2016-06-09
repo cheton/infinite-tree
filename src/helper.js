@@ -1,20 +1,4 @@
 /* eslint no-restricted-syntax: 0 */
-const extend = (target, ...sources) => {
-    target = target || {};
-    for (let index = 0; index < sources.length; index++) {
-        let obj = sources[index];
-        if (!obj) {
-            continue;
-        }
-        for (let key in obj) {
-            if (obj.hasOwnProperty(key)) {
-                target[key] = obj[key];
-            }
-        }
-    }
-    return target;
-};
-
 const preventDefault = (e) => {
     if (typeof e.preventDefault !== 'undefined') {
         e.preventDefault();
@@ -212,7 +196,6 @@ const buildHTML = (tag, html, attrs) => {
 };
 
 export {
-    extend,
     preventDefault,
     stopPropagation,
     dispatchEvent,

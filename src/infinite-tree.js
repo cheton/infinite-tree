@@ -4,7 +4,6 @@ import { flatten, Node } from 'flattree';
 import LookupTable from './lookup-table';
 import { defaultRowRenderer } from './renderer';
 import {
-    extend,
     preventDefault,
     addEventListener,
     removeEventListener,
