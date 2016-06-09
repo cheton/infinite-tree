@@ -317,3 +317,44 @@ test('tree.selectNode', (t) => {
 
     t.end();
 });
+
+
+test('tree.toggleNode', (t) => {
+    const el = getTreeElement();
+    const tree = new InfiniteTree(el, {
+        autoOpen: false,
+        data: { ...treeData }
+    });
+
+    let eventFiredCount = 0;
+
+    tree.on('openNode', (node) => {
+        ++eventFiredCount;
+    });
+
+    tree.on('closeNode', (node) => {
+        ++eventFiredCount;
+    });
+
+    // Toggle Node
+    t.same(tree.nodes.length, 1);
+    tree.toggleNode(tree.getNodeById('<root>'), { silent: true }); // Prevent event from being triggered
+    t.same(tree.nodes.length, 3);
+    tree.toggleNode(tree.getNodeById('bravo'));
+    t.same(tree.nodes.length, 6);
+    tree.toggleNode(tree.getNodeById('charlie'));
+    t.same(tree.nodes.length, 8);
+    tree.toggleNode(tree.getNodeById('hotel'));
+    t.same(tree.nodes.length, 9);
+    tree.toggleNode(tree.getNodeById('delta'));
+    t.same(tree.nodes.length, 11);
+    tree.toggleNode(tree.getNodeById('india'));
+    t.same(tree.nodes.length, 12);
+    tree.toggleNode(tree.getNodeById('<root>'), { silent: true }); // Prevent event from being triggered
+    t.same(tree.nodes.length, 1);
+
+    // Check event fired count
+    t.same(eventFiredCount, 5);
+
+    t.end();
+});
