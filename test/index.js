@@ -66,6 +66,20 @@ test('It should generate expected output for empty result', (t) => {
     t.end();
 });
 
+test('tree.clear', (t) => {
+    const el = getTreeElement();
+    const tree = new InfiniteTree(el, {
+        autoOpen: true,
+        data: { ...treeData }
+    });
+
+    t.same(tree.nodes.length, 12);
+    tree.clear();
+    t.same(tree.nodes.length, 0);
+
+    t.end();
+});
+
 test('tree.closeNode', (t) => {
     const el = getTreeElement();
     const tree = new InfiniteTree(el, {
@@ -93,6 +107,7 @@ test('tree.closeNode', (t) => {
     tree.closeNode(tree.getNodeById('<root>'), { silent: true }); // Prevent event from being triggered
     t.same(tree.nodes.length, 1);
 
+    // Check event fired count
     t.same(eventFiredCount, 5);
 
     t.end();
@@ -109,6 +124,7 @@ test('tree.getNodeById', (t) => {
 
     t.same(rootNode.id, '<root>');
     t.same(noneNode, null);
+
     t.end();
 });
 
@@ -139,6 +155,7 @@ test('tree.openNode', (t) => {
     tree.openNode(tree.getNodeById('india'));
     t.same(tree.nodes.length, 12);
 
+    // Check event fired count
     t.same(eventFiredCount, 5);
 
     t.end();
@@ -174,6 +191,7 @@ test('tree.selectNode', (t) => {
     tree.selectNode(tree.getNodeById('juliet'));
     t.same(tree.getSelectedNode(), tree.getNodeById('juliet'));
 
+    // Check event fired count
     t.same(eventFiredCount, 6);
 
     // Close Node
@@ -186,6 +204,7 @@ test('tree.selectNode', (t) => {
     tree.closeNode(tree.getNodeById('<root>'), { silent: true });
     t.same(tree.getSelectedNode(), tree.getNodeById('<root>'));
 
+    // Check event fired count
     t.same(eventFiredCount, 6 + 3);
 
     t.end();
