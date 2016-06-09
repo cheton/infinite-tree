@@ -401,3 +401,26 @@ test('tree.update', (t) => {
 
     t.end();
 });
+
+test('tree.updateNode', (t) => {
+    const el = getTreeElement();
+    const tree = new InfiniteTree(el, {
+        autoOpen: false,
+        data: { ...treeData }
+    });
+
+    const node = tree.getNodeById('<root>');
+    const lastUpdated = new Date().getTime();
+    tree.updateNode(node, {
+        props: {
+            lastUpdated: lastUpdated
+        }
+    });
+
+    const wanted = {
+        lastUpdated: lastUpdated
+    };
+    t.same(node.props, wanted);
+
+    t.end();
+});
