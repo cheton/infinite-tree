@@ -379,3 +379,25 @@ test('tree.toString', (t) => {
 
     t.end();
 });
+
+test('tree.update', (t) => {
+    const el = getTreeElement();
+    const tree = new InfiniteTree(el, {
+        autoOpen: false,
+        data: { ...treeData }
+    });
+
+    let eventFiredCount = 0;
+
+    tree.on('contentWillUpdate', () => {
+        ++eventFiredCount;
+    });
+    tree.on('contentDidUpdate', () => {
+        ++eventFiredCount;
+    });
+
+    tree.update();
+    t.same(eventFiredCount, 2);
+
+    t.end();
+});
