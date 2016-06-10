@@ -418,6 +418,10 @@ class InfiniteTree extends events.EventEmitter {
             return false;
         }
 
+        if (typeof index !== 'number') {
+            index = parentNode.children.length;
+        }
+
         // Assign parent
         newNodes.forEach((newNode) => {
             newNode.parent = parentNode;

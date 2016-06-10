@@ -66,6 +66,78 @@ test('It should generate expected output for empty result', (t) => {
     t.end();
 });
 
+test('tree.destroy', (t) => {
+    const el = getTreeElement();
+    const tree = new InfiniteTree(el, {
+        autoOpen: true,
+        data: { ...treeData }
+    });
+
+    t.notEqual(tree.clusterize, null);
+    t.notEqual(tree.contentElement, null);
+    t.notEqual(tree.scrollElement, null);
+    t.equal(tree.nodes.length, 12);
+    t.equal(tree.rows.length, 12);
+
+    tree.destroy();
+
+    t.equal(tree.clusterize, null);
+    t.equal(tree.contentElement, null);
+    t.equal(tree.scrollElement, null);
+    t.equal(tree.nodes.length, 0);
+    t.equal(tree.rows.length, 0);
+
+    t.end();
+});
+
+test('tree.addChildNodes', (t) => {
+    const el = getTreeElement();
+    const tree = new InfiniteTree(el, {
+        autoOpen: true,
+        data: { ...treeData }
+    });
+
+    const initialLength = tree.nodes.length;
+
+    { // #1: Add a child node to the root node without specifying index
+        tree.addChildNodes({ id: 'new-node#1' });
+        t.equal(tree.nodes.length, initialLength + 1);
+        t.notEqual(tree.getNodeById('new-node#1'), null);
+        t.same(tree.getNodeById('new-node#1').getPreviousSibling(), tree.getNodeById('<root>'));
+        t.equal(tree.getNodeById('new-node#1').getNextSibling(), null);
+    }
+
+    { // #2: Add a child node to the root node at the specified index
+        tree.addChildNodes({ id: 'new-node#2' }, 1);
+        t.equal(tree.nodes.length, initialLength + 2);
+        t.notEqual(tree.getNodeById('new-node#2'), null);
+        t.same(tree.getNodeById('new-node#2').getPreviousSibling(), tree.getNodeById('<root>'));
+        t.same(tree.getNodeById('new-node#2').getNextSibling(), tree.getNodeById('new-node#1'));
+    }
+
+    t.end();
+});
+
+test('tree.appendChildNode', (t) => {
+    const el = getTreeElement();
+    const tree = new InfiniteTree(el, {
+        autoOpen: true,
+        data: { ...treeData }
+    });
+
+    const initialLength = tree.nodes.length;
+
+    { // #1: Append a child node to the root node
+        tree.appendChildNode({ id: 'new-node#1' });
+        t.equal(tree.nodes.length, initialLength + 1);
+        t.notEqual(tree.getNodeById('new-node#1'), null);
+        t.same(tree.getNodeById('new-node#1').getPreviousSibling(), tree.getNodeById('<root>'));
+        t.equal(tree.getNodeById('new-node#1').getNextSibling(), null);
+    }
+
+    t.end();
+});
+
 test('tree.clear', (t) => {
     const el = getTreeElement();
     const tree = new InfiniteTree(el, {
@@ -73,9 +145,9 @@ test('tree.clear', (t) => {
         data: { ...treeData }
     });
 
-    t.same(tree.nodes.length, 12);
+    t.equal(tree.nodes.length, 12);
     tree.clear();
-    t.same(tree.nodes.length, 0);
+    t.equal(tree.nodes.length, 0);
 
     t.end();
 });
@@ -94,23 +166,23 @@ test('tree.closeNode', (t) => {
     });
 
     // Close Node
-    t.same(tree.closeNode(), false);
-    t.same(tree.nodes.length, 12);
+    t.equal(tree.closeNode(), false);
+    t.equal(tree.nodes.length, 12);
     tree.closeNode(tree.getNodeById('india'));
-    t.same(tree.nodes.length, 11);
+    t.equal(tree.nodes.length, 11);
     tree.closeNode(tree.getNodeById('delta'));
-    t.same(tree.nodes.length, 9);
+    t.equal(tree.nodes.length, 9);
     tree.closeNode(tree.getNodeById('hotel'));
-    t.same(tree.nodes.length, 8);
+    t.equal(tree.nodes.length, 8);
     tree.closeNode(tree.getNodeById('charlie'));
-    t.same(tree.nodes.length, 6);
+    t.equal(tree.nodes.length, 6);
     tree.closeNode(tree.getNodeById('bravo'));
-    t.same(tree.nodes.length, 3);
+    t.equal(tree.nodes.length, 3);
     tree.closeNode(tree.getNodeById('<root>'), { silent: true }); // Prevent event from being triggered
-    t.same(tree.nodes.length, 1);
+    t.equal(tree.nodes.length, 1);
 
     // Check event fired count
-    t.same(eventFiredCount, 5);
+    t.equal(eventFiredCount, 5);
 
     t.end();
 });
@@ -232,8 +304,8 @@ test('tree.getNodeById', (t) => {
     const rootNode = tree.getNodeById('<root>');
     const noneNode = tree.getNodeById('none');
 
-    t.same(rootNode.id, '<root>');
-    t.same(noneNode, null);
+    t.equal(rootNode.id, '<root>');
+    t.equal(noneNode, null);
 
     t.end();
 });
@@ -287,7 +359,7 @@ test('tree.getSelectedNode', (t) => {
     });
 
     const node = tree.getNodeById('<root>');
-    t.same(tree.selectNode(node), true);
+    t.equal(tree.selectNode(node), true);
     t.same(tree.getSelectedNode(), node);
 
     t.end();
@@ -307,23 +379,23 @@ test('tree.openNode', (t) => {
     });
 
     // Open Node
-    t.same(tree.openNode(), false);
-    t.same(tree.nodes.length, 1);
+    t.equal(tree.openNode(), false);
+    t.equal(tree.nodes.length, 1);
     tree.openNode(tree.getNodeById('<root>'), { silent: true }); // Prevent event from being triggered
-    t.same(tree.nodes.length, 3);
+    t.equal(tree.nodes.length, 3);
     tree.openNode(tree.getNodeById('bravo'));
-    t.same(tree.nodes.length, 6);
+    t.equal(tree.nodes.length, 6);
     tree.openNode(tree.getNodeById('charlie'));
-    t.same(tree.nodes.length, 8);
+    t.equal(tree.nodes.length, 8);
     tree.openNode(tree.getNodeById('hotel'));
-    t.same(tree.nodes.length, 9);
+    t.equal(tree.nodes.length, 9);
     tree.openNode(tree.getNodeById('delta'));
-    t.same(tree.nodes.length, 11);
+    t.equal(tree.nodes.length, 11);
     tree.openNode(tree.getNodeById('india'));
-    t.same(tree.nodes.length, 12);
+    t.equal(tree.nodes.length, 12);
 
     // Check event fired count
-    t.same(eventFiredCount, 5);
+    t.equal(eventFiredCount, 5);
 
     t.end();
 });
@@ -336,16 +408,16 @@ test('tree.removeChildNodes', (t) => {
     });
 
     { // #1: Pass empty parameters
-        t.same(tree.nodes.length, 12);
-        t.same(tree.removeChildNodes(), false);
-        t.same(tree.nodes.length, 12);
+        t.equal(tree.nodes.length, 12);
+        t.equal(tree.removeChildNodes(), false);
+        t.equal(tree.nodes.length, 12);
     }
 
     { // #2: Remove a node
         const node = tree.getNodeById('<root>');
-        t.same(tree.nodes.length, 12);
-        t.same(tree.removeChildNodes(node), true);
-        t.same(tree.nodes.length, 1);
+        t.equal(tree.nodes.length, 12);
+        t.equal(tree.removeChildNodes(node), true);
+        t.equal(tree.nodes.length, 1);
     }
 
     t.end();
@@ -359,16 +431,16 @@ test('tree.removeNode', (t) => {
     });
 
     { // #1: Pass empty parameters
-        t.same(tree.nodes.length, 12);
-        t.same(tree.removeNode(), false);
-        t.same(tree.nodes.length, 12);
+        t.equal(tree.nodes.length, 12);
+        t.equal(tree.removeNode(), false);
+        t.equal(tree.nodes.length, 12);
     }
 
     { // #2: Remove a node
         const node = tree.getNodeById('<root>');
-        t.same(tree.nodes.length, 12);
-        t.same(tree.removeNode(node), true);
-        t.same(tree.nodes.length, 0);
+        t.equal(tree.nodes.length, 12);
+        t.equal(tree.removeNode(node), true);
+        t.equal(tree.nodes.length, 0);
     }
 
     t.end();
@@ -442,25 +514,25 @@ test('tree.toggleNode', (t) => {
     });
 
     // Toggle Node
-    t.same(tree.toggleNode(), false);
-    t.same(tree.nodes.length, 1);
+    t.equal(tree.toggleNode(), false);
+    t.equal(tree.nodes.length, 1);
     tree.toggleNode(tree.getNodeById('<root>'), { silent: true }); // Prevent event from being triggered
-    t.same(tree.nodes.length, 3);
+    t.equal(tree.nodes.length, 3);
     tree.toggleNode(tree.getNodeById('bravo'));
-    t.same(tree.nodes.length, 6);
+    t.equal(tree.nodes.length, 6);
     tree.toggleNode(tree.getNodeById('charlie'));
-    t.same(tree.nodes.length, 8);
+    t.equal(tree.nodes.length, 8);
     tree.toggleNode(tree.getNodeById('hotel'));
-    t.same(tree.nodes.length, 9);
+    t.equal(tree.nodes.length, 9);
     tree.toggleNode(tree.getNodeById('delta'));
-    t.same(tree.nodes.length, 11);
+    t.equal(tree.nodes.length, 11);
     tree.toggleNode(tree.getNodeById('india'));
-    t.same(tree.nodes.length, 12);
+    t.equal(tree.nodes.length, 12);
     tree.toggleNode(tree.getNodeById('<root>'), { silent: true }); // Prevent event from being triggered
-    t.same(tree.nodes.length, 1);
+    t.equal(tree.nodes.length, 1);
 
     // Check event fired count
-    t.same(eventFiredCount, 5);
+    t.equal(eventFiredCount, 5);
 
     t.end();
 });
@@ -504,7 +576,7 @@ test('tree.update', (t) => {
     });
 
     tree.update();
-    t.same(eventFiredCount, 2);
+    t.equal(eventFiredCount, 2);
 
     t.end();
 });
