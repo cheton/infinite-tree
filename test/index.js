@@ -118,6 +118,26 @@ test('tree.addChildNodes', (t) => {
     t.end();
 });
 
+test('tree.appendChildNode', (t) => {
+    const el = getTreeElement();
+    const tree = new InfiniteTree(el, {
+        autoOpen: true,
+        data: { ...treeData }
+    });
+
+    const initialLength = tree.nodes.length;
+
+    { // #1: Append a child node to the root node
+        tree.appendChildNode({ id: 'new-node#1' });
+        t.equal(tree.nodes.length, initialLength + 1);
+        t.notEqual(tree.getNodeById('new-node#1'), null);
+        t.same(tree.getNodeById('new-node#1').getPreviousSibling(), tree.getNodeById('<root>'));
+        t.equal(tree.getNodeById('new-node#1').getNextSibling(), null);
+    }
+
+    t.end();
+});
+
 test('tree.clear', (t) => {
     const el = getTreeElement();
     const tree = new InfiniteTree(el, {
