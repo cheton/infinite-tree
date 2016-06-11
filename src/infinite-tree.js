@@ -32,17 +32,19 @@ const ensureNodeInstance = (node) => {
     return true;
 };
 
-const createRootNode = () => new Node({
-    parent: null,
-    children: [],
-    state: {
-        depth: -1,
-        open: true, // always open
-        path: '',
-        prefixMask: '',
-        total: 0
-    }
-});
+const createRootNode = (rootNode) => {
+    return Object.assign(rootNode || new Node(), {
+        parent: null,
+        children: [],
+        state: {
+            depth: -1,
+            open: true, // always open
+            path: '',
+            prefixMask: '',
+            total: 0
+        }
+    });
+};
 
 class InfiniteTree extends events.EventEmitter {
     options = {
@@ -492,7 +494,7 @@ class InfiniteTree extends events.EventEmitter {
         this.nodes = [];
         this.rows = [];
         this.state.openNodes = [];
-        this.state.rootNode = createRootNode();
+        this.state.rootNode = createRootNode(this.state.rootNode);
         this.state.selectedNode = null;
     }
     // Closes a node to hide its children.
@@ -699,7 +701,7 @@ class InfiniteTree extends events.EventEmitter {
             return node;
         })((this.nodes.length > 0) ? this.nodes[0] : null);
 
-        this.state.rootNode = rootNode || createRootNode(); // Create a new root node if rootNode is null
+        this.state.rootNode = rootNode || createRootNode(this.state.rootNode); // Create a new root node if rootNode is null
 
         // Update the lookup table with newly added nodes
         this.flattenChildNodes(this.state.rootNode).forEach((node) => {
@@ -835,6 +837,10 @@ class InfiniteTree extends events.EventEmitter {
 
         if (parentNode.children.length === 0) {
             return false;
+        }
+        if (parentNode === this.state.rootNode) {
+            this.clear();
+            return true;
         }
 
         const parentNodeIndex = this.nodes.indexOf(parentNode);
@@ -1030,6 +1036,9 @@ class InfiniteTree extends events.EventEmitter {
             return false;
         }
         if ((typeof shouldSelectNode === 'function') && !shouldSelectNode(node)) {
+            return false;
+        }
+        if (node === this.state.rootNode) {
             return false;
         }
 
