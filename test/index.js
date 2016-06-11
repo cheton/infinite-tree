@@ -2,6 +2,7 @@ import { test } from 'tap';
 import fs from 'fs';
 import path from 'path';
 import jsdom from 'jsdom';
+import { Node } from 'flattree';
 
 const document = jsdom.jsdom(undefined, {
     virtualConsole: jsdom.createVirtualConsole().sendTo(console)
@@ -12,7 +13,10 @@ global.document = document;
 global.window = window;
 global.navigator = window.navigator;
 
-const treeData = Object.freeze(require('./fixtures/tree.json'));
+const getTreeData = () => {
+    const json = fs.readFileSync(path.resolve('test/fixtures/tree.json'), 'utf8');
+    return Object.assign({}, JSON.parse(json));
+};
 const InfiniteTree = require('../src');
 
 const getTreeElement = () => {
@@ -31,7 +35,7 @@ test('Close all nodes on tree initialization', (t) => {
     const el = getTreeElement();
     const tree = new InfiniteTree(el, {
         autoOpen: false,
-        data: { ...treeData }
+        data: getTreeData()
     });
 
     t.same(tree.nodes.length, 1);
@@ -43,7 +47,7 @@ test('Open all nodes on tree initialization', (t) => {
     const el = getTreeElement();
     const tree = new InfiniteTree(el, {
         autoOpen: true,
-        data: { ...treeData }
+        data: getTreeData()
     });
 
     t.same(tree.nodes.length, 12);
@@ -66,11 +70,35 @@ test('It should generate expected output for empty result', (t) => {
     t.end();
 });
 
+test('loadOnDemand', (t) => {
+    const el = getTreeElement();
+    const tree = new InfiniteTree(el, {
+        autoOpen: true,
+        data: {
+            id: '<root>',
+            loadOnDemand: true
+        },
+        loadNodes: (node, done) => {
+            t.equal(tree.getNodeById('<root>').getChildren().length, 0);
+
+            const data = getTreeData();
+            done(null, data.children);
+
+            setTimeout(() => {
+                t.equal(tree.getNodeById('<root>').getChildren().length, 2);
+                t.end();
+            }, 0);
+        }
+    });
+
+    t.ok(tree.openNode(tree.getNodeById('<root>')));
+});
+
 test('tree.destroy', (t) => {
     const el = getTreeElement();
     const tree = new InfiniteTree(el, {
         autoOpen: true,
-        data: { ...treeData }
+        data: getTreeData()
     });
 
     t.notEqual(tree.clusterize, null);
@@ -94,7 +122,7 @@ test('tree.addChildNodes', (t) => {
     const el = getTreeElement();
     const tree = new InfiniteTree(el, {
         autoOpen: true,
-        data: { ...treeData }
+        data: getTreeData()
     });
 
     const initialLength = tree.nodes.length;
@@ -122,7 +150,7 @@ test('tree.appendChildNode', (t) => {
     const el = getTreeElement();
     const tree = new InfiniteTree(el, {
         autoOpen: true,
-        data: { ...treeData }
+        data: getTreeData()
     });
 
     const initialLength = tree.nodes.length;
@@ -142,7 +170,7 @@ test('tree.clear', (t) => {
     const el = getTreeElement();
     const tree = new InfiniteTree(el, {
         autoOpen: true,
-        data: { ...treeData }
+        data: getTreeData()
     });
 
     t.equal(tree.nodes.length, 12);
@@ -156,7 +184,7 @@ test('tree.closeNode', (t) => {
     const el = getTreeElement();
     const tree = new InfiniteTree(el, {
         autoOpen: true,
-        data: { ...treeData }
+        data: getTreeData()
     });
 
     let eventFiredCount = 0;
@@ -166,7 +194,7 @@ test('tree.closeNode', (t) => {
     });
 
     // Close Node
-    t.equal(tree.closeNode(), false);
+    t.notOk(tree.closeNode());
     t.equal(tree.nodes.length, 12);
     tree.closeNode(tree.getNodeById('india'));
     t.equal(tree.nodes.length, 11);
@@ -191,16 +219,21 @@ test('tree.flattenChildNodes', (t) => {
     const el = getTreeElement();
     const tree = new InfiniteTree(el, {
         autoOpen: true,
-        data: { ...treeData }
+        data: getTreeData()
     });
 
-    { // #1: Flatten all nodes within the tree
+    { // #1: Flatten an non-Node object
+        const nodes = tree.flattenChildNodes({});
+        t.equal(nodes.length, 0);
+    }
+
+    { // #2: Flatten all nodes within the tree
         const nodes = tree.flattenChildNodes();
         const wanted = tree.nodes;
         t.same(nodes, wanted);
     }
 
-    { // #2: Flatten all child nodes of a node
+    { // #3: Flatten all child nodes of a node
         const node = tree.getNodeById('<root>');
         const nodes = tree.flattenChildNodes(node);
         const wanted = tree.nodes.slice(tree.nodes.indexOf(node) + 1);
@@ -214,25 +247,25 @@ test('tree.flattenNode', (t) => {
     const el = getTreeElement();
     const tree = new InfiniteTree(el, {
         autoOpen: true,
-        data: { ...treeData }
+        data: getTreeData()
     });
 
-    { // #1: Flatten a node
-        const node = tree.getNodeById('bravo');
-        const nodes = tree.flattenNode(node);
-        const wanted = tree.nodes.slice(tree.nodes.indexOf(node) + 0);
-        t.same(nodes, wanted);
-    }
-
-    { // #2: Pass null as a parameter
+    { // #1: Pass null as a parameter
         const nodes = tree.flattenNode(null);
         const wanted = [];
         t.same(nodes, wanted);
     }
 
-    { // #3: Pass empty parameters
+    { // #2: Pass empty parameters
         const nodes = tree.flattenNode();
         const wanted = [];
+        t.same(nodes, wanted);
+    }
+
+    { // #3: Flatten a node
+        const node = tree.getNodeById('bravo');
+        const nodes = tree.flattenNode(node);
+        const wanted = tree.nodes.slice(tree.nodes.indexOf(node) + 0);
         t.same(nodes, wanted);
     }
 
@@ -242,10 +275,15 @@ test('tree.flattenNode', (t) => {
 test('tree.getChildNodes', (t) => {
     const el = getTreeElement();
     const tree = new InfiniteTree(el, {
-        data: { ...treeData }
+        data: getTreeData()
     });
 
-    { // #1: Get child nodes of the root node
+    { // #1: Flatten an non-Node object
+        const nodes = tree.getChildNodes({});
+        t.equal(nodes.length, 0);
+    }
+
+    { // #2: Get child nodes of the root node
         const nodes = tree.getChildNodes().map((node) => {
             return {
                 id: node.id,
@@ -267,7 +305,7 @@ test('tree.getChildNodes', (t) => {
         t.same(nodes, wanted);
     }
 
-    { // #2: Get child nodes of a node
+    { // #3: Get child nodes of a node
         const node = tree.getNodeById('bravo');
         const nodes = tree.getChildNodes(node).map((node) => {
             return {
@@ -298,14 +336,17 @@ test('tree.getChildNodes', (t) => {
 test('tree.getNodeById', (t) => {
     const el = getTreeElement();
     const tree = new InfiniteTree(el, {
-        data: { ...treeData }
+        data: getTreeData()
     });
 
-    const rootNode = tree.getNodeById('<root>');
-    const noneNode = tree.getNodeById('none');
+    t.notEqual(tree.getNodeById('<root>').id, null);
+    t.equal(tree.getNodeById('none'), null);
 
-    t.equal(rootNode.id, '<root>');
-    t.equal(noneNode, null);
+    // Make sure it will rebuild the nodeTable if a node does not exist
+    tree.nodeTable.clear();
+    t.equal(tree.nodeTable.get('<root>'), undefined);
+    t.notEqual(tree.getNodeById('<root>'), null);
+    t.same(tree.nodeTable.get('<root>'), tree.getNodeById('<root>'));
 
     t.end();
 });
@@ -314,7 +355,7 @@ test('tree.getOpenNodes', (t) => {
     const el = getTreeElement();
     const tree = new InfiniteTree(el, {
         autoOpen: true,
-        data: { ...treeData }
+        data: getTreeData()
     })
 
     const found = tree.getOpenNodes().map(node => node.id);
@@ -327,7 +368,7 @@ test('tree.getOpenNodes', (t) => {
 test('tree.getRootNode', (t) => {
     const el = getTreeElement();
     const tree = new InfiniteTree(el, {
-        data: { ...treeData }
+        data: getTreeData()
     });
 
     const node = tree.getRootNode();
@@ -355,12 +396,44 @@ test('tree.getRootNode', (t) => {
 test('tree.getSelectedNode', (t) => {
     const el = getTreeElement();
     const tree = new InfiniteTree(el, {
-        data: { ...treeData }
+        data: getTreeData()
     });
 
     const node = tree.getNodeById('<root>');
-    t.equal(tree.selectNode(node), true);
+    t.ok(tree.selectNode(node));
     t.same(tree.getSelectedNode(), node);
+
+    t.end();
+});
+
+test('tree.insertNodeAfter', (t) => {
+    const el = getTreeElement();
+    const tree = new InfiniteTree(el, {
+        data: getTreeData()
+    });
+
+    const notNode = {};
+    tree.insertNodeAfter({ id: 'new-node' }, notNode);
+    t.equal(tree.getNodeById('new-node'), null);
+
+    tree.insertNodeAfter({ id: 'new-node' }, tree.getNodeById('<root>'));
+    t.same(tree.getNodeById('new-node'), tree.getNodeById('<root>').getNextSibling());
+
+    t.end();
+});
+
+test('tree.insertNodeBefore', (t) => {
+    const el = getTreeElement();
+    const tree = new InfiniteTree(el, {
+        data: getTreeData()
+    });
+
+    const notNode = {};
+    tree.insertNodeBefore({ id: 'new-node' }, notNode);
+    t.equal(tree.getNodeById('new-node'), null);
+
+    tree.insertNodeBefore({ id: 'new-node' }, tree.getNodeById('<root>'));
+    t.same(tree.getNodeById('new-node'), tree.getNodeById('<root>').getPreviousSibling());
 
     t.end();
 });
@@ -369,7 +442,7 @@ test('tree.openNode', (t) => {
     const el = getTreeElement();
     const tree = new InfiniteTree(el, {
         autoOpen: false,
-        data: { ...treeData }
+        data: getTreeData()
     });
 
     let eventFiredCount = 0;
@@ -378,21 +451,44 @@ test('tree.openNode', (t) => {
         ++eventFiredCount;
     });
 
-    // Open Node
-    t.equal(tree.openNode(), false);
-    t.equal(tree.nodes.length, 1);
-    tree.openNode(tree.getNodeById('<root>'), { silent: true }); // Prevent event from being triggered
+    // Not a Node object
+    t.notOk(tree.openNode());
+
+    // Not an existing Node object
+    t.notOk(tree.openNode(new Node()));
+
+    // The first node is `Node { id: "<root>" }`
+    t.same(tree.nodes[0], tree.getNodeById('<root>'));
+
+    // Should be no open nodes at initial
+    t.equal(tree.state.openNodes.length, 0);
+
+    // Pass `{ silent: true }` to prevent event from being triggered
+    t.ok(tree.openNode(tree.getNodeById('<root>'), { silent: true }));
     t.equal(tree.nodes.length, 3);
-    tree.openNode(tree.getNodeById('bravo'));
+    t.equal(tree.state.openNodes.length, 1);
+
+    t.equal(tree.openNode(tree.getNodeById('<root>')), false, 'it should return false when trying to re-open a node');
+
+    t.ok(tree.openNode(tree.getNodeById('bravo')));
     t.equal(tree.nodes.length, 6);
-    tree.openNode(tree.getNodeById('charlie'));
+    t.equal(tree.state.openNodes.length, 2);
+
+    t.ok(tree.openNode(tree.getNodeById('charlie')));
     t.equal(tree.nodes.length, 8);
-    tree.openNode(tree.getNodeById('hotel'));
+    t.equal(tree.state.openNodes.length, 3);
+
+    t.ok(tree.openNode(tree.getNodeById('hotel')));
     t.equal(tree.nodes.length, 9);
-    tree.openNode(tree.getNodeById('delta'));
+    t.equal(tree.state.openNodes.length, 4);
+
+    t.ok(tree.openNode(tree.getNodeById('delta')));
     t.equal(tree.nodes.length, 11);
-    tree.openNode(tree.getNodeById('india'));
+    t.equal(tree.state.openNodes.length, 5);
+
+    t.ok(tree.openNode(tree.getNodeById('india')));
     t.equal(tree.nodes.length, 12);
+    t.equal(tree.state.openNodes.length, 6);
 
     // Check event fired count
     t.equal(eventFiredCount, 5);
@@ -404,20 +500,48 @@ test('tree.removeChildNodes', (t) => {
     const el = getTreeElement();
     const tree = new InfiniteTree(el, {
         autoOpen: true,
-        data: { ...treeData }
+        data: getTreeData()
     });
 
+    const initialLength = tree.nodes.length;
+
+    // Select a node
+    t.ok(tree.selectNode(tree.getNodeById('india')));
+    t.equal(tree.nodes.length, initialLength);
+
     { // #1: Pass empty parameters
-        t.equal(tree.nodes.length, 12);
-        t.equal(tree.removeChildNodes(), false);
-        t.equal(tree.nodes.length, 12);
+        t.equal(tree.nodes.length, initialLength);
+        t.notOk(tree.removeChildNodes());
+        t.equal(tree.nodes.length, initialLength);
     }
 
-    { // #2: Remove a node
+    { // #2: Remove child nodes of "hotel"
+        const node = tree.getNodeById('hotel');
+        t.ok(tree.removeChildNodes(node));
+        t.equal(tree.nodes.length, initialLength - 2);
+        t.same(tree.getSelectedNode(), tree.getNodeById('hotel'));
+    }
+
+    { // #3: Remove child nodes of "charlie"
+        const node = tree.getNodeById('charlie');
+        t.ok(tree.removeChildNodes(node));
+        t.equal(tree.nodes.length, initialLength - 2 - 4);
+        t.same(tree.getSelectedNode(), tree.getNodeById('hotel'));
+    }
+
+    { // #4: Remove child nodes of "<root>"
         const node = tree.getNodeById('<root>');
-        t.equal(tree.nodes.length, 12);
-        t.equal(tree.removeChildNodes(node), true);
+        t.ok(tree.removeChildNodes(node));
         t.equal(tree.nodes.length, 1);
+        t.same(tree.getSelectedNode(), tree.getNodeById('<root>'));
+    }
+
+    { // #5: Remove child nodes of root node
+        const rootNode = tree.getRootNode();
+        t.ok(tree.removeChildNodes(rootNode));
+        t.equal(tree.nodes.length, 0);
+        t.same(tree.getSelectedNode(), null);
+        t.same(tree.getRootNode(), rootNode, 'the root node should not be changed');
     }
 
     t.end();
@@ -427,20 +551,52 @@ test('tree.removeNode', (t) => {
     const el = getTreeElement();
     const tree = new InfiniteTree(el, {
         autoOpen: true,
-        data: { ...treeData }
+        data: getTreeData()
     });
 
+    const initialLength = tree.nodes.length;
+
+    // Select a node
+    t.ok(tree.selectNode(tree.getNodeById('india')));
+    t.equal(tree.nodes.length, initialLength);
+
     { // #1: Pass empty parameters
-        t.equal(tree.nodes.length, 12);
-        t.equal(tree.removeNode(), false);
-        t.equal(tree.nodes.length, 12);
+        t.notOk(tree.removeNode());
+        t.equal(tree.nodes.length, initialLength);
     }
 
-    { // #2: Remove a node
+    { // #2: Remove "hotel"
+        const node = tree.getNodeById('hotel');
+        t.ok(tree.removeNode(node));
+        t.equal(tree.nodes.length, initialLength - 3);
+        t.same(tree.getSelectedNode(), tree.getNodeById('kilo'), 'the next sibling node of "hotel" is "kilo"');
+    }
+
+    { // #3: Remove "kilo"
+        const node = tree.getNodeById('kilo');
+        t.ok(tree.removeNode(node));
+        t.equal(tree.nodes.length, initialLength - 3 - 1);
+        t.same(tree.getSelectedNode(), tree.getNodeById('charlie'), 'the previous sibling node of "kilo" is charlie"');
+    }
+
+    { // #4: Remove "charlie"
+        const node = tree.getNodeById('charlie');
+        t.ok(tree.removeNode(node));
+        t.equal(tree.nodes.length, initialLength - 3 - 1 - 5);
+        t.same(tree.getSelectedNode(), tree.getNodeById('bravo'), 'the parent node of "charlie" is "bravo"');
+    }
+
+    { // #5: Remove "<root>"
         const node = tree.getNodeById('<root>');
-        t.equal(tree.nodes.length, 12);
-        t.equal(tree.removeNode(node), true);
+        t.ok(tree.removeNode(node));
         t.equal(tree.nodes.length, 0);
+        t.same(tree.getSelectedNode(), null, 'no more selected node');
+    }
+
+    { // #6: Remove root node
+        const rootNode = tree.getRootNode();
+        t.notOk(tree.removeNode(rootNode), 'root node cannot be removed');
+        t.same(tree.getRootNode(), rootNode, 'the root node should not be changed');
     }
 
     t.end();
@@ -450,7 +606,7 @@ test('tree.selectNode', (t) => {
     const el = getTreeElement();
     const tree = new InfiniteTree(el, {
         autoOpen: true,
-        data: { ...treeData }
+        data: getTreeData()
     });
 
     let eventFiredCount = 0;
@@ -460,7 +616,7 @@ test('tree.selectNode', (t) => {
     });
 
     // Select Node
-    t.same(tree.selectNode(), false);
+    t.notOk(tree.selectNode());
     t.same(tree.getSelectedNode(), null);
     tree.selectNode(tree.getNodeById('<root>'), { silent: true }); // Prevent event from being triggered
     t.same(tree.getSelectedNode(), tree.getNodeById('<root>'));
@@ -500,7 +656,7 @@ test('tree.toggleNode', (t) => {
     const el = getTreeElement();
     const tree = new InfiniteTree(el, {
         autoOpen: false,
-        data: { ...treeData }
+        data: getTreeData()
     });
 
     let eventFiredCount = 0;
@@ -514,7 +670,7 @@ test('tree.toggleNode', (t) => {
     });
 
     // Toggle Node
-    t.equal(tree.toggleNode(), false);
+    t.notOk(tree.toggleNode());
     t.equal(tree.nodes.length, 1);
     tree.toggleNode(tree.getNodeById('<root>'), { silent: true }); // Prevent event from being triggered
     t.equal(tree.nodes.length, 3);
@@ -541,18 +697,18 @@ test('tree.toString', (t) => {
     const el = getTreeElement();
     const tree = new InfiniteTree(el, {
         autoOpen: false,
-        data: { ...treeData }
+        data: getTreeData()
     });
 
     { // #1: Serialize the tree
         const found = tree.toString();
-        const wanted = '[{"id":null,"children":[{"id":"<root>","children":[],"state":{"depth":0,"open":false,"path":".0","prefixMask":"0","total":0},"label":"<root>"},{"id":"<root>","children":[{"id":"bravo","children":[{"id":"charlie","children":[{"id":"delta","children":[],"state":{"depth":3,"open":false,"path":".0.1.0.0","prefixMask":"0001","total":0,"selected":false},"label":"Delta"},{"id":"delta","children":[],"state":{"depth":3,"open":false,"path":".0.1.0.0","prefixMask":"0001","total":0,"selected":false},"label":"Delta"}],"state":{"depth":2,"open":false,"path":".0.1.0","prefixMask":"000","total":0,"selected":false},"label":"Charlie"},{"id":"charlie","children":[],"state":{"depth":2,"open":false,"path":".0.1.0","prefixMask":"000","total":0,"selected":false},"label":"Charlie"}],"state":{"depth":1,"open":false,"path":".0.1","prefixMask":"00","total":0,"selected":false},"label":"Bravo"},{"id":"bravo","children":[{"id":"hotel","children":[{"id":"india","children":[],"state":{"depth":3,"open":false,"path":".0.1.1.0","prefixMask":"0001","total":0,"selected":false},"label":"India"}],"state":{"depth":2,"open":false,"path":".0.1.1","prefixMask":"000","total":0,"selected":false},"label":"Hotel"}],"state":{"depth":1,"open":false,"path":".0.1","prefixMask":"00","total":0,"selected":false},"label":"Bravo"},{"id":"bravo","children":[],"state":{"depth":1,"open":false,"path":".0.1","prefixMask":"00","total":0,"selected":false},"label":"Bravo"}],"state":{"depth":0,"open":false,"path":".0","prefixMask":"0","total":0},"label":"<root>"}],"state":{"depth":-1,"open":true,"path":"","prefixMask":"","total":1}}]';
+        const wanted = '[{"id":null,"children":[{"id":"<root>","children":[],"state":{"depth":0,"open":false,"path":".0","prefixMask":"0","total":0},"label":"<root>"},{"id":"<root>","children":[{"id":"bravo","children":[{"id":"charlie","children":[{"id":"delta","children":[],"state":{"depth":3,"open":false,"path":".0.1.0.0","prefixMask":"0001","total":0},"label":"Delta"},{"id":"delta","children":[],"state":{"depth":3,"open":false,"path":".0.1.0.0","prefixMask":"0001","total":0},"label":"Delta"}],"state":{"depth":2,"open":false,"path":".0.1.0","prefixMask":"000","total":0},"label":"Charlie"},{"id":"charlie","children":[],"state":{"depth":2,"open":false,"path":".0.1.0","prefixMask":"000","total":0},"label":"Charlie"}],"state":{"depth":1,"open":false,"path":".0.1","prefixMask":"00","total":0},"label":"Bravo"},{"id":"bravo","children":[{"id":"hotel","children":[{"id":"india","children":[],"state":{"depth":3,"open":false,"path":".0.1.1.0","prefixMask":"0001","total":0},"label":"India"}],"state":{"depth":2,"open":false,"path":".0.1.1","prefixMask":"000","total":0},"label":"Hotel"}],"state":{"depth":1,"open":false,"path":".0.1","prefixMask":"00","total":0},"label":"Bravo"},{"id":"bravo","children":[],"state":{"depth":1,"open":false,"path":".0.1","prefixMask":"00","total":0},"label":"Bravo"}],"state":{"depth":0,"open":false,"path":".0","prefixMask":"0","total":0},"label":"<root>"}],"state":{"depth":-1,"open":true,"path":"","prefixMask":"","total":1}}]';
         t.same(JSON.parse(found), JSON.parse(wanted));
     }
 
     { // #2: Serialize a node
         const found = tree.toString(tree.getNodeById('bravo'));
-        const wanted = '[{"id":"bravo","label":"Bravo","children":[{"id":"charlie","label":"Charlie","children":[{"id":"delta","label":"Delta","children":[],"state":{"depth":3,"open":false,"path":".0.1.0.0","prefixMask":"0001","total":0,"selected":false}},{"id":"delta","label":"Delta","children":[],"state":{"depth":3,"open":false,"path":".0.1.0.0","prefixMask":"0001","total":0,"selected":false}}],"state":{"depth":2,"open":false,"path":".0.1.0","prefixMask":"000","total":0,"selected":false}},{"id":"charlie","label":"Charlie","children":[],"state":{"depth":2,"open":false,"path":".0.1.0","prefixMask":"000","total":0,"selected":false}}],"state":{"depth":1,"open":false,"path":".0.1","prefixMask":"00","total":0,"selected":false}},{"id":"bravo","label":"Bravo","children":[{"id":"hotel","label":"Hotel","children":[{"id":"india","label":"India","children":[],"state":{"depth":3,"open":false,"path":".0.1.1.0","prefixMask":"0001","total":0,"selected":false}}],"state":{"depth":2,"open":false,"path":".0.1.1","prefixMask":"000","total":0,"selected":false}}],"state":{"depth":1,"open":false,"path":".0.1","prefixMask":"00","total":0,"selected":false}},{"id":"bravo","label":"Bravo","children":[],"state":{"depth":1,"open":false,"path":".0.1","prefixMask":"00","total":0,"selected":false}}]';
+        const wanted = '[{"id":"bravo","label":"Bravo","children":[{"id":"charlie","label":"Charlie","children":[{"id":"delta","label":"Delta","children":[],"state":{"depth":3,"open":false,"path":".0.1.0.0","prefixMask":"0001","total":0}},{"id":"delta","label":"Delta","children":[],"state":{"depth":3,"open":false,"path":".0.1.0.0","prefixMask":"0001","total":0}}],"state":{"depth":2,"open":false,"path":".0.1.0","prefixMask":"000","total":0}},{"id":"charlie","label":"Charlie","children":[],"state":{"depth":2,"open":false,"path":".0.1.0","prefixMask":"000","total":0}}],"state":{"depth":1,"open":false,"path":".0.1","prefixMask":"00","total":0}},{"id":"bravo","label":"Bravo","children":[{"id":"hotel","label":"Hotel","children":[{"id":"india","label":"India","children":[],"state":{"depth":3,"open":false,"path":".0.1.1.0","prefixMask":"0001","total":0}}],"state":{"depth":2,"open":false,"path":".0.1.1","prefixMask":"000","total":0}}],"state":{"depth":1,"open":false,"path":".0.1","prefixMask":"00","total":0}},{"id":"bravo","label":"Bravo","children":[],"state":{"depth":1,"open":false,"path":".0.1","prefixMask":"00","total":0}}]';
         t.same(JSON.parse(found), JSON.parse(wanted));
     }
 
@@ -563,7 +719,7 @@ test('tree.update', (t) => {
     const el = getTreeElement();
     const tree = new InfiniteTree(el, {
         autoOpen: false,
-        data: { ...treeData }
+        data: getTreeData()
     });
 
     let eventFiredCount = 0;
@@ -585,7 +741,7 @@ test('tree.updateNode', (t) => {
     const el = getTreeElement();
     const tree = new InfiniteTree(el, {
         autoOpen: false,
-        data: { ...treeData }
+        data: getTreeData()
     });
 
     const node = tree.getNodeById('<root>');
