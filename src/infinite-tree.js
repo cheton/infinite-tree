@@ -787,7 +787,7 @@ class InfiniteTree extends events.EventEmitter {
                 }
             });
 
-            return false;
+            return true;
         }
 
         node.state.open = true; // Set node.state.open to true
