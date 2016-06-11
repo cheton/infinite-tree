@@ -851,7 +851,11 @@ class InfiniteTree extends events.EventEmitter {
             const rangeTo = parentNodeIndex + parentNode.state.total;
 
             if ((rangeFrom <= selectedIndex) && (selectedIndex <= rangeTo)) {
-                this.selectNode(parentNode, options);
+                if (parentNode === this.state.rootNode) {
+                    this.selectNode(null, options);
+                } else {
+                    this.selectNode(parentNode, options);
+                }
             }
         }
 
@@ -929,7 +933,12 @@ class InfiniteTree extends events.EventEmitter {
                 // 2. previous sibling node
                 // 3. parent node
                 const selectedNode = node.getNextSibling() || node.getPreviousSibling() || node.getParent();
-                this.selectNode(selectedNode, options);
+
+                if (selectedNode === this.state.rootNode) {
+                    this.selectNode(null, options);
+                } else {
+                    this.selectNode(selectedNode, options);
+                }
             }
         }
 
