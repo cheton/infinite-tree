@@ -1,4 +1,4 @@
-/*! infinite-tree v1.5.1 | (c) 2016 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
+/*! infinite-tree v1.5.2 | (c) 2016 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -126,8 +126,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return true;
 	};
 
-	var createRootNode = function createRootNode() {
-	    return new _flattree.Node({
+	var createRootNode = function createRootNode(rootNode) {
+	    return Object.assign(rootNode || new _flattree.Node(), {
 	        parent: null,
 	        children: [],
 	        state: {
@@ -610,7 +610,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.nodes = [];
 	        this.rows = [];
 	        this.state.openNodes = [];
-	        this.state.rootNode = createRootNode();
+	        this.state.rootNode = createRootNode(this.state.rootNode);
 	        this.state.selectedNode = null;
 	    };
 	    // Closes a node to hide its children.
@@ -855,7 +855,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            return node;
 	        }(this.nodes.length > 0 ? this.nodes[0] : null);
 
-	        this.state.rootNode = rootNode || createRootNode(); // Create a new root node if rootNode is null
+	        this.state.rootNode = rootNode || createRootNode(this.state.rootNode); // Create a new root node if rootNode is null
 
 	        // Update the lookup table with newly added nodes
 	        this.flattenChildNodes(this.state.rootNode).forEach(function (node) {
@@ -953,7 +953,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                }
 	            });
 
-	            return false;
+	            return true;
 	        }
 
 	        node.state.open = true; // Set node.state.open to true
@@ -1008,6 +1008,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (parentNode.children.length === 0) {
 	            return false;
 	        }
+	        if (parentNode === this.state.rootNode) {
+	            this.clear();
+	            return true;
+	        }
 
 	        var parentNodeIndex = this.nodes.indexOf(parentNode);
 
@@ -1023,7 +1027,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var rangeTo = parentNodeIndex + parentNode.state.total;
 
 	            if (rangeFrom <= selectedIndex && selectedIndex <= rangeTo) {
-	                this.selectNode(parentNode, options);
+	                if (parentNode === this.state.rootNode) {
+	                    this.selectNode(null, options);
+	                } else {
+	                    this.selectNode(parentNode, options);
+	                }
 	            }
 	        }
 
@@ -1108,7 +1116,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	                // 2. previous sibling node
 	                // 3. parent node
 	                var selectedNode = node.getNextSibling() || node.getPreviousSibling() || node.getParent();
-	                this.selectNode(selectedNode, options);
+
+	                if (selectedNode === this.state.rootNode) {
+	                    this.selectNode(null, options);
+	                } else {
+	                    this.selectNode(selectedNode, options);
+	                }
 	            }
 	        }
 
@@ -1218,6 +1231,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	            return false;
 	        }
 	        if (typeof shouldSelectNode === 'function' && !shouldSelectNode(node)) {
+	            return false;
+	        }
+	        if (node === this.state.rootNode) {
 	            return false;
 	        }
 
