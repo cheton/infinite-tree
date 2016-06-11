@@ -505,29 +505,43 @@ test('tree.removeChildNodes', (t) => {
 
     const initialLength = tree.nodes.length;
 
+    // Select a node
+    t.ok(tree.selectNode(tree.getNodeById('india')));
+    t.equal(tree.nodes.length, initialLength);
+
     { // #1: Pass empty parameters
         t.equal(tree.nodes.length, initialLength);
         t.notOk(tree.removeChildNodes());
         t.equal(tree.nodes.length, initialLength);
     }
 
-    { // #2: Remove `Node { id: "charlie" }`
-        const node = tree.getNodeById('charlie');
-        t.ok(tree.selectNode(node));
-        t.same(tree.getSelectedNode(), node);
-        t.equal(tree.nodes.length, initialLength);
+    { // #2: Remove child nodes of "hotel"
+        const node = tree.getNodeById('hotel');
         t.ok(tree.removeChildNodes(node));
-        t.equal(tree.nodes.length, initialLength - 4);
+        t.equal(tree.nodes.length, initialLength - 2);
+        t.same(tree.getSelectedNode(), tree.getNodeById('hotel'));
     }
 
-    { // #3: Remove `Node { id: "<root>" }`
-        const node = tree.getNodeById('<root>');
-        t.equal(tree.nodes.length, initialLength - 4);
+    { // #3: Remove child nodes of "charlie"
+        const node = tree.getNodeById('charlie');
         t.ok(tree.removeChildNodes(node));
-        t.same(tree.getSelectedNode(), node);
-        t.equal(tree.nodes.length, 1);
+        t.equal(tree.nodes.length, initialLength - 2 - 4);
+        t.same(tree.getSelectedNode(), tree.getNodeById('hotel'));
+    }
 
-        t.notOk(tree.removeChildNodes(node), 'it should return false if a node has already been removed');
+    { // #4: Remove child nodes of "<root>"
+        const node = tree.getNodeById('<root>');
+        t.ok(tree.removeChildNodes(node));
+        t.equal(tree.nodes.length, 1);
+        t.same(tree.getSelectedNode(), tree.getNodeById('<root>'));
+    }
+
+    { // #5: Remove child nodes of root node
+        const rootNode = tree.getRootNode();
+        t.ok(tree.removeChildNodes(rootNode));
+        t.equal(tree.nodes.length, 0);
+        t.same(tree.getSelectedNode(), null);
+        t.same(tree.getRootNode(), rootNode, 'the root node should not be changed');
     }
 
     t.end();
@@ -540,17 +554,49 @@ test('tree.removeNode', (t) => {
         data: getTreeData()
     });
 
+    const initialLength = tree.nodes.length;
+
+    // Select a node
+    t.ok(tree.selectNode(tree.getNodeById('india')));
+    t.equal(tree.nodes.length, initialLength);
+
     { // #1: Pass empty parameters
-        t.equal(tree.nodes.length, 12);
         t.notOk(tree.removeNode());
-        t.equal(tree.nodes.length, 12);
+        t.equal(tree.nodes.length, initialLength);
     }
 
-    { // #2: Remove a node
+    { // #2: Remove "hotel"
+        const node = tree.getNodeById('hotel');
+        t.ok(tree.removeNode(node));
+        t.equal(tree.nodes.length, initialLength - 3);
+        t.same(tree.getSelectedNode(), tree.getNodeById('kilo'), 'the next sibling node of "hotel" is "kilo"');
+    }
+
+    { // #3: Remove "kilo"
+        const node = tree.getNodeById('kilo');
+        t.ok(tree.removeNode(node));
+        t.equal(tree.nodes.length, initialLength - 3 - 1);
+        t.same(tree.getSelectedNode(), tree.getNodeById('charlie'), 'the previous sibling node of "kilo" is charlie"');
+    }
+
+    { // #4: Remove "charlie"
+        const node = tree.getNodeById('charlie');
+        t.ok(tree.removeNode(node));
+        t.equal(tree.nodes.length, initialLength - 3 - 1 - 5);
+        t.same(tree.getSelectedNode(), tree.getNodeById('bravo'), 'the parent node of "charlie" is "bravo"');
+    }
+
+    { // #5: Remove "<root>"
         const node = tree.getNodeById('<root>');
-        t.equal(tree.nodes.length, 12);
         t.ok(tree.removeNode(node));
         t.equal(tree.nodes.length, 0);
+        t.same(tree.getSelectedNode(), null, 'no more selected node');
+    }
+
+    { // #6: Remove root node
+        const rootNode = tree.getRootNode();
+        t.notOk(tree.removeNode(rootNode), 'root node cannot be removed');
+        t.same(tree.getRootNode(), rootNode, 'the root node should not be changed');
     }
 
     t.end();
