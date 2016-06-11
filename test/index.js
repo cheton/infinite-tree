@@ -194,13 +194,18 @@ test('tree.flattenChildNodes', (t) => {
         data: { ...treeData }
     });
 
-    { // #1: Flatten all nodes within the tree
+    { // #1: Flatten an non-Node object
+        const nodes = tree.flattenChildNodes({});
+        t.equal(nodes.length, 0);
+    }
+
+    { // #2: Flatten all nodes within the tree
         const nodes = tree.flattenChildNodes();
         const wanted = tree.nodes;
         t.same(nodes, wanted);
     }
 
-    { // #2: Flatten all child nodes of a node
+    { // #3: Flatten all child nodes of a node
         const node = tree.getNodeById('<root>');
         const nodes = tree.flattenChildNodes(node);
         const wanted = tree.nodes.slice(tree.nodes.indexOf(node) + 1);
@@ -217,22 +222,22 @@ test('tree.flattenNode', (t) => {
         data: { ...treeData }
     });
 
-    { // #1: Flatten a node
-        const node = tree.getNodeById('bravo');
-        const nodes = tree.flattenNode(node);
-        const wanted = tree.nodes.slice(tree.nodes.indexOf(node) + 0);
-        t.same(nodes, wanted);
-    }
-
-    { // #2: Pass null as a parameter
+    { // #1: Pass null as a parameter
         const nodes = tree.flattenNode(null);
         const wanted = [];
         t.same(nodes, wanted);
     }
 
-    { // #3: Pass empty parameters
+    { // #2: Pass empty parameters
         const nodes = tree.flattenNode();
         const wanted = [];
+        t.same(nodes, wanted);
+    }
+
+    { // #3: Flatten a node
+        const node = tree.getNodeById('bravo');
+        const nodes = tree.flattenNode(node);
+        const wanted = tree.nodes.slice(tree.nodes.indexOf(node) + 0);
         t.same(nodes, wanted);
     }
 
@@ -245,7 +250,12 @@ test('tree.getChildNodes', (t) => {
         data: { ...treeData }
     });
 
-    { // #1: Get child nodes of the root node
+    { // #1: Flatten an non-Node object
+        const nodes = tree.getChildNodes({});
+        t.equal(nodes.length, 0);
+    }
+
+    { // #2: Get child nodes of the root node
         const nodes = tree.getChildNodes().map((node) => {
             return {
                 id: node.id,
@@ -267,7 +277,7 @@ test('tree.getChildNodes', (t) => {
         t.same(nodes, wanted);
     }
 
-    { // #2: Get child nodes of a node
+    { // #3: Get child nodes of a node
         const node = tree.getNodeById('bravo');
         const nodes = tree.getChildNodes(node).map((node) => {
             return {
@@ -301,11 +311,14 @@ test('tree.getNodeById', (t) => {
         data: { ...treeData }
     });
 
-    const rootNode = tree.getNodeById('<root>');
-    const noneNode = tree.getNodeById('none');
+    t.notEqual(tree.getNodeById('<root>').id, null);
+    t.equal(tree.getNodeById('none'), null);
 
-    t.equal(rootNode.id, '<root>');
-    t.equal(noneNode, null);
+    // Make sure it will rebuild the nodeTable if a node does not exist
+    tree.nodeTable.clear();
+    t.equal(tree.nodeTable.get('<root>'), undefined);
+    t.notEqual(tree.getNodeById('<root>'), null);
+    t.same(tree.nodeTable.get('<root>'), tree.getNodeById('<root>'));
 
     t.end();
 });
