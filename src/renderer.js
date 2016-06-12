@@ -1,4 +1,5 @@
-import { buildHTML, classNames, quoteattr } from './helper';
+import classNames from 'classnames';
+import { buildHTML, quoteattr } from './helper';
 
 const defaultRowRenderer = (node, treeOptions) => {
     const { id, name, loadOnDemand = false, children, state } = node;

@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import debounce from 'lodash/debounce';
 import InfiniteTree from '../../src';
 import renderer from './renderer';

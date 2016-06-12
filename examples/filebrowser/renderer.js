@@ -1,4 +1,5 @@
-import { buildHTML, classNames, quoteattr } from '../../src/helper';
+import classNames from 'classnames';
+import { buildHTML, quoteattr } from '../../src/helper';
 
 const renderer = (node, treeOptions) => {
     const { id, name, loadOnDemand = false, children, state, props = {} } = node;

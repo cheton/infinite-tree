@@ -13,21 +13,6 @@ global.document = document;
 global.window = window;
 global.navigator = window.navigator;
 
-test('classnames', (t) => {
-    const { classNames } = helper;
-
-    const result = classNames(
-        'btn',
-        { 'btn-default': true },
-        { 'btn-primary': false },
-        { 'hidden': true }
-    );
-    const wanted = 'btn btn-default hidden';
-    t.equal(result, wanted);
-
-    t.end();
-});
-
 test('isDOMElement', (t) => {
     const { isDOMElement } = helper;
 

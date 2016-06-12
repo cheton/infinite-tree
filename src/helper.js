@@ -83,25 +83,6 @@ const toggleClass = (el, className) => {
     }
 };
 
-const classNames = (...args) => {
-    let classNames = [];
-    args.forEach((arg) => {
-        if (Array.isArray(arg)) {
-            classNames = classNames.concat(arg);
-        } else if (typeof arg === 'object') {
-            Object.keys(arg).forEach((className) => {
-                const ok = arg[className];
-                if (!!ok) {
-                    classNames.push(className);
-                }
-            });
-        } else {
-            classNames.push(arg);
-        }
-    });
-    return classNames.join(' ');
-};
-
 // http://stackoverflow.com/questions/384286/javascript-isdom-how-do-you-check-if-a-javascript-object-is-a-dom-object
 
 //Returns true if it is a DOM element
@@ -205,7 +186,6 @@ export {
     addClass,
     removeClass,
     toggleClass,
-    classNames,
     isDOMElement,
     isDOMNode,
     quoteattr,

@@ -1,8 +1,9 @@
+import classNames from 'classnames';
 import InfiniteTree from '../../src';
 import renderer from './renderer';
 import './index.styl';
 import './animation.styl';
-import { classNames, addClass, removeClass, hasClass, addEventListener, preventDefault, stopPropagation, quoteattr } from '../../src/helper';
+import { addClass, removeClass, hasClass, addEventListener, preventDefault, stopPropagation, quoteattr } from '../../src/helper';
 import data from '../data.json';
 
 const updatePreview = (node) => {

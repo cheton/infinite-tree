@@ -35,6 +35,7 @@
     "tree"
   ],
   "dependencies": {
+    "classnames": "^2.2.5",
     "clusterize.js": "^0.16.0",
     "flattree": "^0.9.0"
   },

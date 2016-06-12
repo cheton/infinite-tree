@@ -1,4 +1,5 @@
 import events from 'events';
+import classNames from 'classnames';
 import Clusterize from 'clusterize.js';
 import { flatten, Node } from 'flattree';
 import LookupTable from './lookup-table';
@@ -7,7 +8,6 @@ import {
     preventDefault,
     addEventListener,
     removeEventListener,
-    classNames,
     addClass,
     hasClass,
     removeClass,

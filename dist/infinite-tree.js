@@ -81,19 +81,23 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _events2 = _interopRequireDefault(_events);
 
-	var _clusterize = __webpack_require__(3);
+	var _classnames = __webpack_require__(3);
+
+	var _classnames2 = _interopRequireDefault(_classnames);
+
+	var _clusterize = __webpack_require__(4);
 
 	var _clusterize2 = _interopRequireDefault(_clusterize);
 
-	var _flattree = __webpack_require__(4);
+	var _flattree = __webpack_require__(5);
 
-	var _lookupTable = __webpack_require__(8);
+	var _lookupTable = __webpack_require__(9);
 
 	var _lookupTable2 = _interopRequireDefault(_lookupTable);
 
-	var _renderer = __webpack_require__(9);
+	var _renderer = __webpack_require__(10);
 
-	var _helper = __webpack_require__(10);
+	var _helper = __webpack_require__(11);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -414,7 +418,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        if (this.options.layout === 'table') {
 	            var tableElement = document.createElement('table');
-	            tableElement.className = (0, _helper.classNames)('infinite-tree', 'infinite-tree-table');
+	            tableElement.className = (0, _classnames2['default'])('infinite-tree', 'infinite-tree-table');
 	            var contentElement = document.createElement('tbody');
 	            tableElement.appendChild(contentElement);
 	            this.scrollElement.appendChild(tableElement);
@@ -431,8 +435,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	            tag = 'div';
 	        }
 
-	        this.scrollElement.className = (0, _helper.classNames)('infinite-tree', 'infinite-tree-scroll');
-	        this.contentElement.className = (0, _helper.classNames)('infinite-tree', 'infinite-tree-content');
+	        this.scrollElement.className = (0, _classnames2['default'])('infinite-tree', 'infinite-tree-scroll');
+	        this.contentElement.className = (0, _classnames2['default'])('infinite-tree', 'infinite-tree-content');
 
 	        this.options.el.appendChild(this.scrollElement);
 
@@ -1736,6 +1740,60 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 3 */
 /***/ function(module, exports, __webpack_require__) {
 
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
+	  Copyright (c) 2016 Jed Watson.
+	  Licensed under the MIT License (MIT), see
+	  http://jedwatson.github.io/classnames
+	*/
+	/* global define */
+
+	(function () {
+		'use strict';
+
+		var hasOwn = {}.hasOwnProperty;
+
+		function classNames () {
+			var classes = [];
+
+			for (var i = 0; i < arguments.length; i++) {
+				var arg = arguments[i];
+				if (!arg) continue;
+
+				var argType = typeof arg;
+
+				if (argType === 'string' || argType === 'number') {
+					classes.push(arg);
+				} else if (Array.isArray(arg)) {
+					classes.push(classNames.apply(null, arg));
+				} else if (argType === 'object') {
+					for (var key in arg) {
+						if (hasOwn.call(arg, key) && arg[key]) {
+							classes.push(key);
+						}
+					}
+				}
+			}
+
+			return classes.join(' ');
+		}
+
+		if (typeof module !== 'undefined' && module.exports) {
+			module.exports = classNames;
+		} else if (true) {
+			// register as 'classnames', consistent with npm package name
+			!(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_RESULT__ = function () {
+				return classNames;
+			}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+		} else {
+			window.classNames = classNames;
+		}
+	}());
+
+
+/***/ },
+/* 4 */
+/***/ function(module, exports, __webpack_require__) {
+
 	/*! Clusterize.js - v0.16.0 - 2016-03-12
 	* http://NeXTs.github.com/Clusterize.js/
 	* Copyright (c) 2015 Denis Lukov; Licensed GPLv3 */
@@ -2065,7 +2123,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}));
 
 /***/ },
-/* 4 */
+/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2073,11 +2131,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.__esModule = true;
 	exports.Node = exports.flatten = undefined;
 
-	var _flatten = __webpack_require__(5);
+	var _flatten = __webpack_require__(6);
 
 	var _flatten2 = _interopRequireDefault(_flatten);
 
-	var _node = __webpack_require__(7);
+	var _node = __webpack_require__(8);
 
 	var _node2 = _interopRequireDefault(_node);
 
@@ -2088,18 +2146,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.Node = _node2['default'];
 
 /***/ },
-/* 5 */
+/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _extend = __webpack_require__(6);
+	var _extend = __webpack_require__(7);
 
 	var _extend2 = _interopRequireDefault(_extend);
 
-	var _node = __webpack_require__(7);
+	var _node = __webpack_require__(8);
 
 	var _node2 = _interopRequireDefault(_node);
 
@@ -2293,7 +2351,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports['default'] = flatten;
 
 /***/ },
-/* 6 */
+/* 7 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -2326,14 +2384,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports['default'] = extend;
 
 /***/ },
-/* 7 */
+/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _extend = __webpack_require__(6);
+	var _extend = __webpack_require__(7);
 
 	var _extend2 = _interopRequireDefault(_extend);
 
@@ -2452,7 +2510,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports['default'] = Node;
 
 /***/ },
-/* 8 */
+/* 9 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -2497,7 +2555,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports["default"] = LookupTable;
 
 /***/ },
-/* 9 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2505,7 +2563,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.__esModule = true;
 	exports.defaultRowRenderer = undefined;
 
-	var _helper = __webpack_require__(10);
+	var _classnames = __webpack_require__(3);
+
+	var _classnames2 = _interopRequireDefault(_classnames);
+
+	var _helper = __webpack_require__(11);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 	var defaultRowRenderer = function defaultRowRenderer(node, treeOptions) {
 	    var id = node.id;
@@ -2539,19 +2603,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var toggler = (0, _helper.buildHTML)('a', togglerContent, {
 	        'class': function () {
 	            if (!more && loadOnDemand) {
-	                return (0, _helper.classNames)(treeOptions.togglerClass, 'infinite-tree-closed');
+	                return (0, _classnames2['default'])(treeOptions.togglerClass, 'infinite-tree-closed');
 	            }
 	            if (more && open) {
-	                return (0, _helper.classNames)(treeOptions.togglerClass);
+	                return (0, _classnames2['default'])(treeOptions.togglerClass);
 	            }
 	            if (more && !open) {
-	                return (0, _helper.classNames)(treeOptions.togglerClass, 'infinite-tree-closed');
+	                return (0, _classnames2['default'])(treeOptions.togglerClass, 'infinite-tree-closed');
 	            }
 	            return '';
 	        }()
 	    });
 	    var title = (0, _helper.buildHTML)('span', (0, _helper.quoteattr)(name), {
-	        'class': (0, _helper.classNames)('infinite-tree-title')
+	        'class': (0, _classnames2['default'])('infinite-tree-title')
 	    });
 	    var treeNode = (0, _helper.buildHTML)('div', toggler + title, {
 	        'class': 'infinite-tree-node',
@@ -2566,7 +2630,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        'data-selected': selected,
 	        'data-children': childrenLength,
 	        'data-total': total,
-	        'class': (0, _helper.classNames)('infinite-tree-item', { 'infinite-tree-selected': selected }),
+	        'class': (0, _classnames2['default'])('infinite-tree-item', { 'infinite-tree-selected': selected }),
 	        'droppable': droppable
 	    });
 	};
@@ -2574,7 +2638,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.defaultRowRenderer = defaultRowRenderer;
 
 /***/ },
-/* 10 */
+/* 11 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -2672,29 +2736,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	    } else {
 	        addClass(el, className);
 	    }
-	};
-
-	var classNames = function classNames() {
-	    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-	        args[_key] = arguments[_key];
-	    }
-
-	    var classNames = [];
-	    args.forEach(function (arg) {
-	        if (Array.isArray(arg)) {
-	            classNames = classNames.concat(arg);
-	        } else if ((typeof arg === 'undefined' ? 'undefined' : _typeof(arg)) === 'object') {
-	            Object.keys(arg).forEach(function (className) {
-	                var ok = arg[className];
-	                if (!!ok) {
-	                    classNames.push(className);
-	                }
-	            });
-	        } else {
-	            classNames.push(arg);
-	        }
-	    });
-	    return classNames.join(' ');
 	};
 
 	// http://stackoverflow.com/questions/384286/javascript-isdom-how-do-you-check-if-a-javascript-object-is-a-dom-object
@@ -2797,7 +2838,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.addClass = addClass;
 	exports.removeClass = removeClass;
 	exports.toggleClass = toggleClass;
-	exports.classNames = classNames;
 	exports.isDOMElement = isDOMElement;
 	exports.isDOMNode = isDOMNode;
 	exports.quoteattr = quoteattr;
