@@ -1,4 +1,5 @@
 import classNames from 'classnames';
+import escapeHTML from 'escape-html';
 import InfiniteTree from '../../src';
 import './index.styl';
 import './animation.styl';

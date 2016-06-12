@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import escapeHTML from 'escape-html';
-import { buildHTML } from './helper';
+import tag from 'html-tagjs';
 
 const defaultRowRenderer = (node, treeOptions) => {
     const { id, name, loadOnDemand = false, children, state } = node;
@@ -19,7 +19,7 @@ const defaultRowRenderer = (node, treeOptions) => {
     if (more && !open) {
         togglerContent = '►';
     }
-    const toggler = buildHTML('a', togglerContent, {
+    const toggler = tag('a', {
         'class': (() => {
             if (!more && loadOnDemand) {
                 return classNames(treeOptions.togglerClass, 'infinite-tree-closed');
@@ -32,16 +32,16 @@ const defaultRowRenderer = (node, treeOptions) => {
             }
             return '';
         })()
-    });
-    const title = buildHTML('span', escapeHTML(name), {
+    }, togglerContent);
+    const title = tag('span', {
         'class': classNames('infinite-tree-title')
-    });
-    const treeNode = buildHTML('div', toggler + title, {
+    }, escapeHTML(name));
+    const treeNode = tag('div', {
         'class': 'infinite-tree-node',
         'style': 'margin-left: ' + depth * 18 + 'px'
-    });
+    }, toggler + title);
 
-    return buildHTML('div', treeNode, {
+    return tag('div', {
         'data-id': id,
         'data-expanded': more && open,
         'data-depth': depth,
@@ -54,7 +54,7 @@ const defaultRowRenderer = (node, treeOptions) => {
             { 'infinite-tree-selected': selected }
         ),
         'droppable': droppable
-    });
+    }, treeNode);
 };
 
 export {

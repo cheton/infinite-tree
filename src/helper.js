@@ -1,5 +1,3 @@
-import escapeHTML from 'escape-html';
-
 /* eslint no-restricted-syntax: 0 */
 const preventDefault = (e) => {
     if (typeof e.preventDefault !== 'undefined') {
@@ -103,64 +101,6 @@ const isDOMNode = (o) => {
     return o && typeof o === 'object' && typeof o.nodeType === 'number' && typeof o.nodeName === 'string';
 };
 
-/**
- * Example #1:
- * =========================================================================
- * <a id="mymail href="http://mymail.example.com">My Mail</a>
- *
- * buildHTML('a', 'My Mail', {
- *     id: 'mymail',
- *     href: 'http://mymail.example.com'
- * });
- *
- * Example #2:
- * =========================================================================
- * <input id="myinput" type="text" value="myvalue" />
- *
- * buildHTML('input', {
- *   id: 'myinput',
- *   type: 'text',
- *   value: 'myvalue'
- * });
- *
- */
-const buildHTML = (tag, html, attrs) => {
-    switch (tag) {
-    case 'select':
-        if (typeof(html) === 'object') {
-            let options = html || {};
-            html = '';
-            for (let value in options) {
-                if (!options.hasOwnProperty(value)) {
-                    continue;
-                }
-                html += buildHTML('option', options[value] || '', { value: value });
-            }
-        }
-        break;
-
-    default:
-        if (typeof(html) === 'object') {
-            attrs = html;
-            html = undefined;
-        }
-        break;
-    }
-
-    let h = '<' + tag;
-    for (let attr in attrs) {
-        if (!attrs.hasOwnProperty(attr)) {
-            continue;
-        }
-        if (typeof attrs[attr] !== 'undefined') {
-            h += ' ' + attr + '="' + escapeHTML(attrs[attr]) + '"';
-        }
-    }
-    h += (typeof(html) !== 'undefined') ? '>' + html + '</' + tag + '>' : '/>';
-
-    return h;
-};
-
 export {
     preventDefault,
     stopPropagation,
@@ -172,6 +112,5 @@ export {
     removeClass,
     toggleClass,
     isDOMElement,
-    isDOMNode,
-    buildHTML
+    isDOMNode
 };

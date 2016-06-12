@@ -1,5 +1,6 @@
 import classNames from 'classnames';
-import { buildHTML } from '../../src/helper';
+import escapeHTML from 'escape-html';
+import tag from 'html-tagjs';
 
 const renderer = (node, treeOptions) => {
     const { id, name, loadOnDemand = false, children, state, props = {} } = node;
@@ -10,21 +11,21 @@ const renderer = (node, treeOptions) => {
 
     let togglerContent = '';
     if (!more && loadOnDemand) {
-        togglerContent = buildHTML('i', '', {
+        togglerContent = tag('i', {
             'class': classNames('glyphicon', 'glyphicon-triangle-right')
-        });
+        }, '');
     }
     if (more && open) {
-        togglerContent = buildHTML('i', '', {
+        togglerContent = tag('i', {
             'class': classNames('glyphicon', 'glyphicon-triangle-bottom')
-        });
+        }, '');
     }
     if (more && !open) {
-        togglerContent = buildHTML('i', '', {
+        togglerContent = tag('i', {
             'class': classNames('glyphicon', 'glyphicon-triangle-right')
-        });
+        }, '');
     }
-    const toggler = buildHTML('a', togglerContent, {
+    const toggler = tag('a', {
         'class': (() => {
             if (!more && loadOnDemand) {
                 return classNames(treeOptions.togglerClass, 'infinite-tree-closed');
@@ -37,9 +38,9 @@ const renderer = (node, treeOptions) => {
             }
             return '';
         })()
-    });
+    }, togglerContent);
 
-    const icon = buildHTML('i', '', {
+    const icon = tag('i', {
         'class': classNames(
             'infinite-tree-folder-icon',
             'glyphicon',
@@ -47,11 +48,13 @@ const renderer = (node, treeOptions) => {
             { 'glyphicon-folder-close': more && !open },
             { 'glyphicon-file': !more }
         )
-    });
-    const title = buildHTML('span', escapeHTML(name), {
+    }, '');
+
+    const title = tag('span', {
         'class': classNames('infinite-tree-title')
-    });
-    const loadingIcon = buildHTML('i', '', {
+    }, escapeHTML(name));
+
+    const loadingIcon = tag('i', {
         'style': 'margin-left: 5px',
         'class': classNames(
             { 'hidden': !loading },
@@ -59,14 +62,16 @@ const renderer = (node, treeOptions) => {
             'glyphicon-refresh',
             { 'rotating': loading }
         )
-    });
-    const count = buildHTML('span', childrenLength, {
+    }, '');
+
+    const count = tag('span', {
         'class': 'count'
-    });
-    const treeNode = buildHTML('div', toggler + icon + title + loadingIcon + count, {
+    }, childrenLength);
+
+    const treeNode = tag('div', {
         'class': 'infinite-tree-node',
         'style': 'margin-left: ' + depth * 18 + 'px'
-    });
+    }, toggler + icon + title + loadingIcon + count);
 
     let treeNodeAttributes = {
         'data-id': id,
@@ -85,7 +90,7 @@ const renderer = (node, treeOptions) => {
         treeNodeAttributes['droppable'] = true;
     }
 
-    return buildHTML('div', treeNode, treeNodeAttributes);
+    return tag('div', treeNodeAttributes, treeNode);
 };
 
 export default renderer;

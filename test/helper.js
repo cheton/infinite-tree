@@ -32,31 +32,3 @@ test('isDOMNode', (t) => {
 
     t.end();
 });
-
-test('buildHTML', (t) => {
-    const { buildHTML } = helper;
-
-    { // <button></button>
-        const html = buildHTML('button', 'Done', {
-            class: 'btn btn-default',
-            type: 'button',
-            name: 'btn-done'
-        });
-        const wanted = '<button class="btn btn-default" type="button" name="btn-done">Done</button>';
-        t.equal(html, wanted);
-    }
-
-    { // <select><option></option></select>
-        const options = {
-            key1: 'value1',
-            key2: 'value2'
-        };
-        const html = buildHTML('select', options, {
-            name: 'select-nv'
-        });
-        const wanted = '<select name="select-nv"><option value="key1">value1</option><option value="key2">value2</option></select>';
-        t.equal(html, wanted);
-    }
-
-    t.end();
-});
