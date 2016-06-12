@@ -1,5 +1,5 @@
 import elementClass from 'element-class';
-import { addEventListener } from '../src/helper';
+import { addEventListener } from '../src/dom-events';
 import '../src/index.styl';
 import * as _default from './default';
 import * as classic from './classic';

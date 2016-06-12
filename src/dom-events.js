@@ -1,4 +1,3 @@
-/* eslint no-restricted-syntax: 0 */
 const preventDefault = (e) => {
     if (typeof e.preventDefault !== 'undefined') {
         e.preventDefault();
@@ -13,13 +12,6 @@ const stopPropagation = (e) => {
     } else {
         e.cancelBubble = true;
     }
-};
-
-// http://blog.garstasio.com/you-dont-need-jquery/events/#sending-custom-events
-const dispatchEvent = (el, eventType) => {
-    const evt = document.createEvent('Event');
-    evt.initEvent(eventType, true, true); // can bubble, and is cancellable
-    el.dispatchEvent(evt);
 };
 
 // https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener#Compatibility
@@ -42,30 +34,9 @@ const removeEventListener = (target, type, listener) => {
     }
 };
 
-// http://stackoverflow.com/questions/384286/javascript-isdom-how-do-you-check-if-a-javascript-object-is-a-dom-object
-
-//Returns true if it is a DOM element
-const isDOMElement = (o) => {
-    if (typeof HTMLElement === 'object') {
-        return o instanceof HTMLElement;
-    }
-    return o && typeof o === 'object' && o.nodeType === 1 && typeof o.nodeName === 'string';
-};
-
-// Returns true if it is a DOM node
-const isDOMNode = (o) => {
-    if (typeof Node === 'object') {
-        return o instanceof Node;
-    }
-    return o && typeof o === 'object' && typeof o.nodeType === 'number' && typeof o.nodeName === 'string';
-};
-
 export {
     preventDefault,
     stopPropagation,
-    dispatchEvent,
     addEventListener,
-    removeEventListener,
-    isDOMElement,
-    isDOMNode
+    removeEventListener
 };

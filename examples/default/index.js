@@ -4,7 +4,7 @@ import escapeHTML from 'escape-html';
 import InfiniteTree from '../../src';
 import './index.styl';
 import './animation.styl';
-import { addEventListener, preventDefault, stopPropagation } from '../../src/helper';
+import { addEventListener, preventDefault, stopPropagation } from '../../src/dom-events';
 import data from '../data.json';
 
 const updatePreview = (node) => {

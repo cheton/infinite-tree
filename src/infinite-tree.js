@@ -1,16 +1,16 @@
 import events from 'events';
 import classNames from 'classnames';
-import elementClass from 'element-class';
 import Clusterize from 'clusterize.js';
+import elementClass from 'element-class';
+import isDOM from 'is-dom';
 import { flatten, Node } from 'flattree';
 import LookupTable from './lookup-table';
 import { defaultRowRenderer } from './renderer';
 import {
     preventDefault,
     addEventListener,
-    removeEventListener,
-    isDOMElement
-} from './helper';
+    removeEventListener
+} from './dom-events';
 
 const error = (...args) => {
     if (console && console.error) {
@@ -264,7 +264,7 @@ class InfiniteTree extends events.EventEmitter {
     constructor(el, options) {
         super();
 
-        if (isDOMElement(el)) {
+        if (isDOM(el)) {
             options = { ...options, el };
         } else {
             options = el;
