@@ -1,4 +1,5 @@
-import { addClass, removeClass, addEventListener } from '../src/helper';
+import elementClass from 'element-class';
+import { addEventListener } from '../src/helper';
 import '../src/index.styl';
 import * as _default from './default';
 import * as classic from './classic';
@@ -18,9 +19,9 @@ const routes = {
 
 let activeSectionId = window.location.hash.substr(2) || 'default';
 
-addClass(document.querySelector('#main .loading'), 'hidden');
-addClass(document.querySelector('#sidebar [data-section-id="' + activeSectionId + '"]').parentNode, 'active');
-addClass(document.querySelector('section[id="' + activeSectionId + '"]'), 'active');
+elementClass(document.querySelector('#main .loading')).add('hidden');
+elementClass(document.querySelector('#sidebar [data-section-id="' + activeSectionId + '"]').parentNode).add('active');
+elementClass(document.querySelector('section[id="' + activeSectionId + '"]')).add('active');
 routes[activeSectionId] && routes[activeSectionId]();
 
 addEventListener(document.getElementById('sidebar'), 'click', (e) => {
@@ -32,13 +33,13 @@ addEventListener(document.getElementById('sidebar'), 'click', (e) => {
     }
 
     if (activeSectionId) {
-        removeClass(document.querySelector('#sidebar [data-section-id="' + activeSectionId + '"]').parentNode, 'active');
-        removeClass(document.querySelector('section[id="' + activeSectionId + '"]'), 'active');
+        elementClass(document.querySelector('#sidebar [data-section-id="' + activeSectionId + '"]').parentNode).remove('active');
+        elementClass(document.querySelector('section[id="' + activeSectionId + '"]')).remove('active');
     }
 
     activeSectionId = target.getAttribute('data-section-id');
 
-    addClass(document.querySelector('#sidebar [data-section-id="' + activeSectionId + '"]').parentNode, 'active');
-    addClass(document.querySelector('section[id="' + activeSectionId + '"]'), 'active');
+    elementClass(document.querySelector('#sidebar [data-section-id="' + activeSectionId + '"]').parentNode).add('active');
+    elementClass(document.querySelector('section[id="' + activeSectionId + '"]')).add('active');
     routes[activeSectionId] && routes[activeSectionId]();
 });

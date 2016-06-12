@@ -1,9 +1,10 @@
 import classNames from 'classnames';
+import elementClass from 'element-class';
 import escapeHTML from 'escape-html';
 import InfiniteTree from '../../src';
 import './index.styl';
 import './animation.styl';
-import { addClass, removeClass, hasClass, addEventListener, preventDefault, stopPropagation } from '../../src/helper';
+import { addEventListener, preventDefault, stopPropagation } from '../../src/helper';
 import data from '../data.json';
 
 const updatePreview = (node) => {
@@ -32,11 +33,11 @@ const tree = new InfiniteTree(document.querySelector('#default [data-id="tree"]'
         accept: function(event, opts) {
             const { type, draggableTarget, droppableTarget, node } = opts;
 
-            if (hasClass(event.target, 'infinite-tree-overlay')) {
-                addClass(event.target, 'hover'); // add hover class
+            if (elementClass(event.target).has('infinite-tree-overlay')) {
+                elementClass(event.target).add('hover'); // add hover class
             } else {
                 const el = tree.contentElement.querySelector('.infinite-tree-overlay');
-                removeClass(el, 'hover'); // remove hover class
+                elementClass(el).remove('hover'); // remove hover class
             }
 
             return true;
@@ -44,8 +45,8 @@ const tree = new InfiniteTree(document.querySelector('#default [data-id="tree"]'
         drop: function(event, opts) {
             const { draggableTarget, droppableTarget, node } = opts;
 
-            if (hasClass(event.target, 'infinite-tree-overlay')) {
-                removeClass(event.target, 'hover'); // remove hover class
+            if (elementClass(event.target).has('infinite-tree-overlay')) {
+                elementClass(event.target).remove('hover'); // remove hover class
                 const innerHTML = 'Dropped to an overlay element';
                 document.querySelector('#default [data-id="dropped-result"]').innerHTML = innerHTML;
                 return;

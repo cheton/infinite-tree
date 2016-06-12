@@ -42,47 +42,6 @@ const removeEventListener = (target, type, listener) => {
     }
 };
 
-const hasClass = (el, className) => {
-    if (!el) {
-        return false;
-    }
-    const classes = el.className.split(' ');
-    return (classes.indexOf(className) >= 0);
-};
-
-const addClass = (el, className) => {
-    if (!el) {
-        return '';
-    }
-    if (!hasClass(el, className)) {
-        let classes = el.className.split(' ');
-        el.className = classes.concat(className).join(' ');
-    }
-    return el.className;
-};
-
-const removeClass = (el, className) => {
-    if (!el) {
-        return '';
-    }
-    if (hasClass(el, className)) {
-        let classes = el.className.split(' ');
-        el.className = classes.filter(c => (c !== className)).join(' ');
-    }
-    return el.className;
-};
-
-const toggleClass = (el, className) => {
-    if (!el) {
-        return;
-    }
-    if (hasClass(el, className)) {
-        removeClass(el, className);
-    } else {
-        addClass(el, className);
-    }
-};
-
 // http://stackoverflow.com/questions/384286/javascript-isdom-how-do-you-check-if-a-javascript-object-is-a-dom-object
 
 //Returns true if it is a DOM element
@@ -107,10 +66,6 @@ export {
     dispatchEvent,
     addEventListener,
     removeEventListener,
-    hasClass,
-    addClass,
-    removeClass,
-    toggleClass,
     isDOMElement,
     isDOMNode
 };

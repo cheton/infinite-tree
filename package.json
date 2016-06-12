@@ -37,6 +37,7 @@
   "dependencies": {
     "classnames": "^2.2.5",
     "clusterize.js": "^0.16.0",
+    "element-class": "^0.2.2",
     "escape-html": "^1.0.3",
     "flattree": "^0.9.0",
     "html-tagjs": "^0.1.0"
