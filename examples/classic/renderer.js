@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import { buildHTML, quoteattr } from '../../src/helper';
+import { buildHTML } from '../../src/helper';
 
 const renderer = (node, treeOptions) => {
     const { id, name, loadOnDemand = false, children, state, props = {} } = node;
@@ -48,7 +48,7 @@ const renderer = (node, treeOptions) => {
             { 'glyphicon-file': !more }
         )
     });
-    const title = buildHTML('span', quoteattr(name), {
+    const title = buildHTML('span', escapeHTML(name), {
         'class': classNames('infinite-tree-title')
     });
     const loadingIcon = buildHTML('i', '', {

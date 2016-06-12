@@ -1,5 +1,6 @@
 import classNames from 'classnames';
-import { buildHTML, quoteattr } from './helper';
+import escapeHTML from 'escape-html';
+import { buildHTML } from './helper';
 
 const defaultRowRenderer = (node, treeOptions) => {
     const { id, name, loadOnDemand = false, children, state } = node;
@@ -32,7 +33,7 @@ const defaultRowRenderer = (node, treeOptions) => {
             return '';
         })()
     });
-    const title = buildHTML('span', quoteattr(name), {
+    const title = buildHTML('span', escapeHTML(name), {
         'class': classNames('infinite-tree-title')
     });
     const treeNode = buildHTML('div', toggler + title, {

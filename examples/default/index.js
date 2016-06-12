@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import InfiniteTree from '../../src';
 import './index.styl';
 import './animation.styl';
-import { addClass, removeClass, hasClass, addEventListener, preventDefault, stopPropagation, quoteattr } from '../../src/helper';
+import { addClass, removeClass, hasClass, addEventListener, preventDefault, stopPropagation } from '../../src/helper';
 import data from '../data.json';
 
 const updatePreview = (node) => {
@@ -51,7 +51,7 @@ const tree = new InfiniteTree(document.querySelector('#default [data-id="tree"]'
             }
 
             console.log('drop:', event, event.dataTransfer.getData('text'));
-            const innerHTML = 'Dropped to <b>' + quoteattr(node.name) + '</b>';
+            const innerHTML = 'Dropped to <b>' + escapeHTML(node.name) + '</b>';
             document.querySelector('#default [data-id="dropped-result"]').innerHTML = innerHTML;
         }
     },

@@ -33,16 +33,6 @@ test('isDOMNode', (t) => {
     t.end();
 });
 
-test('quoteattr', (t) => {
-    const { quoteattr } = helper;
-
-    const result = quoteattr('&\'"&<>');
-    const wanted = '&amp;&apos;&quot;&amp;&lt;&gt;';
-    t.equal(result, wanted);
-
-    t.end();
-});
-
 test('buildHTML', (t) => {
     const { buildHTML } = helper;
 

@@ -3,7 +3,7 @@ import debounce from 'lodash/debounce';
 import InfiniteTree from '../../src';
 import renderer from './renderer';
 import './index.styl';
-import { addEventListener, preventDefault, stopPropagation, quoteattr } from '../../src/helper';
+import { addEventListener, preventDefault, stopPropagation } from '../../src/helper';
 import data from './data';
 
 // Makes header columns equal width to content columns

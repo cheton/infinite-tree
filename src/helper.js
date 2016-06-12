@@ -1,3 +1,5 @@
+import escapeHTML from 'escape-html';
+
 /* eslint no-restricted-syntax: 0 */
 const preventDefault = (e) => {
     if (typeof e.preventDefault !== 'undefined') {
@@ -101,23 +103,6 @@ const isDOMNode = (o) => {
     return o && typeof o === 'object' && typeof o.nodeType === 'number' && typeof o.nodeName === 'string';
 };
 
-const quoteattr = (s, preserveCR) => {
-    preserveCR = preserveCR ? '&#13;' : '\n';
-    return ('' + s) /* Forces the conversion to string. */
-        .replace(/&/g, '&amp;') /* This MUST be the 1st replacement. */
-        .replace(/'/g, '&apos;') /* The 4 other predefined entities, required. */
-        .replace(/"/g, '&quot;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        /*
-         * You may add other replacements here for HTML only
-         * (but it's not necessary).
-         * Or for XML, only if the named entities are defined in its DTD.
-         */
-        .replace(/\r\n/g, preserveCR) /* Must be before the next replacement. */
-        .replace(/[\r\n]/g, preserveCR);
-};
-
 /**
  * Example #1:
  * =========================================================================
@@ -168,7 +153,7 @@ const buildHTML = (tag, html, attrs) => {
             continue;
         }
         if (typeof attrs[attr] !== 'undefined') {
-            h += ' ' + attr + '="' + quoteattr(attrs[attr]) + '"';
+            h += ' ' + attr + '="' + escapeHTML(attrs[attr]) + '"';
         }
     }
     h += (typeof(html) !== 'undefined') ? '>' + html + '</' + tag + '>' : '/>';
@@ -188,6 +173,5 @@ export {
     toggleClass,
     isDOMElement,
     isDOMNode,
-    quoteattr,
     buildHTML
 };
