@@ -1,6 +1,6 @@
 {
   "name": "infinite-tree",
-  "version": "1.5.2",
+  "version": "1.6.0",
   "description": "A browser-ready tree library that can efficiently display a large amount of data using infinite scrolling.",
   "homepage": "https://github.com/cheton/infinite-tree",
   "main": "lib/index.js",
@@ -35,8 +35,13 @@
     "tree"
   ],
   "dependencies": {
+    "classnames": "^2.2.5",
     "clusterize.js": "^0.16.0",
-    "flattree": "^0.9.0"
+    "element-class": "^0.2.2",
+    "escape-html": "^1.0.3",
+    "flattree": "^0.9.0",
+    "html-tagjs": "^0.1.0",
+    "is-dom": "^1.0.5"
   },
   "devDependencies": {
     "babel-cli": "^6.8.0",

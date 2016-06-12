@@ -1,18 +1,16 @@
 import events from 'events';
+import classNames from 'classnames';
 import Clusterize from 'clusterize.js';
+import elementClass from 'element-class';
+import isDOM from 'is-dom';
 import { flatten, Node } from 'flattree';
 import LookupTable from './lookup-table';
 import { defaultRowRenderer } from './renderer';
 import {
     preventDefault,
     addEventListener,
-    removeEventListener,
-    classNames,
-    addClass,
-    hasClass,
-    removeClass,
-    isDOMElement
-} from './helper';
+    removeEventListener
+} from './dom-events';
 
 const error = (...args) => {
     if (console && console.error) {
@@ -118,7 +116,7 @@ class InfiniteTree extends events.EventEmitter {
                 }
 
                 while (itemTarget && itemTarget.parentElement !== this.contentElement) {
-                    if (hasClass(itemTarget, this.options.togglerClass)) {
+                    if (elementClass(itemTarget).has(this.options.togglerClass)) {
                         clickToggler = true;
                     }
                     itemTarget = itemTarget.parentElement;
@@ -162,7 +160,7 @@ class InfiniteTree extends events.EventEmitter {
 
             // Droppable
             if (this.droppableTarget) {
-                removeClass(this.droppableTarget, hoverClass);
+                elementClass(this.droppableTarget).remove(hoverClass);
                 this.droppableTarget = null;
             }
         },
@@ -193,7 +191,7 @@ class InfiniteTree extends events.EventEmitter {
 
             const { accept, hoverClass = '' } = this.options.droppable;
 
-            removeClass(this.droppableTarget, hoverClass);
+            elementClass(this.droppableTarget).remove(hoverClass);
             this.droppableTarget = null;
 
             let canDrop = true; // Defaults to true
@@ -211,7 +209,7 @@ class InfiniteTree extends events.EventEmitter {
             }
 
             if (canDrop) {
-                addClass(itemTarget, hoverClass);
+                elementClass(itemTarget).add(hoverClass);
                 this.droppableTarget = itemTarget;
             }
         },
@@ -257,7 +255,7 @@ class InfiniteTree extends events.EventEmitter {
                 });
             }
 
-            removeClass(this.droppableTarget, hoverClass);
+            elementClass(this.droppableTarget).remove(hoverClass);
             this.droppableTarget = null;
         }
     };
@@ -266,7 +264,7 @@ class InfiniteTree extends events.EventEmitter {
     constructor(el, options) {
         super();
 
-        if (isDOMElement(el)) {
+        if (isDOM(el)) {
             options = { ...options, el };
         } else {
             options = el;

@@ -1,4 +1,4 @@
-/*! infinite-tree v1.5.2 | (c) 2016 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
+/*! infinite-tree v1.6.0 | (c) 2016 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -81,19 +81,31 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _events2 = _interopRequireDefault(_events);
 
-	var _clusterize = __webpack_require__(3);
+	var _classnames = __webpack_require__(3);
+
+	var _classnames2 = _interopRequireDefault(_classnames);
+
+	var _clusterize = __webpack_require__(4);
 
 	var _clusterize2 = _interopRequireDefault(_clusterize);
 
-	var _flattree = __webpack_require__(4);
+	var _elementClass = __webpack_require__(5);
 
-	var _lookupTable = __webpack_require__(8);
+	var _elementClass2 = _interopRequireDefault(_elementClass);
+
+	var _isDom = __webpack_require__(6);
+
+	var _isDom2 = _interopRequireDefault(_isDom);
+
+	var _flattree = __webpack_require__(7);
+
+	var _lookupTable = __webpack_require__(11);
 
 	var _lookupTable2 = _interopRequireDefault(_lookupTable);
 
-	var _renderer = __webpack_require__(9);
+	var _renderer = __webpack_require__(12);
 
-	var _helper = __webpack_require__(10);
+	var _domEvents = __webpack_require__(15);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -221,7 +233,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    }
 
 	                    while (itemTarget && itemTarget.parentElement !== _this.contentElement) {
-	                        if ((0, _helper.hasClass)(itemTarget, _this.options.togglerClass)) {
+	                        if ((0, _elementClass2['default'])(itemTarget).has(_this.options.togglerClass)) {
 	                            clickToggler = true;
 	                        }
 	                        itemTarget = itemTarget.parentElement;
@@ -267,7 +279,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	                // Droppable
 	                if (_this.droppableTarget) {
-	                    (0, _helper.removeClass)(_this.droppableTarget, hoverClass);
+	                    (0, _elementClass2['default'])(_this.droppableTarget).remove(hoverClass);
 	                    _this.droppableTarget = null;
 	                }
 	            },
@@ -303,7 +315,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                var hoverClass = _this$options$droppab3 === undefined ? '' : _this$options$droppab3;
 
 
-	                (0, _helper.removeClass)(_this.droppableTarget, hoverClass);
+	                (0, _elementClass2['default'])(_this.droppableTarget).remove(hoverClass);
 	                _this.droppableTarget = null;
 
 	                var canDrop = true; // Defaults to true
@@ -321,7 +333,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                }
 
 	                if (canDrop) {
-	                    (0, _helper.addClass)(itemTarget, hoverClass);
+	                    (0, _elementClass2['default'])(itemTarget).add(hoverClass);
 	                    _this.droppableTarget = itemTarget;
 	                }
 	            },
@@ -330,7 +342,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            'dragover': function dragover(event) {
 	                event = event || window.event;
 
-	                (0, _helper.preventDefault)(event);
+	                (0, _domEvents.preventDefault)(event);
 	            },
 	            // https://developer.mozilla.org/en-US/docs/Web/Events/drop
 	            // The drop event is fired when an element or text selection is dropped on a valid drop target.
@@ -338,7 +350,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                event = event || window.event;
 
 	                // prevent default action (open as link for some elements)
-	                (0, _helper.preventDefault)(event);
+	                (0, _domEvents.preventDefault)(event);
 
 	                if (!(_this.draggableTarget && _this.droppableTarget)) {
 	                    return;
@@ -372,13 +384,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    });
 	                }
 
-	                (0, _helper.removeClass)(_this.droppableTarget, hoverClass);
+	                (0, _elementClass2['default'])(_this.droppableTarget).remove(hoverClass);
 	                _this.droppableTarget = null;
 	            }
 	        };
 
 
-	        if ((0, _helper.isDOMElement)(el)) {
+	        if ((0, _isDom2['default'])(el)) {
 	            options = _extends({}, options, { el: el });
 	        } else {
 	            options = el;
@@ -414,7 +426,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        if (this.options.layout === 'table') {
 	            var tableElement = document.createElement('table');
-	            tableElement.className = (0, _helper.classNames)('infinite-tree', 'infinite-tree-table');
+	            tableElement.className = (0, _classnames2['default'])('infinite-tree', 'infinite-tree-table');
 	            var contentElement = document.createElement('tbody');
 	            tableElement.appendChild(contentElement);
 	            this.scrollElement.appendChild(tableElement);
@@ -431,8 +443,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	            tag = 'div';
 	        }
 
-	        this.scrollElement.className = (0, _helper.classNames)('infinite-tree', 'infinite-tree-scroll');
-	        this.contentElement.className = (0, _helper.classNames)('infinite-tree', 'infinite-tree-content');
+	        this.scrollElement.className = (0, _classnames2['default'])('infinite-tree', 'infinite-tree-scroll');
+	        this.contentElement.className = (0, _classnames2['default'])('infinite-tree', 'infinite-tree-content');
 
 	        this.options.el.appendChild(this.scrollElement);
 
@@ -453,27 +465,27 @@ return /******/ (function(modules) { // webpackBootstrap
 	            }
 	        });
 
-	        (0, _helper.addEventListener)(this.contentElement, 'click', this.contentListener.click);
+	        (0, _domEvents.addEventListener)(this.contentElement, 'click', this.contentListener.click);
 
 	        if (this.options.droppable) {
-	            (0, _helper.addEventListener)(document, 'dragstart', this.contentListener.dragstart);
-	            (0, _helper.addEventListener)(document, 'dragend', this.contentListener.dragend);
-	            (0, _helper.addEventListener)(this.contentElement, 'dragenter', this.contentListener.dragenter);
-	            (0, _helper.addEventListener)(this.contentElement, 'dragleave', this.contentListener.dragleave);
-	            (0, _helper.addEventListener)(this.contentElement, 'dragover', this.contentListener.dragover);
-	            (0, _helper.addEventListener)(this.contentElement, 'drop', this.contentListener.drop);
+	            (0, _domEvents.addEventListener)(document, 'dragstart', this.contentListener.dragstart);
+	            (0, _domEvents.addEventListener)(document, 'dragend', this.contentListener.dragend);
+	            (0, _domEvents.addEventListener)(this.contentElement, 'dragenter', this.contentListener.dragenter);
+	            (0, _domEvents.addEventListener)(this.contentElement, 'dragleave', this.contentListener.dragleave);
+	            (0, _domEvents.addEventListener)(this.contentElement, 'dragover', this.contentListener.dragover);
+	            (0, _domEvents.addEventListener)(this.contentElement, 'drop', this.contentListener.drop);
 	        }
 	    };
 
 	    InfiniteTree.prototype.destroy = function destroy() {
-	        (0, _helper.removeEventListener)(this.contentElement, 'click', this.contentListener);
+	        (0, _domEvents.removeEventListener)(this.contentElement, 'click', this.contentListener);
 	        if (this.options.droppable) {
-	            (0, _helper.removeEventListener)(document, 'dragstart', this.contentListener.dragstart);
-	            (0, _helper.removeEventListener)(document, 'dragend', this.contentListener.dragend);
-	            (0, _helper.removeEventListener)(this.contentElement, 'dragenter', this.contentListener.dragenter);
-	            (0, _helper.removeEventListener)(this.contentElement, 'dragleave', this.contentListener.dragleave);
-	            (0, _helper.removeEventListener)(this.contentElement, 'dragover', this.contentListener.dragover);
-	            (0, _helper.removeEventListener)(this.contentElement, 'drop', this.contentListener.drop);
+	            (0, _domEvents.removeEventListener)(document, 'dragstart', this.contentListener.dragstart);
+	            (0, _domEvents.removeEventListener)(document, 'dragend', this.contentListener.dragend);
+	            (0, _domEvents.removeEventListener)(this.contentElement, 'dragenter', this.contentListener.dragenter);
+	            (0, _domEvents.removeEventListener)(this.contentElement, 'dragleave', this.contentListener.dragleave);
+	            (0, _domEvents.removeEventListener)(this.contentElement, 'dragover', this.contentListener.dragover);
+	            (0, _domEvents.removeEventListener)(this.contentElement, 'drop', this.contentListener.drop);
 	        }
 
 	        this.clear();
@@ -1736,6 +1748,60 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 3 */
 /***/ function(module, exports, __webpack_require__) {
 
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
+	  Copyright (c) 2016 Jed Watson.
+	  Licensed under the MIT License (MIT), see
+	  http://jedwatson.github.io/classnames
+	*/
+	/* global define */
+
+	(function () {
+		'use strict';
+
+		var hasOwn = {}.hasOwnProperty;
+
+		function classNames () {
+			var classes = [];
+
+			for (var i = 0; i < arguments.length; i++) {
+				var arg = arguments[i];
+				if (!arg) continue;
+
+				var argType = typeof arg;
+
+				if (argType === 'string' || argType === 'number') {
+					classes.push(arg);
+				} else if (Array.isArray(arg)) {
+					classes.push(classNames.apply(null, arg));
+				} else if (argType === 'object') {
+					for (var key in arg) {
+						if (hasOwn.call(arg, key) && arg[key]) {
+							classes.push(key);
+						}
+					}
+				}
+			}
+
+			return classes.join(' ');
+		}
+
+		if (typeof module !== 'undefined' && module.exports) {
+			module.exports = classNames;
+		} else if (true) {
+			// register as 'classnames', consistent with npm package name
+			!(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_RESULT__ = function () {
+				return classNames;
+			}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+		} else {
+			window.classNames = classNames;
+		}
+	}());
+
+
+/***/ },
+/* 4 */
+/***/ function(module, exports, __webpack_require__) {
+
 	/*! Clusterize.js - v0.16.0 - 2016-03-12
 	* http://NeXTs.github.com/Clusterize.js/
 	* Copyright (c) 2015 Denis Lukov; Licensed GPLv3 */
@@ -2065,7 +2131,93 @@ return /******/ (function(modules) { // webpackBootstrap
 	}));
 
 /***/ },
-/* 4 */
+/* 5 */
+/***/ function(module, exports) {
+
+	module.exports = function(opts) {
+	  return new ElementClass(opts)
+	}
+
+	function indexOf(arr, prop) {
+	  if (arr.indexOf) return arr.indexOf(prop)
+	  for (var i = 0, len = arr.length; i < len; i++)
+	    if (arr[i] === prop) return i
+	  return -1
+	}
+
+	function ElementClass(opts) {
+	  if (!(this instanceof ElementClass)) return new ElementClass(opts)
+	  var self = this
+	  if (!opts) opts = {}
+
+	  // similar doing instanceof HTMLElement but works in IE8
+	  if (opts.nodeType) opts = {el: opts}
+
+	  this.opts = opts
+	  this.el = opts.el || document.body
+	  if (typeof this.el !== 'object') this.el = document.querySelector(this.el)
+	}
+
+	ElementClass.prototype.add = function(className) {
+	  var el = this.el
+	  if (!el) return
+	  if (el.className === "") return el.className = className
+	  var classes = el.className.split(' ')
+	  if (indexOf(classes, className) > -1) return classes
+	  classes.push(className)
+	  el.className = classes.join(' ')
+	  return classes
+	}
+
+	ElementClass.prototype.remove = function(className) {
+	  var el = this.el
+	  if (!el) return
+	  if (el.className === "") return
+	  var classes = el.className.split(' ')
+	  var idx = indexOf(classes, className)
+	  if (idx > -1) classes.splice(idx, 1)
+	  el.className = classes.join(' ')
+	  return classes
+	}
+
+	ElementClass.prototype.has = function(className) {
+	  var el = this.el
+	  if (!el) return
+	  var classes = el.className.split(' ')
+	  return indexOf(classes, className) > -1
+	}
+
+	ElementClass.prototype.toggle = function(className) {
+	  var el = this.el
+	  if (!el) return
+	  if (this.has(className)) this.remove(className)
+	  else this.add(className)
+	}
+
+
+/***/ },
+/* 6 */
+/***/ function(module, exports) {
+
+	/*global window*/
+
+	/**
+	 * Check if object is dom node.
+	 *
+	 * @param {Object} val
+	 * @return {Boolean}
+	 * @api public
+	 */
+
+	module.exports = function isNode(val){
+	  if (!val || typeof val !== 'object') return false;
+	  if (window && 'object' == typeof window.Node) return val instanceof window.Node;
+	  return 'number' == typeof val.nodeType && 'string' == typeof val.nodeName;
+	}
+
+
+/***/ },
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2073,11 +2225,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.__esModule = true;
 	exports.Node = exports.flatten = undefined;
 
-	var _flatten = __webpack_require__(5);
+	var _flatten = __webpack_require__(8);
 
 	var _flatten2 = _interopRequireDefault(_flatten);
 
-	var _node = __webpack_require__(7);
+	var _node = __webpack_require__(10);
 
 	var _node2 = _interopRequireDefault(_node);
 
@@ -2088,18 +2240,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.Node = _node2['default'];
 
 /***/ },
-/* 5 */
+/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _extend = __webpack_require__(6);
+	var _extend = __webpack_require__(9);
 
 	var _extend2 = _interopRequireDefault(_extend);
 
-	var _node = __webpack_require__(7);
+	var _node = __webpack_require__(10);
 
 	var _node2 = _interopRequireDefault(_node);
 
@@ -2293,7 +2445,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports['default'] = flatten;
 
 /***/ },
-/* 6 */
+/* 9 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -2326,14 +2478,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports['default'] = extend;
 
 /***/ },
-/* 7 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	exports.__esModule = true;
 
-	var _extend = __webpack_require__(6);
+	var _extend = __webpack_require__(9);
 
 	var _extend2 = _interopRequireDefault(_extend);
 
@@ -2452,7 +2604,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports['default'] = Node;
 
 /***/ },
-/* 8 */
+/* 11 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -2497,7 +2649,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports["default"] = LookupTable;
 
 /***/ },
-/* 9 */
+/* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2505,7 +2657,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.__esModule = true;
 	exports.defaultRowRenderer = undefined;
 
-	var _helper = __webpack_require__(10);
+	var _classnames = __webpack_require__(3);
+
+	var _classnames2 = _interopRequireDefault(_classnames);
+
+	var _escapeHtml = __webpack_require__(13);
+
+	var _escapeHtml2 = _interopRequireDefault(_escapeHtml);
+
+	var _htmlTagjs = __webpack_require__(14);
+
+	var _htmlTagjs2 = _interopRequireDefault(_htmlTagjs);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 	var defaultRowRenderer = function defaultRowRenderer(node, treeOptions) {
 	    var id = node.id;
@@ -2536,29 +2700,29 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (more && !open) {
 	        togglerContent = '►';
 	    }
-	    var toggler = (0, _helper.buildHTML)('a', togglerContent, {
+	    var toggler = (0, _htmlTagjs2['default'])('a', {
 	        'class': function () {
 	            if (!more && loadOnDemand) {
-	                return (0, _helper.classNames)(treeOptions.togglerClass, 'infinite-tree-closed');
+	                return (0, _classnames2['default'])(treeOptions.togglerClass, 'infinite-tree-closed');
 	            }
 	            if (more && open) {
-	                return (0, _helper.classNames)(treeOptions.togglerClass);
+	                return (0, _classnames2['default'])(treeOptions.togglerClass);
 	            }
 	            if (more && !open) {
-	                return (0, _helper.classNames)(treeOptions.togglerClass, 'infinite-tree-closed');
+	                return (0, _classnames2['default'])(treeOptions.togglerClass, 'infinite-tree-closed');
 	            }
 	            return '';
 	        }()
-	    });
-	    var title = (0, _helper.buildHTML)('span', (0, _helper.quoteattr)(name), {
-	        'class': (0, _helper.classNames)('infinite-tree-title')
-	    });
-	    var treeNode = (0, _helper.buildHTML)('div', toggler + title, {
+	    }, togglerContent);
+	    var title = (0, _htmlTagjs2['default'])('span', {
+	        'class': (0, _classnames2['default'])('infinite-tree-title')
+	    }, (0, _escapeHtml2['default'])(name));
+	    var treeNode = (0, _htmlTagjs2['default'])('div', {
 	        'class': 'infinite-tree-node',
 	        'style': 'margin-left: ' + depth * 18 + 'px'
-	    });
+	    }, toggler + title);
 
-	    return (0, _helper.buildHTML)('div', treeNode, {
+	    return (0, _htmlTagjs2['default'])('div', {
 	        'data-id': id,
 	        'data-expanded': more && open,
 	        'data-depth': depth,
@@ -2566,24 +2730,134 @@ return /******/ (function(modules) { // webpackBootstrap
 	        'data-selected': selected,
 	        'data-children': childrenLength,
 	        'data-total': total,
-	        'class': (0, _helper.classNames)('infinite-tree-item', { 'infinite-tree-selected': selected }),
+	        'class': (0, _classnames2['default'])('infinite-tree-item', { 'infinite-tree-selected': selected }),
 	        'droppable': droppable
-	    });
+	    }, treeNode);
 	};
 
 	exports.defaultRowRenderer = defaultRowRenderer;
 
 /***/ },
-/* 10 */
+/* 13 */
+/***/ function(module, exports) {
+
+	/*!
+	 * escape-html
+	 * Copyright(c) 2012-2013 TJ Holowaychuk
+	 * Copyright(c) 2015 Andreas Lubbe
+	 * Copyright(c) 2015 Tiancheng "Timothy" Gu
+	 * MIT Licensed
+	 */
+
+	'use strict';
+
+	/**
+	 * Module variables.
+	 * @private
+	 */
+
+	var matchHtmlRegExp = /["'&<>]/;
+
+	/**
+	 * Module exports.
+	 * @public
+	 */
+
+	module.exports = escapeHtml;
+
+	/**
+	 * Escape special characters in the given string of html.
+	 *
+	 * @param  {string} string The string to escape for inserting into HTML
+	 * @return {string}
+	 * @public
+	 */
+
+	function escapeHtml(string) {
+	  var str = '' + string;
+	  var match = matchHtmlRegExp.exec(str);
+
+	  if (!match) {
+	    return str;
+	  }
+
+	  var escape;
+	  var html = '';
+	  var index = 0;
+	  var lastIndex = 0;
+
+	  for (index = match.index; index < str.length; index++) {
+	    switch (str.charCodeAt(index)) {
+	      case 34: // "
+	        escape = '&quot;';
+	        break;
+	      case 38: // &
+	        escape = '&amp;';
+	        break;
+	      case 39: // '
+	        escape = '&#39;';
+	        break;
+	      case 60: // <
+	        escape = '&lt;';
+	        break;
+	      case 62: // >
+	        escape = '&gt;';
+	        break;
+	      default:
+	        continue;
+	    }
+
+	    if (lastIndex !== index) {
+	      html += str.substring(lastIndex, index);
+	    }
+
+	    lastIndex = index + 1;
+	    html += escape;
+	  }
+
+	  return lastIndex !== index
+	    ? html + str.substring(lastIndex, index)
+	    : html;
+	}
+
+
+/***/ },
+/* 14 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var _escapeHtml = __webpack_require__(13);
+
+	var _escapeHtml2 = _interopRequireDefault(_escapeHtml);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	module.exports = function () {
+	    var tag = arguments.length <= 0 || arguments[0] === undefined ? 'div' : arguments[0];
+	    var attrs = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+	    var text = arguments[2];
+
+	    var html = '<' + tag;
+
+	    Object.keys(attrs).forEach(function (name) {
+	        if (name) {
+	            var value = (0, _escapeHtml2.default)(attrs[name]);
+	            html += ' ' + name + '="' + value + '"';
+	        }
+	    });
+	    html += text !== undefined ? '>' + text + '</' + tag + '>' : '/>';
+
+	    return html;
+	};
+
+/***/ },
+/* 15 */
 /***/ function(module, exports) {
 
 	'use strict';
 
 	exports.__esModule = true;
-
-	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
-	/* eslint no-restricted-syntax: 0 */
 	var preventDefault = function preventDefault(e) {
 	    if (typeof e.preventDefault !== 'undefined') {
 	        e.preventDefault();
@@ -2598,13 +2872,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	    } else {
 	        e.cancelBubble = true;
 	    }
-	};
-
-	// http://blog.garstasio.com/you-dont-need-jquery/events/#sending-custom-events
-	var dispatchEvent = function dispatchEvent(el, eventType) {
-	    var evt = document.createEvent('Event');
-	    evt.initEvent(eventType, true, true); // can bubble, and is cancellable
-	    el.dispatchEvent(evt);
 	};
 
 	// https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener#Compatibility
@@ -2631,177 +2898,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	};
 
-	var hasClass = function hasClass(el, className) {
-	    if (!el) {
-	        return false;
-	    }
-	    var classes = el.className.split(' ');
-	    return classes.indexOf(className) >= 0;
-	};
-
-	var addClass = function addClass(el, className) {
-	    if (!el) {
-	        return '';
-	    }
-	    if (!hasClass(el, className)) {
-	        var classes = el.className.split(' ');
-	        el.className = classes.concat(className).join(' ');
-	    }
-	    return el.className;
-	};
-
-	var removeClass = function removeClass(el, className) {
-	    if (!el) {
-	        return '';
-	    }
-	    if (hasClass(el, className)) {
-	        var classes = el.className.split(' ');
-	        el.className = classes.filter(function (c) {
-	            return c !== className;
-	        }).join(' ');
-	    }
-	    return el.className;
-	};
-
-	var toggleClass = function toggleClass(el, className) {
-	    if (!el) {
-	        return;
-	    }
-	    if (hasClass(el, className)) {
-	        removeClass(el, className);
-	    } else {
-	        addClass(el, className);
-	    }
-	};
-
-	var classNames = function classNames() {
-	    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-	        args[_key] = arguments[_key];
-	    }
-
-	    var classNames = [];
-	    args.forEach(function (arg) {
-	        if (Array.isArray(arg)) {
-	            classNames = classNames.concat(arg);
-	        } else if ((typeof arg === 'undefined' ? 'undefined' : _typeof(arg)) === 'object') {
-	            Object.keys(arg).forEach(function (className) {
-	                var ok = arg[className];
-	                if (!!ok) {
-	                    classNames.push(className);
-	                }
-	            });
-	        } else {
-	            classNames.push(arg);
-	        }
-	    });
-	    return classNames.join(' ');
-	};
-
-	// http://stackoverflow.com/questions/384286/javascript-isdom-how-do-you-check-if-a-javascript-object-is-a-dom-object
-
-	//Returns true if it is a DOM element
-	var isDOMElement = function isDOMElement(o) {
-	    if ((typeof HTMLElement === 'undefined' ? 'undefined' : _typeof(HTMLElement)) === 'object') {
-	        return o instanceof HTMLElement;
-	    }
-	    return o && (typeof o === 'undefined' ? 'undefined' : _typeof(o)) === 'object' && o.nodeType === 1 && typeof o.nodeName === 'string';
-	};
-
-	// Returns true if it is a DOM node
-	var isDOMNode = function isDOMNode(o) {
-	    if ((typeof Node === 'undefined' ? 'undefined' : _typeof(Node)) === 'object') {
-	        return o instanceof Node;
-	    }
-	    return o && (typeof o === 'undefined' ? 'undefined' : _typeof(o)) === 'object' && typeof o.nodeType === 'number' && typeof o.nodeName === 'string';
-	};
-
-	var quoteattr = function quoteattr(s, preserveCR) {
-	    preserveCR = preserveCR ? '&#13;' : '\n';
-	    return ('' + s). /* Forces the conversion to string. */
-	    replace(/&/g, '&amp;') /* This MUST be the 1st replacement. */
-	    .replace(/'/g, '&apos;') /* The 4 other predefined entities, required. */
-	    .replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-	    /*
-	     * You may add other replacements here for HTML only
-	     * (but it's not necessary).
-	     * Or for XML, only if the named entities are defined in its DTD.
-	     */
-	    .replace(/\r\n/g, preserveCR) /* Must be before the next replacement. */
-	    .replace(/[\r\n]/g, preserveCR);
-	};
-
-	/**
-	 * Example #1:
-	 * =========================================================================
-	 * <a id="mymail href="http://mymail.example.com">My Mail</a>
-	 *
-	 * buildHTML('a', 'My Mail', {
-	 *     id: 'mymail',
-	 *     href: 'http://mymail.example.com'
-	 * });
-	 *
-	 * Example #2:
-	 * =========================================================================
-	 * <input id="myinput" type="text" value="myvalue" />
-	 *
-	 * buildHTML('input', {
-	 *   id: 'myinput',
-	 *   type: 'text',
-	 *   value: 'myvalue'
-	 * });
-	 *
-	 */
-	var buildHTML = function buildHTML(tag, html, attrs) {
-	    switch (tag) {
-	        case 'select':
-	            if ((typeof html === 'undefined' ? 'undefined' : _typeof(html)) === 'object') {
-	                var options = html || {};
-	                html = '';
-	                for (var value in options) {
-	                    if (!options.hasOwnProperty(value)) {
-	                        continue;
-	                    }
-	                    html += buildHTML('option', options[value] || '', { value: value });
-	                }
-	            }
-	            break;
-
-	        default:
-	            if ((typeof html === 'undefined' ? 'undefined' : _typeof(html)) === 'object') {
-	                attrs = html;
-	                html = undefined;
-	            }
-	            break;
-	    }
-
-	    var h = '<' + tag;
-	    for (var attr in attrs) {
-	        if (!attrs.hasOwnProperty(attr)) {
-	            continue;
-	        }
-	        if (typeof attrs[attr] !== 'undefined') {
-	            h += ' ' + attr + '="' + quoteattr(attrs[attr]) + '"';
-	        }
-	    }
-	    h += typeof html !== 'undefined' ? '>' + html + '</' + tag + '>' : '/>';
-
-	    return h;
-	};
-
 	exports.preventDefault = preventDefault;
 	exports.stopPropagation = stopPropagation;
-	exports.dispatchEvent = dispatchEvent;
 	exports.addEventListener = addEventListener;
 	exports.removeEventListener = removeEventListener;
-	exports.hasClass = hasClass;
-	exports.addClass = addClass;
-	exports.removeClass = removeClass;
-	exports.toggleClass = toggleClass;
-	exports.classNames = classNames;
-	exports.isDOMElement = isDOMElement;
-	exports.isDOMNode = isDOMNode;
-	exports.quoteattr = quoteattr;
-	exports.buildHTML = buildHTML;
 
 /***/ }
 /******/ ])

@@ -1,5 +1,6 @@
-import { addEventListener, toggleClass } from '../src/helper';
+import elementClass from 'element-class';
+import { addEventListener } from '../src/dom-events';
 
 addEventListener(document.querySelector('.navbar-toggle'), 'click', function(e) {
-    toggleClass(document.querySelector('.navbar-collapse'), 'in');
+    elementClass(document.querySelector('.navbar-collapse')).toggle('in');
 });

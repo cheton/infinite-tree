@@ -1,4 +1,6 @@
-import { buildHTML, classNames, quoteattr } from '../../src/helper';
+import classNames from 'classnames';
+import escapeHTML from 'escape-html';
+import tag from 'html-tagjs';
 
 const renderer = (node, treeOptions) => {
     const { id, name, loadOnDemand = false, children, state, props = {} } = node;
@@ -8,21 +10,21 @@ const renderer = (node, treeOptions) => {
 
     let togglerContent = '';
     if (!more && loadOnDemand) {
-        togglerContent = buildHTML('i', '', {
+        togglerContent = tag('i', {
             'class': classNames('glyphicon', 'glyphicon-triangle-right')
-        });
+        }, '');
     }
     if (more && open) {
-        togglerContent = buildHTML('i', '', {
+        togglerContent = tag('i', {
             'class': classNames('glyphicon', 'glyphicon-triangle-bottom')
-        });
+        }, '');
     }
     if (more && !open) {
-        togglerContent = buildHTML('i', '', {
+        togglerContent = tag('i', {
             'class': classNames('glyphicon', 'glyphicon-triangle-right')
-        });
+        }, '');
     }
-    const toggler = buildHTML('a', togglerContent, {
+    const toggler = tag('a', {
         'class': (() => {
             if (!more && loadOnDemand) {
                 return classNames(treeOptions.togglerClass, 'infinite-tree-closed');
@@ -35,9 +37,9 @@ const renderer = (node, treeOptions) => {
             }
             return '';
         })()
-    });
+    }, togglerContent);
 
-    const icon = buildHTML('i', '', {
+    const icon = tag('i', {
         'class': classNames(
             'infinite-tree-folder-icon',
             'glyphicon',
@@ -45,11 +47,11 @@ const renderer = (node, treeOptions) => {
             { 'glyphicon-folder-close': more && !open },
             { 'glyphicon-file': !more }
         )
-    });
-    const title = buildHTML('span', quoteattr(name), {
+    }, '');
+    const title = tag('span', {
         'class': classNames('infinite-tree-title')
-    });
-    const loadingIcon = buildHTML('i', '', {
+    }, escapeHTML(name));
+    const loadingIcon = tag('i', {
         'style': 'margin-left: 5px',
         'class': classNames(
             { 'hidden': !loading },
@@ -57,29 +59,29 @@ const renderer = (node, treeOptions) => {
             'glyphicon-refresh',
             { 'rotating': loading }
         )
-    });
+    }, '');
 
-    const columnName = buildHTML('td', toggler + icon + title + loadingIcon, {
+    const columnName = tag('td', {
         'class': 'infinite-tree-node nowrap',
         'style': 'padding-left: ' + depth * 18 + 'px'
-    });
-    const columnSize = buildHTML('td', typeof props.size !== undefined ? props.size : '', {
+    }, toggler + icon + title + loadingIcon);
+    const columnSize = tag('td', {
         'class': 'nowrap',
         'style': 'min-width: 50px',
         'width': '1%'
-    });
-    const columnType = buildHTML('td', typeof props.type !== undefined ? props.type : '', {
+    }, typeof props.size !== undefined ? props.size : '');
+    const columnType = tag('td', {
         'class': 'nowrap',
         'style': 'min-width: 50px',
         'width': '1%'
-    });
-    const columnDate = buildHTML('td', typeof props.dateModified !== undefined ? props.dateModified : '', {
+    }, typeof props.type !== undefined ? props.type : '');
+    const columnDate = tag('td', {
         'class': 'nowrap',
         'style': 'min-width: 50px',
         'width': '1%'
-    });
+    }, typeof props.dateModified !== undefined ? props.dateModified : '');
 
-    return buildHTML('tr', columnName + columnSize + columnType + columnDate, {
+    return tag('tr', {
         'data-id': id,
         'data-expanded': more && open,
         'data-depth': depth,
@@ -91,7 +93,7 @@ const renderer = (node, treeOptions) => {
             'infinite-tree-item',
             { 'infinite-tree-selected': selected }
         )
-    });
+    }, columnName + columnSize + columnType + columnDate);
 };
 
 export default renderer;
