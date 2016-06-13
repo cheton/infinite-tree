@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import escapeHTML from 'escape-html';
-import tag from 'html-tagjs';
+import tag from 'node-html-tag';
 
 const renderer = (node, treeOptions) => {
     const { id, name, loadOnDemand = false, children, state, props = {} } = node;

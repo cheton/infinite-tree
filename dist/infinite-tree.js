@@ -2665,9 +2665,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _escapeHtml2 = _interopRequireDefault(_escapeHtml);
 
-	var _htmlTagjs = __webpack_require__(14);
+	var _nodeHtmlTag = __webpack_require__(14);
 
-	var _htmlTagjs2 = _interopRequireDefault(_htmlTagjs);
+	var _nodeHtmlTag2 = _interopRequireDefault(_nodeHtmlTag);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -2700,7 +2700,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (more && !open) {
 	        togglerContent = '►';
 	    }
-	    var toggler = (0, _htmlTagjs2['default'])('a', {
+	    var toggler = (0, _nodeHtmlTag2['default'])('a', {
 	        'class': function () {
 	            if (!more && loadOnDemand) {
 	                return (0, _classnames2['default'])(treeOptions.togglerClass, 'infinite-tree-closed');
@@ -2714,15 +2714,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	            return '';
 	        }()
 	    }, togglerContent);
-	    var title = (0, _htmlTagjs2['default'])('span', {
+	    var title = (0, _nodeHtmlTag2['default'])('span', {
 	        'class': (0, _classnames2['default'])('infinite-tree-title')
 	    }, (0, _escapeHtml2['default'])(name));
-	    var treeNode = (0, _htmlTagjs2['default'])('div', {
+	    var treeNode = (0, _nodeHtmlTag2['default'])('div', {
 	        'class': 'infinite-tree-node',
 	        'style': 'margin-left: ' + depth * 18 + 'px'
 	    }, toggler + title);
 
-	    return (0, _htmlTagjs2['default'])('div', {
+	    return (0, _nodeHtmlTag2['default'])('div', {
 	        'data-id': id,
 	        'data-expanded': more && open,
 	        'data-depth': depth,
