@@ -2665,9 +2665,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _escapeHtml2 = _interopRequireDefault(_escapeHtml);
 
-	var _nodeHtmlTag = __webpack_require__(14);
+	var _html5Tag = __webpack_require__(14);
 
-	var _nodeHtmlTag2 = _interopRequireDefault(_nodeHtmlTag);
+	var _html5Tag2 = _interopRequireDefault(_html5Tag);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -2700,7 +2700,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (more && !open) {
 	        togglerContent = '►';
 	    }
-	    var toggler = (0, _nodeHtmlTag2['default'])('a', {
+	    var toggler = (0, _html5Tag2['default'])('a', {
 	        'class': function () {
 	            if (!more && loadOnDemand) {
 	                return (0, _classnames2['default'])(treeOptions.togglerClass, 'infinite-tree-closed');
@@ -2714,15 +2714,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	            return '';
 	        }()
 	    }, togglerContent);
-	    var title = (0, _nodeHtmlTag2['default'])('span', {
+	    var title = (0, _html5Tag2['default'])('span', {
 	        'class': (0, _classnames2['default'])('infinite-tree-title')
 	    }, (0, _escapeHtml2['default'])(name));
-	    var treeNode = (0, _nodeHtmlTag2['default'])('div', {
+	    var treeNode = (0, _html5Tag2['default'])('div', {
 	        'class': 'infinite-tree-node',
 	        'style': 'margin-left: ' + depth * 18 + 'px'
 	    }, toggler + title);
 
-	    return (0, _nodeHtmlTag2['default'])('div', {
+	    return (0, _html5Tag2['default'])('div', {
 	        'data-id': id,
 	        'data-expanded': more && open,
 	        'data-depth': depth,
@@ -2827,26 +2827,51 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	'use strict';
 
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
 	var _escapeHtml = __webpack_require__(13);
 
 	var _escapeHtml2 = _interopRequireDefault(_escapeHtml);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	module.exports = function () {
-	    var tag = arguments.length <= 0 || arguments[0] === undefined ? 'div' : arguments[0];
-	    var attrs = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
-	    var text = arguments[2];
+	// https://www.w3.org/TR/html5/syntax.html#void-elements
+	// Void elements only have a start tag; end tags must not be specified for void elements.
+	var voidElements = ['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'keygen', 'link', 'meta', 'param', 'source', 'track', 'wbr'];
 
+	// @param {string} [tag] The tag name. Defaults to 'div'.
+	// @param {object} attrs HTML attributes.
+	// @param {string} [text] The content string.
+	module.exports = function (tag, attrs, text) {
+	    if ((typeof tag === 'undefined' ? 'undefined' : _typeof(tag)) === 'object') {
+	        text = attrs;
+	        attrs = tag;
+	        tag = 'div';
+	    }
+
+	    var voidElement = voidElements.indexOf(('' + tag).toLowerCase()) >= 0;
 	    var html = '<' + tag;
 
+	    attrs = _extends({}, attrs);
 	    Object.keys(attrs).forEach(function (name) {
-	        if (name) {
-	            var value = (0, _escapeHtml2.default)(attrs[name]);
+	        var value = attrs[name];
+	        if (typeof value === 'string') {
+	            value = (0, _escapeHtml2.default)('' + value);
 	            html += ' ' + name + '="' + value + '"';
+	        } else if (!!value) {
+	            html += ' ' + name;
 	        }
 	    });
-	    html += text !== undefined ? '>' + text + '</' + tag + '>' : '/>';
+
+	    if (voidElement) {
+	        html += '>';
+	    } else if (text !== undefined) {
+	        html += '>' + text + '</' + tag + '>';
+	    } else {
+	        html += '/>';
+	    }
 
 	    return html;
 	};
