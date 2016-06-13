@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import escapeHTML from 'escape-html';
-import tag from 'node-html-tag';
+import tag from 'html5-tag';
 
 const defaultRowRenderer = (node, treeOptions) => {
     const { id, name, loadOnDemand = false, children, state } = node;
