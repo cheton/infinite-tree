@@ -135,31 +135,23 @@ tree.on('selectNode', function(node) {
 Use <b>event delegation</b> <sup>[[1](http://javascript.info/tutorial/event-delegation), [2](http://davidwalsh.name/event-delegate)]</sup>
 
 ```js
-// JavaScript
+var elementClass = require('element-class');
 var el = document.querySelector('#tree');
 var tree = new InfiniteTree(el, { /* options */ });
 
 tree.on('click', function(event) {
-    event = event || window.event;
-    var target = event.target || event.srcElement;
+    var target = event.target || event.srcElement; // IE8
 
-    // do stuff with node
-    console.log(target);
+    // Call event.stopPropagation() if you want to prevent the execution of
+    // default tree operations like selectNode, openNode, and closeNode.
+    event.stopPropagation();
     
     // Check if the target element contains a specific class
-    if (!hasClass(target, 'my-specific-class')) {
+    if (!elementClass(target).has('my-specific-class')) {
         return;
     }
 };
 
-// Checks if an element contains a specific class
-var hasClass = function(el, className) {
-    if (!el) {
-        return false;
-    }
-    var classes = el.className.split(' ');
-    return (classes.indexOf(className) >= 0);
-};
 ```
 
 Event delegation with jQuery:
@@ -168,8 +160,12 @@ var el = document.querySelector('#tree');
 var tree = new InfiniteTree(el, { /* options */ });
 
 // jQuery
-$(tree.contentElement).on('click', 'your-event-selector', function() {
-  // do stuff with node
+$(tree.contentElement).on('click', 'your-event-selector', function(event) {
+    // Call event.stopPropagation() if you want to prevent the execution of
+    // default tree operations like selectNode, openNode, and closeNode.
+    event.stopPropagation();
+    
+    // do stuff with node
 });
 ```
 
