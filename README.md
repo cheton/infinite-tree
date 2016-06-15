@@ -169,7 +169,7 @@ $(tree.contentElement).on('click', 'your-event-selector', function(event) {
     event.stopPropagation();
     
     // do stuff with the target element.
-    console.log(target);
+    console.log(event.target);
 });
 ```
 
