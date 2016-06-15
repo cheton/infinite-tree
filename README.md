@@ -150,6 +150,9 @@ tree.on('click', function(event) {
     if (!elementClass(target).has('my-specific-class')) {
         return;
     }
+
+    // do stuff with the target element.
+    console.log(target);
 };
 
 ```
@@ -165,7 +168,8 @@ $(tree.contentElement).on('click', 'your-event-selector', function(event) {
     // default tree operations like selectNode, openNode, and closeNode.
     event.stopPropagation();
     
-    // do stuff with node
+    // do stuff with the target element.
+    console.log(target);
 });
 ```
 
