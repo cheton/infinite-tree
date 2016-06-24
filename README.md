@@ -135,7 +135,6 @@ tree.on('selectNode', function(node) {
 Use <b>event delegation</b> <sup>[[1](http://javascript.info/tutorial/event-delegation), [2](http://davidwalsh.name/event-delegate)]</sup>
 
 ```js
-var elementClass = require('element-class');
 var el = document.querySelector('#tree');
 var tree = new InfiniteTree(el, { /* options */ });
 
@@ -146,8 +145,9 @@ tree.on('click', function(event) {
     // default tree operations like selectNode, openNode, and closeNode.
     event.stopPropagation();
     
-    // Check if the target element contains a specific class
-    if (!elementClass(target).has('my-specific-class')) {
+    // Matches the specified group of selectors.
+    var selectors = '.dropdown .btn';
+    if (!target.querySelector(selectors)) {
         return;
     }
 
@@ -163,7 +163,7 @@ var el = document.querySelector('#tree');
 var tree = new InfiniteTree(el, { /* options */ });
 
 // jQuery
-$(tree.contentElement).on('click', 'your-event-selector', function(event) {
+$(tree.contentElement).on('click', '.dropdown .btn', function(event) {
     // Call event.stopPropagation() if you want to prevent the execution of
     // default tree operations like selectNode, openNode, and closeNode.
     event.stopPropagation();
