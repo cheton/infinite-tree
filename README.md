@@ -147,7 +147,7 @@ tree.on('click', function(event) {
     
     // Matches the specified group of selectors.
     var selectors = '.dropdown .btn';
-    if (!target.querySelector(selectors)) {
+    if (event.currentTarget.querySelector(selectors) !== target) {
         return;
     }
 
