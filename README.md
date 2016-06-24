@@ -163,7 +163,7 @@ var el = document.querySelector('#tree');
 var tree = new InfiniteTree(el, { /* options */ });
 
 // jQuery
-$(tree.contentElement).on('click', 'your-event-selector', function(event) {
+$(tree.contentElement).on('click', '.dropdown .btn', function(event) {
     // Call event.stopPropagation() if you want to prevent the execution of
     // default tree operations like selectNode, openNode, and closeNode.
     event.stopPropagation();
