@@ -141,6 +141,10 @@ class InfiniteTree extends events.EventEmitter {
                 this.selectNode(node); // selectNode will re-render the tree
             }, 0);
         },
+        'dblclick': (event) => {
+            // Emit a "doubleClick" event
+            this.emit('doubleClick', event);
+        },
         // https://developer.mozilla.org/en-US/docs/Web/Events/dragstart
         // The dragstart event is fired when the user starts dragging an element or text selection.
         'dragstart': (event) => {
@@ -348,6 +352,7 @@ class InfiniteTree extends events.EventEmitter {
         });
 
         addEventListener(this.contentElement, 'click', this.contentListener.click);
+        addEventListener(this.contentElement, 'dblclick', this.contentListener.dblclick);
 
         if (this.options.droppable) {
             addEventListener(document, 'dragstart', this.contentListener.dragstart);
