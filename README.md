@@ -140,14 +140,19 @@ var tree = new InfiniteTree(el, { /* options */ });
 
 tree.on('click', function(event) {
     var target = event.target || event.srcElement; // IE8
+    var nodeTarget = target;
+
+    while (nodeTarget && nodeTarget.parentElement !== tree.contentElement) {
+        nodeTarget = nodeTarget.parentElement;
+    }
 
     // Call event.stopPropagation() if you want to prevent the execution of
     // default tree operations like selectNode, openNode, and closeNode.
-    event.stopPropagation();
+    event.stopPropagation(); // [optional]
     
     // Matches the specified group of selectors.
     var selectors = '.dropdown .btn';
-    if (event.currentTarget.querySelector(selectors) !== target) {
+    if (nodeTarget.querySelector(selectors) !== target) {
         return;
     }
 
