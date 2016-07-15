@@ -1,6 +1,6 @@
 {
   "name": "infinite-tree",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "description": "A browser-ready tree library that can efficiently display a large amount of data using infinite scrolling.",
   "homepage": "https://github.com/cheton/infinite-tree",
   "main": "lib/index.js",
