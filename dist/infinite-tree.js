@@ -1,4 +1,4 @@
-/*! infinite-tree v1.6.0 | (c) 2016 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
+/*! infinite-tree v1.7.0 | (c) 2016 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -258,6 +258,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    _this.selectNode(node); // selectNode will re-render the tree
 	                }, 0);
 	            },
+	            'dblclick': function dblclick(event) {
+	                // Emit a "doubleClick" event
+	                _this.emit('doubleClick', event);
+	            },
 	            // https://developer.mozilla.org/en-US/docs/Web/Events/dragstart
 	            // The dragstart event is fired when the user starts dragging an element or text selection.
 	            'dragstart': function dragstart(event) {
@@ -466,6 +470,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        });
 
 	        (0, _domEvents.addEventListener)(this.contentElement, 'click', this.contentListener.click);
+	        (0, _domEvents.addEventListener)(this.contentElement, 'dblclick', this.contentListener.dblclick);
 
 	        if (this.options.droppable) {
 	            (0, _domEvents.addEventListener)(document, 'dragstart', this.contentListener.dragstart);
