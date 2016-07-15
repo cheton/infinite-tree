@@ -104,22 +104,16 @@ console.log(node.getFirstChild().getPreviousSibling());
 #### Events Usage
 Learn more: [Events](https://github.com/cheton/infinite-tree/wiki/Events)
 ```js
-tree.on('click', function(event) {
-});
-tree.on('clusterWillChange', function() {
-});
-tree.on('clusterDidChange', function() {
-});
-tree.on('contentWillUpdate', function() {
-});
-tree.on('contentDidUpdate', function() {
-});
-tree.on('openNode', function(node) {
-});
-tree.on('closeNode', function(node) {
-});
-tree.on('selectNode', function(node) {
-});
+tree.on('click', function(event) {});
+tree.on('doubleClick', function(event) {});
+tree.on('clusterWillChange', function() {});
+tree.on('clusterDidChange', function() {});
+tree.on('contentWillUpdate', function() {});
+tree.on('contentDidUpdate', function() {});
+tree.on('openNode', function(node) {});
+tree.on('closeNode', function(node) {});
+tree.on('selectNode', function(node) {});
+tree.on('dropNode', function(node) {});
 ```
 
 ## API Documentation
