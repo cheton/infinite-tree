@@ -156,7 +156,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	    _inherits(InfiniteTree, _events$EventEmitter);
 
 	    // Creates new InfiniteTree object.
-
 	    function InfiniteTree(el, options) {
 	        _classCallCheck(this, InfiniteTree);
 
@@ -1506,8 +1505,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	      er = arguments[1];
 	      if (er instanceof Error) {
 	        throw er; // Unhandled 'error' event
+	      } else {
+	        // At least give some kind of context to the user
+	        var err = new Error('Uncaught, unspecified "error" event. (' + er + ')');
+	        err.context = er;
+	        throw err;
 	      }
-	      throw TypeError('Uncaught, unspecified "error" event.');
 	    }
 	  }
 
@@ -1805,7 +1808,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/*! Clusterize.js - v0.16.0 - 2016-03-12
+	/*! Clusterize.js - v0.16.1 - 2016-08-16
 	* http://NeXTs.github.com/Clusterize.js/
 	* Copyright (c) 2015 Denis Lukov; Licensed GPLv3 */
 
@@ -1995,7 +1998,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      opts.item_height = nodes[Math.floor(nodes.length / 2)].offsetHeight;
 	      // consider table's border-spacing
 	      if(opts.tag == 'tr' && getStyle('borderCollapse', this.content_elem) != 'collapse')
-	        opts.item_height += parseInt(getStyle('borderSpacing', this.content_elem)) || 0;
+	        opts.item_height += parseInt(getStyle('borderSpacing', this.content_elem), 10) || 0;
 	      opts.block_height = opts.item_height * opts.rows_in_block;
 	      opts.rows_in_cluster = opts.blocks_in_cluster * opts.rows_in_block;
 	      opts.cluster_height = opts.blocks_in_cluster * opts.block_height;
@@ -2015,6 +2018,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	      empty_row.className = opts.no_data_class;
 	      if(opts.tag == 'tr') {
 	        td = document.createElement('td');
+	        // fixes #53
+	        td.colSpan = 100;
 	        td.appendChild(no_data_content);
 	      }
 	      empty_row.appendChild(td || no_data_content);
