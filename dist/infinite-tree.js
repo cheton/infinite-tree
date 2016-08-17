@@ -1,4 +1,4 @@
-/*! infinite-tree v1.7.0 | (c) 2016 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
+/*! infinite-tree v1.7.1 | (c) 2016 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -1052,9 +1052,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	            }
 	        }
 
-	        // Update parent node
-	        parentNode.children = [];
-	        parentNode.state.open = parentNode.state.open && parentNode.children.length > 0;
+	        // Get the nodes being removed
+	        var removedNodes = this.flattenChildNodes(parentNode);
 
 	        // Get the number of nodes to be removed
 	        var deleteCount = parentNode.state.total;
@@ -1063,6 +1062,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	        for (var p = parentNode; p !== null; p = p.parent) {
 	            p.state.total = p.state.total - deleteCount;
 	        }
+
+	        // Update parent node
+	        parentNode.children = [];
+	        parentNode.state.open = parentNode.state.open && parentNode.children.length > 0;
 
 	        if (parentNodeIndex >= 0) {
 	            // Update nodes & rows
@@ -1074,18 +1077,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 
 	        {
-	            (function () {
-	                // Update open nodes and lookup table
-	                var childNodes = _this6.flattenChildNodes(parentNode);
+	            // Update open nodes and lookup table
+	            this.state.openNodes = this.state.openNodes.filter(function (node) {
+	                return removedNodes.indexOf(node) < 0 && node.hasChildren() && node.state.open;
+	            });
 
-	                _this6.state.openNodes = _this6.state.openNodes.filter(function (node) {
-	                    return childNodes.indexOf(node) < 0;
-	                });
-
-	                childNodes.forEach(function (node) {
-	                    _this6.nodeTable.unset(node.id);
-	                });
-	            })();
+	            removedNodes.forEach(function (node) {
+	                _this6.nodeTable.unset(node.id);
+	            });
 	        }
 
 	        // Updates list with new data
@@ -1142,9 +1141,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	            }
 	        }
 
-	        // Update parent node
-	        parentNode.children.splice(parentNode.children.indexOf(node), 1);
-	        parentNode.state.open = parentNode.state.open && parentNode.children.length > 0;
+	        // Get the nodes being removed
+	        var removedNodes = this.flattenNode(node);
 
 	        // Get the number of nodes to be removed
 	        var deleteCount = node.state.total + 1;
@@ -1153,6 +1151,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	        for (var p = parentNode; p !== null; p = p.parent) {
 	            p.state.total = p.state.total - deleteCount;
 	        }
+
+	        // Update parent node
+	        parentNode.children.splice(parentNode.children.indexOf(node), 1);
+	        parentNode.state.open = parentNode.state.open && parentNode.children.length > 0;
 
 	        if (nodeIndex >= 0) {
 	            // Update nodes & rows
@@ -1166,18 +1168,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 
 	        {
-	            (function () {
-	                // Update open nodes and lookup table
-	                var nodes = _this7.flattenNode(node);
+	            // Update open nodes and lookup table
+	            this.state.openNodes = this.state.openNodes.filter(function (node) {
+	                return removedNodes.indexOf(node) < 0 && node.hasChildren() && node.state.open;
+	            });
 
-	                _this7.state.openNodes = _this7.state.openNodes.filter(function (node) {
-	                    return nodes.indexOf(node) < 0;
-	                });
-
-	                nodes.forEach(function (node) {
-	                    _this7.nodeTable.unset(node.id);
-	                });
-	            })();
+	            removedNodes.forEach(function (node) {
+	                _this7.nodeTable.unset(node.id);
+	            });
 	        }
 
 	        // Updates list with new data
