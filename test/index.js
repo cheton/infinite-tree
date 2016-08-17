@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import jsdom from 'jsdom';
 import { Node } from 'flattree';
+import map from 'lodash/map';
 
 const document = jsdom.jsdom(undefined, {
     virtualConsole: jsdom.createVirtualConsole().sendTo(console)
@@ -125,11 +126,11 @@ test('tree.addChildNodes', (t) => {
         data: getTreeData()
     });
 
-    const initialLength = tree.nodes.length;
+    const nodesLength = tree.nodes.length;
 
     { // #1: Add a child node to the root node without specifying index
         tree.addChildNodes({ id: 'new-node#1' });
-        t.equal(tree.nodes.length, initialLength + 1);
+        t.equal(tree.nodes.length, nodesLength + 1);
         t.notEqual(tree.getNodeById('new-node#1'), null);
         t.same(tree.getNodeById('new-node#1').getPreviousSibling(), tree.getNodeById('<root>'));
         t.equal(tree.getNodeById('new-node#1').getNextSibling(), null);
@@ -137,7 +138,7 @@ test('tree.addChildNodes', (t) => {
 
     { // #2: Add a child node to the root node at the specified index
         tree.addChildNodes({ id: 'new-node#2' }, 1);
-        t.equal(tree.nodes.length, initialLength + 2);
+        t.equal(tree.nodes.length, nodesLength + 2);
         t.notEqual(tree.getNodeById('new-node#2'), null);
         t.same(tree.getNodeById('new-node#2').getPreviousSibling(), tree.getNodeById('<root>'));
         t.same(tree.getNodeById('new-node#2').getNextSibling(), tree.getNodeById('new-node#1'));
@@ -153,11 +154,11 @@ test('tree.appendChildNode', (t) => {
         data: getTreeData()
     });
 
-    const initialLength = tree.nodes.length;
+    const nodesLength = tree.nodes.length;
 
     { // #1: Append a child node to the root node
         tree.appendChildNode({ id: 'new-node#1' });
-        t.equal(tree.nodes.length, initialLength + 1);
+        t.equal(tree.nodes.length, nodesLength + 1);
         t.notEqual(tree.getNodeById('new-node#1'), null);
         t.same(tree.getNodeById('new-node#1').getPreviousSibling(), tree.getNodeById('<root>'));
         t.equal(tree.getNodeById('new-node#1').getNextSibling(), null);
@@ -503,36 +504,57 @@ test('tree.removeChildNodes', (t) => {
         data: getTreeData()
     });
 
-    const initialLength = tree.nodes.length;
+    const nodesLength = tree.nodes.length;
 
     // Select a node
     t.ok(tree.selectNode(tree.getNodeById('india')));
-    t.equal(tree.nodes.length, initialLength);
+    t.equal(tree.nodes.length, nodesLength);
 
     { // #1: Pass empty parameters
-        t.equal(tree.nodes.length, initialLength);
         t.notOk(tree.removeChildNodes());
-        t.equal(tree.nodes.length, initialLength);
+        t.equal(tree.nodes.length, nodesLength);
+        t.same(tree.state.openNodes.map(node => node.id), [
+            '<root>',
+            'bravo',
+            'charlie',
+            'delta',
+            'hotel',
+            'india'
+        ]);
     }
 
     { // #2: Remove child nodes of "hotel"
         const node = tree.getNodeById('hotel');
         t.ok(tree.removeChildNodes(node));
-        t.equal(tree.nodes.length, initialLength - 2);
+        t.equal(node.children.length, 0);
+        t.equal(tree.nodes.length, nodesLength - 2);
+        t.same(tree.state.openNodes.map(node => node.id), [
+            '<root>',
+            'bravo',
+            'charlie',
+            'delta'
+        ]);
         t.same(tree.getSelectedNode(), tree.getNodeById('hotel'));
     }
 
     { // #3: Remove child nodes of "charlie"
         const node = tree.getNodeById('charlie');
         t.ok(tree.removeChildNodes(node));
-        t.equal(tree.nodes.length, initialLength - 2 - 4);
+        t.equal(node.children.length, 0);
+        t.equal(tree.nodes.length, nodesLength - 2 - 4);
+        t.same(tree.state.openNodes.map(node => node.id), [
+            '<root>',
+            'bravo'
+        ]);
         t.same(tree.getSelectedNode(), tree.getNodeById('hotel'));
     }
 
     { // #4: Remove child nodes of "<root>"
         const node = tree.getNodeById('<root>');
         t.ok(tree.removeChildNodes(node));
+        t.equal(node.children.length, 0);
         t.equal(tree.nodes.length, 1);
+        t.same(tree.state.openNodes.map(node => node.id), []);
         t.same(tree.getSelectedNode(), tree.getNodeById('<root>'));
     }
 
@@ -554,35 +576,58 @@ test('tree.removeNode', (t) => {
         data: getTreeData()
     });
 
-    const initialLength = tree.nodes.length;
+    const nodesLength = tree.nodes.length;
 
     // Select a node
     t.ok(tree.selectNode(tree.getNodeById('india')));
-    t.equal(tree.nodes.length, initialLength);
+    t.equal(tree.nodes.length, nodesLength);
 
     { // #1: Pass empty parameters
         t.notOk(tree.removeNode());
-        t.equal(tree.nodes.length, initialLength);
+        t.equal(tree.nodes.length, nodesLength);
+        t.same(tree.state.openNodes.map(node => node.id), [
+            '<root>',
+            'bravo',
+            'charlie',
+            'delta',
+            'hotel',
+            'india'
+        ]);
     }
 
     { // #2: Remove "hotel"
         const node = tree.getNodeById('hotel');
         t.ok(tree.removeNode(node));
-        t.equal(tree.nodes.length, initialLength - 3);
+        t.equal(tree.nodes.length, nodesLength - 3);
+        t.same(tree.state.openNodes.map(node => node.id), [
+            '<root>',
+            'bravo',
+            'charlie',
+            'delta'
+        ]);
         t.same(tree.getSelectedNode(), tree.getNodeById('kilo'), 'the next sibling node of "hotel" is "kilo"');
     }
 
     { // #3: Remove "kilo"
         const node = tree.getNodeById('kilo');
         t.ok(tree.removeNode(node));
-        t.equal(tree.nodes.length, initialLength - 3 - 1);
+        t.equal(tree.nodes.length, nodesLength - 3 - 1);
+        t.same(tree.state.openNodes.map(node => node.id), [
+            '<root>',
+            'bravo',
+            'charlie',
+            'delta'
+        ]);
         t.same(tree.getSelectedNode(), tree.getNodeById('charlie'), 'the previous sibling node of "kilo" is charlie"');
     }
 
     { // #4: Remove "charlie"
         const node = tree.getNodeById('charlie');
         t.ok(tree.removeNode(node));
-        t.equal(tree.nodes.length, initialLength - 3 - 1 - 5);
+        t.equal(tree.nodes.length, nodesLength - 3 - 1 - 5);
+        t.same(tree.state.openNodes.map(node => node.id), [
+            '<root>'
+        ]);
         t.same(tree.getSelectedNode(), tree.getNodeById('bravo'), 'the parent node of "charlie" is "bravo"');
     }
 
@@ -590,6 +635,7 @@ test('tree.removeNode', (t) => {
         const node = tree.getNodeById('<root>');
         t.ok(tree.removeNode(node));
         t.equal(tree.nodes.length, 0);
+        t.same(tree.state.openNodes.map(node => node.id), []);
         t.same(tree.getSelectedNode(), null, 'no more selected node');
     }
 

@@ -868,9 +868,8 @@ class InfiniteTree extends events.EventEmitter {
             }
         }
 
-        // Update parent node
-        parentNode.children = [];
-        parentNode.state.open = parentNode.state.open && (parentNode.children.length > 0);
+        // Get the nodes being removed
+        const removedNodes = this.flattenChildNodes(parentNode);
 
         // Get the number of nodes to be removed
         const deleteCount = parentNode.state.total;
@@ -879,6 +878,10 @@ class InfiniteTree extends events.EventEmitter {
         for (let p = parentNode; p !== null; p = p.parent) {
             p.state.total = p.state.total - deleteCount;
         }
+
+        // Update parent node
+        parentNode.children = [];
+        parentNode.state.open = parentNode.state.open && (parentNode.children.length > 0);
 
         if (parentNodeIndex >= 0) {
             // Update nodes & rows
@@ -890,13 +893,11 @@ class InfiniteTree extends events.EventEmitter {
         }
 
         { // Update open nodes and lookup table
-            const childNodes = this.flattenChildNodes(parentNode);
-
             this.state.openNodes = this.state.openNodes.filter((node) => {
-                return childNodes.indexOf(node) < 0;
+                return (removedNodes.indexOf(node) < 0) && node.hasChildren() && node.state.open;
             });
 
-            childNodes.forEach((node) => {
+            removedNodes.forEach((node) => {
                 this.nodeTable.unset(node.id);
             });
         }
@@ -951,9 +952,8 @@ class InfiniteTree extends events.EventEmitter {
             }
         }
 
-        // Update parent node
-        parentNode.children.splice(parentNode.children.indexOf(node), 1);
-        parentNode.state.open = parentNode.state.open && (parentNode.children.length > 0);
+        // Get the nodes being removed
+        const removedNodes = this.flattenNode(node);
 
         // Get the number of nodes to be removed
         const deleteCount = node.state.total + 1;
@@ -962,6 +962,10 @@ class InfiniteTree extends events.EventEmitter {
         for (let p = parentNode; p !== null; p = p.parent) {
             p.state.total = p.state.total - deleteCount;
         }
+
+        // Update parent node
+        parentNode.children.splice(parentNode.children.indexOf(node), 1);
+        parentNode.state.open = parentNode.state.open && (parentNode.children.length > 0);
 
         if (nodeIndex >= 0) {
             // Update nodes & rows
@@ -975,13 +979,11 @@ class InfiniteTree extends events.EventEmitter {
         }
 
         { // Update open nodes and lookup table
-            const nodes = this.flattenNode(node);
-
             this.state.openNodes = this.state.openNodes.filter((node) => {
-                return nodes.indexOf(node) < 0;
+                return (removedNodes.indexOf(node) < 0) && node.hasChildren() && node.state.open;
             });
 
-            nodes.forEach((node) => {
+            removedNodes.forEach((node) => {
                 this.nodeTable.unset(node.id);
             });
         }
