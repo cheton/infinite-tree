@@ -475,7 +475,7 @@ class InfiniteTree extends events.EventEmitter {
     // * If the parent is null or undefined, inserts the child at the specified index in the top-level.
     // * If the parent has children, the method adds the child as the last child.
     // * If the parent does not have children, the method adds the child to the parent.
-    // @param {Object} newNode The new child node.
+    // @param {object} newNode The new child node.
     // @param {Node} parentNode The Node object that defines the parent node.
     // @return {boolean} Returns true on success, false otherwise.
     appendChildNode(newNode, parentNode) {
@@ -656,7 +656,7 @@ class InfiniteTree extends events.EventEmitter {
         return this.state.selectedNode;
     }
     // Inserts the specified node after the reference node.
-    // @param {Object} newNode The new sibling node.
+    // @param {object} newNode The new sibling node.
     // @param {Node} referenceNode The Node object that defines the reference node.
     // @return {boolean} Returns true on success, false otherwise.
     insertNodeAfter(newNode, referenceNode) {
@@ -671,7 +671,7 @@ class InfiniteTree extends events.EventEmitter {
         return this.addChildNodes(newNodes, index, parentNode);
     }
     // Inserts the specified node before the reference node.
-    // @param {Object} newNode The new sibling node.
+    // @param {object} newNode The new sibling node.
     // @param {Node} referenceNode The Node object that defines the reference node.
     // @return {boolean} Returns true on success, false otherwise.
     insertNodeBefore(newNode, referenceNode) {
@@ -1189,8 +1189,10 @@ class InfiniteTree extends events.EventEmitter {
     }
     // Updates the data of a node.
     // @param {Node} node The Node object.
-    // @param {Object} data The data object.
-    updateNode(node, data) {
+    // @param {object} data The data object.
+    // @param {object} [options] The options object.
+    // @param {boolean} [options.shallowRendering] True to render only the parent node, false to render the parent node and all expanded child nodes. Defaults to false.
+    updateNode(node, data, options) {
         if (!ensureNodeInstance(node)) {
             return;
         }
@@ -1208,8 +1210,18 @@ class InfiniteTree extends events.EventEmitter {
         // Retrieve node index
         const nodeIndex = this.nodes.indexOf(node);
         if (nodeIndex >= 0) {
+            const { shallowRendering = false } = { ...options };
+
             // Update the row corresponding to the node
             this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
+
+            if (!shallowRendering) {
+                const rangeFrom = nodeIndex + 1;
+                const rangeTo = nodeIndex + node.state.total;
+                for (let index = rangeFrom; index <= rangeTo; ++index) {
+                    this.rows[index] = this.options.rowRenderer(this.nodes[index], this.options);
+                }
+            }
 
             // Updates list with new data
             this.update();
