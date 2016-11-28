@@ -1,4 +1,4 @@
-/*! infinite-tree v1.7.2 | (c) 2016 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
+/*! infinite-tree v1.7.3 | (c) 2016 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -73,7 +73,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	exports.__esModule = true;
 
-	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
@@ -113,7 +113,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } /* eslint prefer-spread: 0 */
+
 
 	var error = function error() {
 	    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
@@ -273,8 +274,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	            'dragend': function dragend(event) {
 	                event = event || window.event;
 
-	                var _this$options$droppab = _this.options.droppable.hoverClass;
-	                var hoverClass = _this$options$droppab === undefined ? '' : _this$options$droppab;
+	                var _this$options$droppab = _this.options.droppable.hoverClass,
+	                    hoverClass = _this$options$droppab === undefined ? '' : _this$options$droppab;
 
 	                // Draggable
 
@@ -312,10 +313,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    return;
 	                }
 
-	                var _this$options$droppab2 = _this.options.droppable;
-	                var accept = _this$options$droppab2.accept;
-	                var _this$options$droppab3 = _this$options$droppab2.hoverClass;
-	                var hoverClass = _this$options$droppab3 === undefined ? '' : _this$options$droppab3;
+	                var _this$options$droppab2 = _this.options.droppable,
+	                    accept = _this$options$droppab2.accept,
+	                    _this$options$droppab3 = _this$options$droppab2.hoverClass,
+	                    hoverClass = _this$options$droppab3 === undefined ? '' : _this$options$droppab3;
 
 
 	                (0, _elementClass2['default'])(_this.droppableTarget).remove(hoverClass);
@@ -359,11 +360,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    return;
 	                }
 
-	                var _this$options$droppab4 = _this.options.droppable;
-	                var accept = _this$options$droppab4.accept;
-	                var drop = _this$options$droppab4.drop;
-	                var _this$options$droppab5 = _this$options$droppab4.hoverClass;
-	                var hoverClass = _this$options$droppab5 === undefined ? '' : _this$options$droppab5;
+	                var _this$options$droppab4 = _this.options.droppable,
+	                    accept = _this$options$droppab4.accept,
+	                    drop = _this$options$droppab4.drop,
+	                    _this$options$droppab5 = _this$options$droppab4.hoverClass,
+	                    hoverClass = _this$options$droppab5 === undefined ? '' : _this$options$droppab5;
 
 	                var id = _this.droppableTarget.getAttribute(_this.options.nodeIdAttr);
 	                var node = _this.getNodeById(id);
@@ -637,11 +638,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 	    InfiniteTree.prototype.closeNode = function closeNode(node, options) {
-	        var _options = _extends({}, options);
-
-	        var _options$silent = _options.silent;
-	        var silent = _options$silent === undefined ? false : _options$silent;
-
+	        var _options = _extends({}, options),
+	            _options$silent = _options.silent,
+	            silent = _options$silent === undefined ? false : _options$silent;
 
 	        if (!ensureNodeInstance(node)) {
 	            return false;
@@ -849,7 +848,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    InfiniteTree.prototype.loadData = function loadData() {
 	        var _this4 = this;
 
-	        var data = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
+	        var data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
 
 	        this.nodes = (0, _flattree.flatten)(data, { openAllNodes: this.options.autoOpen });
 
@@ -862,7 +861,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.state.selectedNode = null;
 
 	        var rootNode = function () {
-	            var node = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
+	            var node = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
 
 	            // Finding the root node
 	            while (node && node.parent !== null) {
@@ -898,11 +897,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    InfiniteTree.prototype.openNode = function openNode(node, options) {
 	        var _this5 = this;
 
-	        var _options2 = _extends({}, options);
-
-	        var _options2$silent = _options2.silent;
-	        var silent = _options2$silent === undefined ? false : _options2$silent;
-
+	        var _options2 = _extends({}, options),
+	            _options2$silent = _options2.silent,
+	            silent = _options2$silent === undefined ? false : _options2$silent;
 
 	        if (!ensureNodeInstance(node)) {
 	            return false;
@@ -1229,17 +1226,15 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 	    InfiniteTree.prototype.selectNode = function selectNode() {
-	        var node = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
+	        var node = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
 	        var options = arguments[1];
-	        var _options3 = this.options;
-	        var selectable = _options3.selectable;
-	        var shouldSelectNode = _options3.shouldSelectNode;
+	        var _options3 = this.options,
+	            selectable = _options3.selectable,
+	            shouldSelectNode = _options3.shouldSelectNode;
 
-	        var _options4 = _extends({}, options);
-
-	        var _options4$silent = _options4.silent;
-	        var silent = _options4$silent === undefined ? false : _options4$silent;
-
+	        var _options4 = _extends({}, options),
+	            _options4$silent = _options4.silent,
+	            silent = _options4$silent === undefined ? false : _options4$silent;
 
 	        if (!selectable) {
 	            return false;
@@ -1349,7 +1344,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 	    InfiniteTree.prototype.toString = function toString() {
-	        var node = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
+	        var node = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
 
 	        var traverse = function traverse(node) {
 	            var s = '[';
@@ -1431,12 +1426,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	        // Retrieve node index
 	        var nodeIndex = this.nodes.indexOf(node);
 	        if (nodeIndex >= 0) {
-	            var _options5 = _extends({}, options);
-
-	            var _options5$shallowRend = _options5.shallowRendering;
-	            var shallowRendering = _options5$shallowRend === undefined ? false : _options5$shallowRend;
+	            var _options5 = _extends({}, options),
+	                _options5$shallowRend = _options5.shallowRendering,
+	                shallowRendering = _options5$shallowRend === undefined ? false : _options5$shallowRend;
 
 	            // Update the row corresponding to the node
+
 
 	            this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
 
@@ -1824,7 +1819,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/*! Clusterize.js - v0.16.1 - 2016-08-16
+	/*! Clusterize.js - v0.17.2 - 2016-10-07
 	* http://NeXTs.github.com/Clusterize.js/
 	* Copyright (c) 2015 Denis Lukov; Licensed GPLv3 */
 
@@ -1853,20 +1848,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var self = this;
 
 	    var defaults = {
-	      item_height: 0,
-	      block_height: 0,
 	      rows_in_block: 50,
-	      rows_in_cluster: 0,
-	      cluster_height: 0,
 	      blocks_in_cluster: 4,
 	      tag: null,
-	      content_tag: null,
 	      show_no_data_row: true,
 	      no_data_class: 'clusterize-no-data',
 	      no_data_text: 'No data',
 	      keep_parity: true,
-	      callbacks: {},
-	      scroll_top: 0
+	      callbacks: {}
 	    }
 
 	    // public parameters
@@ -1897,9 +1886,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	        : self.fetchMarkup(),
 	      cache = {data: '', bottom: 0},
 	      scroll_top = self.scroll_elem.scrollTop;
-
-	    // get row height
-	    self.exploreEnvironment(rows);
 
 	    // append initial data
 	    self.insertToDOM(rows, cache);
@@ -1941,8 +1927,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	      off('resize', window, resizeEv);
 	      self.html((clean ? self.generateEmptyRow() : rows).join(''));
 	    }
-	    self.refresh = function() {
-	      self.getRowsHeight(rows) && self.update(rows);
+	    self.refresh = function(force) {
+	      if(self.getRowsHeight(rows) || force) self.update(rows);
 	    }
 	    self.update = function(new_rows) {
 	      rows = isArray(new_rows)
@@ -2011,10 +1997,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	      opts.cluster_height = 0
 	      if( ! rows.length) return;
 	      var nodes = this.content_elem.children;
-	      opts.item_height = nodes[Math.floor(nodes.length / 2)].offsetHeight;
+	      var node = nodes[Math.floor(nodes.length / 2)];
+	      opts.item_height = node.offsetHeight;
 	      // consider table's border-spacing
 	      if(opts.tag == 'tr' && getStyle('borderCollapse', this.content_elem) != 'collapse')
 	        opts.item_height += parseInt(getStyle('borderSpacing', this.content_elem), 10) || 0;
+	      // consider margins (and margins collapsing)
+	      if(opts.tag != 'tr') {
+	        var marginTop = parseInt(getStyle('marginTop', node), 10) || 0;
+	        var marginBottom = parseInt(getStyle('marginBottom', node), 10) || 0;
+	        opts.item_height += Math.max(marginTop, marginBottom);
+	      }
 	      opts.block_height = opts.item_height * opts.rows_in_block;
 	      opts.rows_in_cluster = opts.blocks_in_cluster * opts.rows_in_block;
 	      opts.cluster_height = opts.blocks_in_cluster * opts.block_height;
@@ -2053,9 +2046,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	          rows: rows_len ? rows : this.generateEmptyRow()
 	        }
 	      }
-	      if( ! opts.cluster_height) {
-	        this.exploreEnvironment(rows);
-	      }
 	      var items_start = Math.max((opts.rows_in_cluster - opts.rows_in_block) * cluster_num, 0),
 	        items_end = items_start + opts.rows_in_cluster,
 	        top_offset = Math.max(items_start * opts.item_height, 0),
@@ -2084,6 +2074,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    },
 	    // if necessary verify data changed and insert to DOM
 	    insertToDOM: function(rows, cache) {
+	      // explore row's height
+	      if( ! this.options.cluster_height) {
+	        this.exploreEnvironment(rows);
+	      }
 	      var data = this.generate(rows, this.getClusterNum()),
 	        this_cluster_rows = data.rows.join(''),
 	        this_cluster_content_changed = this.checkChanges('data', this_cluster_rows, cache),
@@ -2288,8 +2282,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	// @return {array}
 	/* eslint no-console: 0 */
 	var flatten = function flatten() {
-	    var nodes = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
-	    var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+	    var nodes = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+	    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
 	    nodes = [].concat(nodes);
 
@@ -2328,10 +2322,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	            // Traversing up through its ancestors
 	            var p = rootNode;
 	            while (p) {
-	                var _p$state = p.state;
-	                var path = _p$state.path;
-	                var _p$state$total = _p$state.total;
-	                var total = _p$state$total === undefined ? 0 : _p$state$total;
+	                var _p$state = p.state,
+	                    path = _p$state.path,
+	                    _p$state$total = _p$state.total,
+	                    total = _p$state$total === undefined ? 0 : _p$state$total;
 
 	                // Rebuild the lastChild pool
 
@@ -2357,11 +2351,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 
 	    while (stack.length > 0) {
-	        var _stack$pop = stack.pop();
-
-	        var current = _stack$pop[0];
-	        var depth = _stack$pop[1];
-	        var index = _stack$pop[2];
+	        var _stack$pop = stack.pop(),
+	            current = _stack$pop[0],
+	            depth = _stack$pop[1],
+	            index = _stack$pop[2];
 
 	        var _loop = function _loop() {
 	            var node = current.children[index];
@@ -2376,8 +2369,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	            var path = current.state.path + '.' + index;
 	            var open = node.hasChildren() && function () {
-	                var openAllNodes = options.openAllNodes;
-	                var openNodes = options.openNodes;
+	                var openAllNodes = options.openAllNodes,
+	                    openNodes = options.openNodes;
 
 	                if (openAllNodes) {
 	                    return true;
@@ -2530,6 +2523,20 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        this.children = this.children || [];
 	    }
+	    // Returns a boolean value indicating whether a node is a descendant of a given node or not.
+	    // @param {object} node Specifies the node that may be contained by (a descendant of) a specified node.
+	    // @return {boolean} Returns true if a node is a descendant of a specified node, otherwise false. A descendant can be a child, grandchild, great-grandchild, and so on.
+
+
+	    Node.prototype.contains = function contains(node) {
+	        while (node instanceof Node && node !== this) {
+	            if (node.parent === this) {
+	                return true;
+	            }
+	            node = node.parent;
+	        }
+	        return false;
+	    };
 	    // Gets a child node at the specified index.
 	    // @param {number} The index of the child node.
 	    // @return {object} Returns an object that defines the node, null otherwise.
@@ -2696,20 +2703,20 @@ return /******/ (function(modules) { // webpackBootstrap
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 	var defaultRowRenderer = function defaultRowRenderer(node, treeOptions) {
-	    var id = node.id;
-	    var name = node.name;
-	    var _node$loadOnDemand = node.loadOnDemand;
-	    var loadOnDemand = _node$loadOnDemand === undefined ? false : _node$loadOnDemand;
-	    var children = node.children;
-	    var state = node.state;
+	    var id = node.id,
+	        name = node.name,
+	        _node$loadOnDemand = node.loadOnDemand,
+	        loadOnDemand = _node$loadOnDemand === undefined ? false : _node$loadOnDemand,
+	        children = node.children,
+	        state = node.state;
 
 	    var droppable = treeOptions.droppable;
-	    var depth = state.depth;
-	    var open = state.open;
-	    var path = state.path;
-	    var total = state.total;
-	    var _state$selected = state.selected;
-	    var selected = _state$selected === undefined ? false : _state$selected;
+	    var depth = state.depth,
+	        open = state.open,
+	        path = state.path,
+	        total = state.total,
+	        _state$selected = state.selected,
+	        selected = _state$selected === undefined ? false : _state$selected;
 
 	    var childrenLength = Object.keys(children).length;
 	    var more = node.hasChildren();
@@ -2757,8 +2764,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        'class': (0, _classnames2['default'])('infinite-tree-item', { 'infinite-tree-selected': selected }),
 	        'droppable': droppable
 	    }, treeNode);
-	};
-
+	}; /* eslint import/prefer-default-export: 0 */
 	exports.defaultRowRenderer = defaultRowRenderer;
 
 /***/ },
