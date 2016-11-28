@@ -1,3 +1,4 @@
+/* eslint import/prefer-default-export: 0 */
 import classNames from 'classnames';
 import escapeHTML from 'escape-html';
 import tag from 'html5-tag';
@@ -38,7 +39,7 @@ const defaultRowRenderer = (node, treeOptions) => {
     }, escapeHTML(name));
     const treeNode = tag('div', {
         'class': 'infinite-tree-node',
-        'style': 'margin-left: ' + depth * 18 + 'px'
+        'style': `margin-left: ${depth * 18}px`
     }, toggler + title);
 
     return tag('div', {

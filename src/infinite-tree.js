@@ -1,3 +1,4 @@
+/* eslint prefer-spread: 0 */
 import events from 'events';
 import classNames from 'classnames';
 import Clusterize from 'clusterize.js';
@@ -541,7 +542,9 @@ class InfiniteTree extends events.EventEmitter {
         }
 
         node.state.open = false; // Set the open state to false
-        const openNodes = this.state.openNodes.filter((node) => (node.hasChildren() && node.state.open));
+        const openNodes = this.state.openNodes.filter((node) => {
+            return node.hasChildren() && node.state.open;
+        });
         this.state.openNodes = openNodes;
 
         const deleteCount = node.state.total;
@@ -631,7 +634,9 @@ class InfiniteTree extends events.EventEmitter {
         let node = this.nodeTable.get(id);
         if (!node) {
             // Find the first node that matches the id
-            node = this.nodes.filter((node) => (node.id === id))[0];
+            node = this.nodes.filter((node) => {
+                return (node.id === id);
+            })[0];
             if (!node) {
                 return null;
             }
@@ -693,7 +698,9 @@ class InfiniteTree extends events.EventEmitter {
         // Clear lookup table
         this.nodeTable.clear();
 
-        this.state.openNodes = this.nodes.filter((node) => (node.hasChildren() && node.state.open));
+        this.state.openNodes = this.nodes.filter((node) => {
+            return node.hasChildren() && node.state.open;
+        });
         this.state.selectedNode = null;
 
         const rootNode = ((node = null) => {
