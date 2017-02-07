@@ -1,4 +1,5 @@
 /* eslint prefer-spread: 0 */
+/* eslint operator-assignment: 0 */
 import events from 'events';
 import classNames from 'classnames';
 import Clusterize from 'clusterize.js';
