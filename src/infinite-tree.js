@@ -146,6 +146,14 @@ class InfiniteTree extends events.EventEmitter {
             // Emit a "doubleClick" event
             this.emit('doubleClick', event);
         },
+        'keydown': (event) => {
+            // Emit a "keyDown" event
+            this.emit('keyDown', event);
+        },
+        'keyup': (event) => {
+            // Emit a "keyUp" event
+            this.emit('keyUp', event);
+        },
         // https://developer.mozilla.org/en-US/docs/Web/Events/dragstart
         // The dragstart event is fired when the user starts dragging an element or text selection.
         'dragstart': (event) => {
@@ -354,6 +362,8 @@ class InfiniteTree extends events.EventEmitter {
 
         addEventListener(this.contentElement, 'click', this.contentListener.click);
         addEventListener(this.contentElement, 'dblclick', this.contentListener.dblclick);
+        addEventListener(this.contentElement, 'keydown', this.contentListener.keydown);
+        addEventListener(this.contentElement, 'keyup', this.contentListener.keyup);
 
         if (this.options.droppable) {
             addEventListener(document, 'dragstart', this.contentListener.dragstart);
@@ -365,7 +375,11 @@ class InfiniteTree extends events.EventEmitter {
         }
     }
     destroy() {
-        removeEventListener(this.contentElement, 'click', this.contentListener);
+        removeEventListener(this.contentElement, 'click', this.contentListener.click);
+        removeEventListener(this.contentElement, 'dblclick', this.contentListener.dblclick);
+        removeEventListener(this.contentElement, 'keydown', this.contentListener.keydown);
+        removeEventListener(this.contentElement, 'keyup', this.contentListener.keyup);
+
         if (this.options.droppable) {
             removeEventListener(document, 'dragstart', this.contentListener.dragstart);
             removeEventListener(document, 'dragend', this.contentListener.dragend);
@@ -500,6 +514,7 @@ class InfiniteTree extends events.EventEmitter {
         this.state.openNodes = [];
         this.state.rootNode = createRootNode(this.state.rootNode);
         this.state.selectedNode = null;
+        this.state.selectedIndex = -1;
     }
     // Closes a node to hide its children.
     // @param {Node} node The Node object.
@@ -532,7 +547,7 @@ class InfiniteTree extends events.EventEmitter {
             // row #2       node.0.0.0 => selected node (total=0)
             // row #3       node.0.0.1
             // row #4     node.0.1
-            const selectedIndex = this.nodes.indexOf(this.state.selectedNode);
+            const selectedIndex = this.state.selectedIndex;
             const rangeFrom = nodeIndex + 1;
             const rangeTo = nodeIndex + node.state.total;
 
@@ -660,6 +675,11 @@ class InfiniteTree extends events.EventEmitter {
     getSelectedNode() {
         return this.state.selectedNode;
     }
+    // Gets the index of the selected node.
+    // @return {number} Returns the index of the selected node, or -1 if not selected.
+    getSelectedIndex() {
+        return this.state.selectedIndex;
+    }
     // Inserts the specified node after the reference node.
     // @param {object} newNode The new sibling node.
     // @param {Node} referenceNode The Node object that defines the reference node.
@@ -702,6 +722,7 @@ class InfiniteTree extends events.EventEmitter {
             return node.hasChildren() && node.state.open;
         });
         this.state.selectedNode = null;
+        this.state.selectedIndex = -1;
 
         const rootNode = ((node = null) => {
             // Finding the root node
@@ -1016,10 +1037,28 @@ class InfiniteTree extends events.EventEmitter {
         if (!this.contentElement) {
             return false;
         }
-        // Get the offset height of the first child
-        const firstChild = this.contentElement.firstChild;
-        const rowHeight = (firstChild && firstChild.offsetHeight) || 0;
-        this.scrollTop(nodeIndex * rowHeight);
+
+        // Scroll to a desired position
+        let firstChild = this.contentElement.firstChild;
+        while (firstChild) {
+            const className = firstChild.className || '';
+            if (className.indexOf('clusterize-extra-row') < 0 && (firstChild.offsetHeight > 0)) {
+                break;
+            }
+            firstChild = firstChild.nextSibling;
+        }
+        // If all items in the list is the same height, it can be calculated by nodeIndex * height.
+        const offsetHeight = (firstChild && firstChild.offsetHeight) || 0;
+        if (offsetHeight > 0) {
+            this.scrollTop(nodeIndex * offsetHeight);
+        }
+
+        // Find the absolute position of the node
+        const nodeSelector = `[${this.options.nodeIdAttr}="${node.id}"]`;
+        const nodeEl = this.contentElement.querySelector(nodeSelector);
+        if (nodeEl) {
+            this.scrollTop(nodeEl.offsetTop);
+        }
 
         return true;
     }
@@ -1038,11 +1077,12 @@ class InfiniteTree extends events.EventEmitter {
     // Selects a node.
     // @param {Node} node The Node object. If null or undefined, deselects the current node.
     // @param {object} [options] The options object.
-    // @param {boolean} [options.silent] Pass true to prevent "selectNode" event from being triggered.
+    // @param {boolean} [options.autoScroll] Pass true to automatically scroll to the selected node. Defaults to true.
+    // @param {boolean} [options.silent] Pass true to prevent "selectNode" event from being triggered. Defaults to false.
     // @return {boolean} Returns true on success, false otherwise.
     selectNode(node = null, options) {
         const { selectable, shouldSelectNode } = this.options;
-        const { silent = false } = { ...options };
+        const { autoScroll = true, silent = false } = { ...options };
 
         if (!selectable) {
             return false;
@@ -1058,11 +1098,12 @@ class InfiniteTree extends events.EventEmitter {
             // Deselect the current node
             if (this.state.selectedNode) {
                 const selectedNode = this.state.selectedNode;
-                const selectedIndex = this.nodes.indexOf(selectedNode);
+                const selectedIndex = this.state.selectedIndex;
 
                 selectedNode.state.selected = false;
                 this.rows[selectedIndex] = this.options.rowRenderer(selectedNode, this.options);
                 this.state.selectedNode = null;
+                this.state.selectedIndex = -1;
 
                 if (!silent) {
                     // Emit a "selectNode" event
@@ -1100,20 +1141,41 @@ class InfiniteTree extends events.EventEmitter {
         // Deselect the current node
         if (this.state.selectedNode) {
             const selectedNode = this.state.selectedNode;
-            const selectedIndex = this.nodes.indexOf(selectedNode);
+            const selectedIndex = this.state.selectedIndex;
             selectedNode.state.selected = false;
             this.rows[selectedIndex] = this.options.rowRenderer(selectedNode, this.options);
         }
 
         if (this.state.selectedNode !== node) {
             this.state.selectedNode = node;
+            this.state.selectedIndex = nodeIndex;
 
             if (!silent) {
                 // Emit a "selectNode" event
                 this.emit('selectNode', node);
             }
+
+            if (autoScroll) {
+                const nodeSelector = `[${this.options.nodeIdAttr}="${node.id}"]`;
+                const nodeEl = this.contentElement.querySelector(nodeSelector);
+                if (nodeEl) {
+                    const offsetTop = nodeEl.offsetTop || 0;
+                    const offsetHeight = nodeEl.offsetHeight || 0;
+
+                    // Scroll Up
+                    if (offsetTop < this.scrollElement.scrollTop) {
+                        this.scrollElement.scrollTop = offsetTop;
+                    }
+
+                    // Scroll Down
+                    if (offsetTop + offsetHeight >= this.scrollElement.scrollTop + this.scrollElement.clientHeight) {
+                        this.scrollElement.scrollTop += offsetHeight;
+                    }
+                }
+            }
         } else {
             this.state.selectedNode = null;
+            this.state.selectedIndex = -1;
 
             if (!silent) {
                 // Emit a "selectNode" event

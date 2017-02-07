@@ -1,4 +1,4 @@
-/*! infinite-tree v1.7.3 | (c) 2016 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
+/*! infinite-tree v1.8.0 | (c) 2017 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -262,6 +262,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	                // Emit a "doubleClick" event
 	                _this.emit('doubleClick', event);
 	            },
+	            'keydown': function keydown(event) {
+	                // Emit a "keyDown" event
+	                _this.emit('keyDown', event);
+	            },
+	            'keyup': function keyup(event) {
+	                // Emit a "keyUp" event
+	                _this.emit('keyUp', event);
+	            },
 	            // https://developer.mozilla.org/en-US/docs/Web/Events/dragstart
 	            // The dragstart event is fired when the user starts dragging an element or text selection.
 	            'dragstart': function dragstart(event) {
@@ -471,6 +479,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        (0, _domEvents.addEventListener)(this.contentElement, 'click', this.contentListener.click);
 	        (0, _domEvents.addEventListener)(this.contentElement, 'dblclick', this.contentListener.dblclick);
+	        (0, _domEvents.addEventListener)(this.contentElement, 'keydown', this.contentListener.keydown);
+	        (0, _domEvents.addEventListener)(this.contentElement, 'keyup', this.contentListener.keyup);
 
 	        if (this.options.droppable) {
 	            (0, _domEvents.addEventListener)(document, 'dragstart', this.contentListener.dragstart);
@@ -483,7 +493,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 
 	    InfiniteTree.prototype.destroy = function destroy() {
-	        (0, _domEvents.removeEventListener)(this.contentElement, 'click', this.contentListener);
+	        (0, _domEvents.removeEventListener)(this.contentElement, 'click', this.contentListener.click);
+	        (0, _domEvents.removeEventListener)(this.contentElement, 'dblclick', this.contentListener.dblclick);
+	        (0, _domEvents.removeEventListener)(this.contentElement, 'keydown', this.contentListener.keydown);
+	        (0, _domEvents.removeEventListener)(this.contentElement, 'keyup', this.contentListener.keyup);
+
 	        if (this.options.droppable) {
 	            (0, _domEvents.removeEventListener)(document, 'dragstart', this.contentListener.dragstart);
 	            (0, _domEvents.removeEventListener)(document, 'dragend', this.contentListener.dragend);
@@ -629,6 +643,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.state.openNodes = [];
 	        this.state.rootNode = createRootNode(this.state.rootNode);
 	        this.state.selectedNode = null;
+	        this.state.selectedIndex = -1;
 	    };
 	    // Closes a node to hide its children.
 	    // @param {Node} node The Node object.
@@ -665,7 +680,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            // row #2       node.0.0.0 => selected node (total=0)
 	            // row #3       node.0.0.1
 	            // row #4     node.0.1
-	            var selectedIndex = this.nodes.indexOf(this.state.selectedNode);
+	            var selectedIndex = this.state.selectedIndex;
 	            var rangeFrom = nodeIndex + 1;
 	            var rangeTo = nodeIndex + node.state.total;
 
@@ -807,6 +822,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	    InfiniteTree.prototype.getSelectedNode = function getSelectedNode() {
 	        return this.state.selectedNode;
 	    };
+	    // Gets the index of the selected node.
+	    // @return {number} Returns the index of the selected node, or -1 if not selected.
+
+
+	    InfiniteTree.prototype.getSelectedIndex = function getSelectedIndex() {
+	        return this.state.selectedIndex;
+	    };
 	    // Inserts the specified node after the reference node.
 	    // @param {object} newNode The new sibling node.
 	    // @param {Node} referenceNode The Node object that defines the reference node.
@@ -859,6 +881,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            return node.hasChildren() && node.state.open;
 	        });
 	        this.state.selectedNode = null;
+	        this.state.selectedIndex = -1;
 
 	        var rootNode = function () {
 	            var node = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
@@ -1197,10 +1220,28 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (!this.contentElement) {
 	            return false;
 	        }
-	        // Get the offset height of the first child
+
+	        // Scroll to a desired position
 	        var firstChild = this.contentElement.firstChild;
-	        var rowHeight = firstChild && firstChild.offsetHeight || 0;
-	        this.scrollTop(nodeIndex * rowHeight);
+	        while (firstChild) {
+	            var className = firstChild.className || '';
+	            if (className.indexOf('clusterize-extra-row') < 0 && firstChild.offsetHeight > 0) {
+	                break;
+	            }
+	            firstChild = firstChild.nextSibling;
+	        }
+	        // If all items in the list is the same height, it can be calculated by nodeIndex * height.
+	        var offsetHeight = firstChild && firstChild.offsetHeight || 0;
+	        if (offsetHeight > 0) {
+	            this.scrollTop(nodeIndex * offsetHeight);
+	        }
+
+	        // Find the absolute position of the node
+	        var nodeSelector = '[' + this.options.nodeIdAttr + '="' + node.id + '"]';
+	        var nodeEl = this.contentElement.querySelector(nodeSelector);
+	        if (nodeEl) {
+	            this.scrollTop(nodeEl.offsetTop);
+	        }
 
 	        return true;
 	    };
@@ -1221,7 +1262,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    // Selects a node.
 	    // @param {Node} node The Node object. If null or undefined, deselects the current node.
 	    // @param {object} [options] The options object.
-	    // @param {boolean} [options.silent] Pass true to prevent "selectNode" event from being triggered.
+	    // @param {boolean} [options.autoScroll] Pass true to automatically scroll to the selected node. Defaults to true.
+	    // @param {boolean} [options.silent] Pass true to prevent "selectNode" event from being triggered. Defaults to false.
 	    // @return {boolean} Returns true on success, false otherwise.
 
 
@@ -1233,6 +1275,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	            shouldSelectNode = _options3.shouldSelectNode;
 
 	        var _options4 = _extends({}, options),
+	            _options4$autoScroll = _options4.autoScroll,
+	            autoScroll = _options4$autoScroll === undefined ? true : _options4$autoScroll,
 	            _options4$silent = _options4.silent,
 	            silent = _options4$silent === undefined ? false : _options4$silent;
 
@@ -1250,11 +1294,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	            // Deselect the current node
 	            if (this.state.selectedNode) {
 	                var selectedNode = this.state.selectedNode;
-	                var selectedIndex = this.nodes.indexOf(selectedNode);
+	                var selectedIndex = this.state.selectedIndex;
 
 	                selectedNode.state.selected = false;
 	                this.rows[selectedIndex] = this.options.rowRenderer(selectedNode, this.options);
 	                this.state.selectedNode = null;
+	                this.state.selectedIndex = -1;
 
 	                if (!silent) {
 	                    // Emit a "selectNode" event
@@ -1292,20 +1337,41 @@ return /******/ (function(modules) { // webpackBootstrap
 	        // Deselect the current node
 	        if (this.state.selectedNode) {
 	            var _selectedNode = this.state.selectedNode;
-	            var _selectedIndex = this.nodes.indexOf(_selectedNode);
+	            var _selectedIndex = this.state.selectedIndex;
 	            _selectedNode.state.selected = false;
 	            this.rows[_selectedIndex] = this.options.rowRenderer(_selectedNode, this.options);
 	        }
 
 	        if (this.state.selectedNode !== node) {
 	            this.state.selectedNode = node;
+	            this.state.selectedIndex = nodeIndex;
 
 	            if (!silent) {
 	                // Emit a "selectNode" event
 	                this.emit('selectNode', node);
 	            }
+
+	            if (autoScroll) {
+	                var nodeSelector = '[' + this.options.nodeIdAttr + '="' + node.id + '"]';
+	                var nodeEl = this.contentElement.querySelector(nodeSelector);
+	                if (nodeEl) {
+	                    var offsetTop = nodeEl.offsetTop || 0;
+	                    var offsetHeight = nodeEl.offsetHeight || 0;
+
+	                    // Scroll Up
+	                    if (offsetTop < this.scrollElement.scrollTop) {
+	                        this.scrollElement.scrollTop = offsetTop;
+	                    }
+
+	                    // Scroll Down
+	                    if (offsetTop + offsetHeight >= this.scrollElement.scrollTop + this.scrollElement.clientHeight) {
+	                        this.scrollElement.scrollTop += offsetHeight;
+	                    }
+	                }
+	            }
 	        } else {
 	            this.state.selectedNode = null;
+	            this.state.selectedIndex = -1;
 
 	            if (!silent) {
 	                // Emit a "selectNode" event
@@ -2217,20 +2283,15 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 6 */
 /***/ function(module, exports) {
 
-	/*global window*/
+	module.exports = isNode
 
-	/**
-	 * Check if object is dom node.
-	 *
-	 * @param {Object} val
-	 * @return {Boolean}
-	 * @api public
-	 */
-
-	module.exports = function isNode(val){
-	  if (!val || typeof val !== 'object') return false;
-	  if (window && 'object' == typeof window.Node) return val instanceof window.Node;
-	  return 'number' == typeof val.nodeType && 'string' == typeof val.nodeName;
+	function isNode (val) {
+	  return (!val || typeof val !== 'object')
+	    ? false
+	    : (typeof window === 'object' && typeof window.Node === 'object')
+	      ? (val instanceof window.Node)
+	      : (typeof val.nodeType === 'number') &&
+	        (typeof val.nodeName === 'string')
 	}
 
 
