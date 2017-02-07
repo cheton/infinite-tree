@@ -172,8 +172,32 @@ $(tree.contentElement).on('click', '.dropdown .btn', function(event) {
 });
 ```
 
+#### How to use keyboard shortcuts to navigate through nodes?
+
+```js
+tree.on('keyDown', (event) => {
+    // Prevent the default scroll
+    event.preventDefault();
+
+    const node = tree.getSelectedNode();
+    const nodeIndex = tree.getSelectedIndex();
+
+    if (event.keyCode === 37) { // Left
+        tree.closeNode(node);
+    } else if (event.keyCode === 38) { // Up
+        const prevNode = tree.nodes[nodeIndex - 1] || node;
+        tree.selectNode(prevNode);
+    } else if (event.keyCode === 39) { // Right
+        tree.openNode(node);
+    } else if (event.keyCode === 40) { // Down
+        const nextNode = tree.nodes[nodeIndex + 1] || node;
+        tree.selectNode(nextNode);
+    }
+});
+```
+
 ## License
 
-Copyright (c) 2016 Cheton Wu
+Copyright (c) 2016-2017 Cheton Wu
 
 Licensed under the [MIT License](LICENSE).
