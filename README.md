@@ -106,6 +106,8 @@ Learn more: [Events](https://github.com/cheton/infinite-tree/wiki/Events)
 ```js
 tree.on('click', function(event) {});
 tree.on('doubleClick', function(event) {});
+tree.on('keyDown', function(event) {});
+tree.on('keyUp', function(event) {});
 tree.on('clusterWillChange', function() {});
 tree.on('clusterDidChange', function() {});
 tree.on('contentWillUpdate', function() {});
