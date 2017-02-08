@@ -515,7 +515,6 @@ class InfiniteTree extends events.EventEmitter {
         this.state.openNodes = [];
         this.state.rootNode = createRootNode(this.state.rootNode);
         this.state.selectedNode = null;
-        this.state.selectedIndex = -1;
     }
     // Closes a node to hide its children.
     // @param {Node} node The Node object.
@@ -548,7 +547,7 @@ class InfiniteTree extends events.EventEmitter {
             // row #2       node.0.0.0 => selected node (total=0)
             // row #3       node.0.0.1
             // row #4     node.0.1
-            const selectedIndex = this.state.selectedIndex;
+            const selectedIndex = this.nodes.indexOf(this.state.selectedNode);
             const rangeFrom = nodeIndex + 1;
             const rangeTo = nodeIndex + node.state.total;
 
@@ -679,7 +678,7 @@ class InfiniteTree extends events.EventEmitter {
     // Gets the index of the selected node.
     // @return {number} Returns the index of the selected node, or -1 if not selected.
     getSelectedIndex() {
-        return this.state.selectedIndex;
+        return this.nodes.indexOf(this.state.selectedNode);
     }
     // Inserts the specified node after the reference node.
     // @param {object} newNode The new sibling node.
@@ -723,7 +722,6 @@ class InfiniteTree extends events.EventEmitter {
             return node.hasChildren() && node.state.open;
         });
         this.state.selectedNode = null;
-        this.state.selectedIndex = -1;
 
         const rootNode = ((node = null) => {
             // Finding the root node
@@ -1099,12 +1097,11 @@ class InfiniteTree extends events.EventEmitter {
             // Deselect the current node
             if (this.state.selectedNode) {
                 const selectedNode = this.state.selectedNode;
-                const selectedIndex = this.state.selectedIndex;
+                const selectedIndex = this.nodes.indexOf(this.state.selectedNode);
 
                 selectedNode.state.selected = false;
                 this.rows[selectedIndex] = this.options.rowRenderer(selectedNode, this.options);
                 this.state.selectedNode = null;
-                this.state.selectedIndex = -1;
 
                 if (!silent) {
                     // Emit a "selectNode" event
@@ -1142,14 +1139,13 @@ class InfiniteTree extends events.EventEmitter {
         // Deselect the current node
         if (this.state.selectedNode) {
             const selectedNode = this.state.selectedNode;
-            const selectedIndex = this.state.selectedIndex;
+            const selectedIndex = this.nodes.indexOf(this.state.selectedNode);
             selectedNode.state.selected = false;
             this.rows[selectedIndex] = this.options.rowRenderer(selectedNode, this.options);
         }
 
         if (this.state.selectedNode !== node) {
             this.state.selectedNode = node;
-            this.state.selectedIndex = nodeIndex;
 
             if (!silent) {
                 // Emit a "selectNode" event
@@ -1176,7 +1172,6 @@ class InfiniteTree extends events.EventEmitter {
             }
         } else {
             this.state.selectedNode = null;
-            this.state.selectedIndex = -1;
 
             if (!silent) {
                 // Emit a "selectNode" event
