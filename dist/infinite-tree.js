@@ -1,4 +1,4 @@
-/*! infinite-tree v1.8.0 | (c) 2017 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
+/*! infinite-tree v1.8.1 | (c) 2017 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -972,7 +972,6 @@ var InfiniteTree = function (_events$EventEmitter) {
         this.state.openNodes = [];
         this.state.rootNode = createRootNode(this.state.rootNode);
         this.state.selectedNode = null;
-        this.state.selectedIndex = -1;
     };
     // Closes a node to hide its children.
     // @param {Node} node The Node object.
@@ -1009,7 +1008,7 @@ var InfiniteTree = function (_events$EventEmitter) {
             // row #2       node.0.0.0 => selected node (total=0)
             // row #3       node.0.0.1
             // row #4     node.0.1
-            var selectedIndex = this.state.selectedIndex;
+            var selectedIndex = this.nodes.indexOf(this.state.selectedNode);
             var rangeFrom = nodeIndex + 1;
             var rangeTo = nodeIndex + node.state.total;
 
@@ -1156,7 +1155,7 @@ var InfiniteTree = function (_events$EventEmitter) {
 
 
     InfiniteTree.prototype.getSelectedIndex = function getSelectedIndex() {
-        return this.state.selectedIndex;
+        return this.nodes.indexOf(this.state.selectedNode);
     };
     // Inserts the specified node after the reference node.
     // @param {object} newNode The new sibling node.
@@ -1210,7 +1209,6 @@ var InfiniteTree = function (_events$EventEmitter) {
             return node.hasChildren() && node.state.open;
         });
         this.state.selectedNode = null;
-        this.state.selectedIndex = -1;
 
         var rootNode = function () {
             var node = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
@@ -1623,12 +1621,11 @@ var InfiniteTree = function (_events$EventEmitter) {
             // Deselect the current node
             if (this.state.selectedNode) {
                 var selectedNode = this.state.selectedNode;
-                var selectedIndex = this.state.selectedIndex;
+                var selectedIndex = this.nodes.indexOf(this.state.selectedNode);
 
                 selectedNode.state.selected = false;
                 this.rows[selectedIndex] = this.options.rowRenderer(selectedNode, this.options);
                 this.state.selectedNode = null;
-                this.state.selectedIndex = -1;
 
                 if (!silent) {
                     // Emit a "selectNode" event
@@ -1666,14 +1663,13 @@ var InfiniteTree = function (_events$EventEmitter) {
         // Deselect the current node
         if (this.state.selectedNode) {
             var _selectedNode = this.state.selectedNode;
-            var _selectedIndex = this.state.selectedIndex;
+            var _selectedIndex = this.nodes.indexOf(this.state.selectedNode);
             _selectedNode.state.selected = false;
             this.rows[_selectedIndex] = this.options.rowRenderer(_selectedNode, this.options);
         }
 
         if (this.state.selectedNode !== node) {
             this.state.selectedNode = node;
-            this.state.selectedIndex = nodeIndex;
 
             if (!silent) {
                 // Emit a "selectNode" event
@@ -1700,7 +1696,6 @@ var InfiniteTree = function (_events$EventEmitter) {
             }
         } else {
             this.state.selectedNode = null;
-            this.state.selectedIndex = -1;
 
             if (!silent) {
                 // Emit a "selectNode" event
