@@ -1,48 +1,48 @@
 /* eslint no-var: 0 */
-var nib = require('nib');
 var path = require('path');
 var webpack = require('webpack');
+var nib = require('nib');
+var stylusLoader = require('stylus-loader');
 
 module.exports = {
-    debug: true,
     devtool: 'source-map',
     entry: {
         navbar: path.resolve(__dirname, 'navbar.js'),
         examples: path.resolve(__dirname, 'examples.js')
     },
     output: {
-        path: __dirname,
-        filename: 'dist/[name].js'
+        path: path.join(__dirname, '../docs'),
+        filename: '[name].js'
     },
     module: {
-        loaders: [
+        rules: [
             {
                 test: /\.json$/,
-                loader: 'json'
+                loader: 'json-loader'
             },
             {
                 test: /\.jsx?$/,
-                loader: 'babel',
+                loader: 'babel-loader',
                 exclude: /node_modules/
             },
             {
                 test: /\.styl$/,
-                loader: 'style!css!stylus'
+                loader: 'style-loader!css-loader!stylus-loader'
             },
             {
                 test: /\.css$/,
-                loader: 'style!css'
+                loader: 'style-loader!css-loader'
             },
             {
                 test: /\.(png|jpg)$/,
-                loader: 'url',
+                loader: 'url-loader',
                 query: {
                     limit: 8192
                 }
             },
             {
                 test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-                loader: 'url',
+                loader: 'url-loader',
                 query: {
                     limit: 10000,
                     mimetype: 'application/font-woff'
@@ -50,12 +50,23 @@ module.exports = {
             },
             {
                 test: /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-                loader: 'file'
+                loader: 'file-loader'
             }
         ]
     },
     plugins: [
-        new webpack.optimize.CommonsChunkPlugin('dist/common.js'),
+        new webpack.LoaderOptionsPlugin({
+            debug: true
+        }),
+        new stylusLoader.OptionsPlugin({
+            default: {
+                // nib - CSS3 extensions for Stylus
+                use: [nib()],
+                // no need to have a '@import "nib"' in the stylesheet
+                import: ['~nib/lib/nib/index.styl']
+            }
+        }),
+        new webpack.optimize.CommonsChunkPlugin('../docs/common'),
         new webpack.optimize.UglifyJsPlugin({
             compress: {
                 warnings: false
@@ -63,16 +74,9 @@ module.exports = {
             mangle: false
         })
     ],
-    stylus: {
-        // nib - CSS3 extensions for Stylus
-        use: [nib()],
-        // no need to have a '@import "nib"' in the stylesheet
-        import: ['~nib/lib/nib/index.styl']
-    },
     // https://webpack.github.io/docs/webpack-dev-server.html#additional-configuration-options
     devServer: {
         noInfo: false,
-        quite: false,
         lazy: false,
         // https://webpack.github.io/docs/node.js-api.html#compiler
         watchOptions: {
