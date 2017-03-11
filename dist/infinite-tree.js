@@ -1,4 +1,4 @@
-/*! infinite-tree v1.8.1 | (c) 2017 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
+/*! infinite-tree v1.8.2 | (c) 2017 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -12,41 +12,41 @@
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
-
+/******/
 /******/ 	// The require function
 /******/ 	function __webpack_require__(moduleId) {
-
+/******/
 /******/ 		// Check if module is in cache
 /******/ 		if(installedModules[moduleId])
 /******/ 			return installedModules[moduleId].exports;
-
+/******/
 /******/ 		// Create a new module (and put it into the cache)
 /******/ 		var module = installedModules[moduleId] = {
 /******/ 			i: moduleId,
 /******/ 			l: false,
 /******/ 			exports: {}
 /******/ 		};
-
+/******/
 /******/ 		// Execute the module function
 /******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-
+/******/
 /******/ 		// Flag the module as loaded
 /******/ 		module.l = true;
-
+/******/
 /******/ 		// Return the exports of the module
 /******/ 		return module.exports;
 /******/ 	}
-
-
+/******/
+/******/
 /******/ 	// expose the modules object (__webpack_modules__)
 /******/ 	__webpack_require__.m = modules;
-
+/******/
 /******/ 	// expose the module cache
 /******/ 	__webpack_require__.c = installedModules;
-
+/******/
 /******/ 	// identity function for calling harmony imports with the correct context
 /******/ 	__webpack_require__.i = function(value) { return value; };
-
+/******/
 /******/ 	// define getter function for harmony exports
 /******/ 	__webpack_require__.d = function(exports, name, getter) {
 /******/ 		if(!__webpack_require__.o(exports, name)) {
@@ -57,7 +57,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 			});
 /******/ 		}
 /******/ 	};
-
+/******/
 /******/ 	// getDefaultExport function for compatibility with non-harmony modules
 /******/ 	__webpack_require__.n = function(module) {
 /******/ 		var getter = module && module.__esModule ?
@@ -66,13 +66,13 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 		__webpack_require__.d(getter, 'a', getter);
 /******/ 		return getter;
 /******/ 	};
-
+/******/
 /******/ 	// Object.prototype.hasOwnProperty.call
 /******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
-
+/******/
 /******/ 	// __webpack_public_path__
 /******/ 	__webpack_require__.p = "";
-
+/******/
 /******/ 	// Load entry module and return exports
 /******/ 	return __webpack_require__(__webpack_require__.s = 15);
 /******/ })
@@ -1122,7 +1122,7 @@ var InfiniteTree = function (_events$EventEmitter) {
                 return node.id === id;
             })[0];
             if (!node) {
-                return null;
+                return undefined;
             }
             this.nodeTable.set(node.id, node);
         }
@@ -1806,7 +1806,14 @@ var InfiniteTree = function (_events$EventEmitter) {
         // Clone a new one
         data = _extends({}, data);
 
-        // Ignore keys: children, parent, and state
+        if (data.id !== undefined && data.id !== null) {
+            this.nodeTable.unset(node.id);
+            this.nodeTable.set(data.id, node);
+            node.id = data.id;
+        }
+
+        // Ignore keys: id, children, parent, and state
+        delete data.id;
         delete data.children;
         delete data.parent;
         delete data.state;
@@ -2035,7 +2042,7 @@ exports.defaultRowRenderer = defaultRowRenderer;
 /* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/*! Clusterize.js - v0.17.2 - 2016-10-07
+/*! Clusterize.js - v0.17.6 - 2017-03-05
 * http://NeXTs.github.com/Clusterize.js/
 * Copyright (c) 2015 Denis Lukov; Licensed GPLv3 */
 
@@ -2100,7 +2107,7 @@ exports.defaultRowRenderer = defaultRowRenderer;
     var rows = isArray(data.rows)
         ? data.rows
         : self.fetchMarkup(),
-      cache = {data: '', bottom: 0},
+      cache = {},
       scroll_top = self.scroll_elem.scrollTop;
 
     // append initial data
@@ -2198,19 +2205,19 @@ exports.defaultRowRenderer = defaultRowRenderer;
       return rows;
     },
     // get tag name, content tag name, tag height, calc cluster height
-    exploreEnvironment: function(rows) {
+    exploreEnvironment: function(rows, cache) {
       var opts = this.options;
       opts.content_tag = this.content_elem.tagName.toLowerCase();
       if( ! rows.length) return;
       if(ie && ie <= 9 && ! opts.tag) opts.tag = rows[0].match(/<([^>\s/]*)/)[1].toLowerCase();
-      if(this.content_elem.children.length <= 1) this.html(rows[0] + rows[0] + rows[0]);
+      if(this.content_elem.children.length <= 1) cache.data = this.html(rows[0] + rows[0] + rows[0]);
       if( ! opts.tag) opts.tag = this.content_elem.children[0].tagName.toLowerCase();
       this.getRowsHeight(rows);
     },
     getRowsHeight: function(rows) {
       var opts = this.options,
         prev_item_height = opts.item_height;
-      opts.cluster_height = 0
+      opts.cluster_height = 0;
       if( ! rows.length) return;
       var nodes = this.content_elem.children;
       var node = nodes[Math.floor(nodes.length / 2)];
@@ -2292,16 +2299,17 @@ exports.defaultRowRenderer = defaultRowRenderer;
     insertToDOM: function(rows, cache) {
       // explore row's height
       if( ! this.options.cluster_height) {
-        this.exploreEnvironment(rows);
+        this.exploreEnvironment(rows, cache);
       }
       var data = this.generate(rows, this.getClusterNum()),
         this_cluster_rows = data.rows.join(''),
         this_cluster_content_changed = this.checkChanges('data', this_cluster_rows, cache),
+        top_offset_changed = this.checkChanges('top', data.top_offset, cache),
         only_bottom_offset_changed = this.checkChanges('bottom', data.bottom_offset, cache),
         callbacks = this.options.callbacks,
         layout = [];
 
-      if(this_cluster_content_changed) {
+      if(this_cluster_content_changed || top_offset_changed) {
         if(data.top_offset) {
           this.options.keep_parity && layout.push(this.renderExtraTag('keep-parity'));
           layout.push(this.renderExtraTag('top-space', data.top_offset));
