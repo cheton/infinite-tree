@@ -653,7 +653,7 @@ class InfiniteTree extends events.EventEmitter {
                 return (node.id === id);
             })[0];
             if (!node) {
-                return null;
+                return;
             }
             this.nodeTable.set(node.id, node);
         }
@@ -1265,7 +1265,14 @@ class InfiniteTree extends events.EventEmitter {
         // Clone a new one
         data = { ...data };
 
-        // Ignore keys: children, parent, and state
+        if (data.id !== undefined && data.id !== null) {
+            this.nodeTable.unset(node.id);
+            this.nodeTable.set(data.id, node);
+            node.id = data.id;
+        }
+
+        // Ignore keys: id, children, parent, and state
+        delete data.id;
         delete data.children;
         delete data.parent;
         delete data.state;

@@ -340,13 +340,13 @@ test('tree.getNodeById', (t) => {
         data: getTreeData()
     });
 
-    t.notEqual(tree.getNodeById('<root>').id, null);
-    t.equal(tree.getNodeById('none'), null);
+    t.notEqual(tree.getNodeById('<root>').id, undefined);
+    t.equal(tree.getNodeById('none'), undefined);
 
     // Make sure it will rebuild the nodeTable if a node does not exist
     tree.nodeTable.clear();
     t.equal(tree.nodeTable.get('<root>'), undefined);
-    t.notEqual(tree.getNodeById('<root>'), null);
+    t.notEqual(tree.getNodeById('<root>'), undefined);
     t.same(tree.nodeTable.get('<root>'), tree.getNodeById('<root>'));
 
     t.end();
@@ -415,7 +415,7 @@ test('tree.insertNodeAfter', (t) => {
 
     const notNode = {};
     tree.insertNodeAfter({ id: 'new-node' }, notNode);
-    t.equal(tree.getNodeById('new-node'), null);
+    t.equal(tree.getNodeById('new-node'), undefined);
 
     tree.insertNodeAfter({ id: 'new-node' }, tree.getNodeById('<root>'));
     t.same(tree.getNodeById('new-node'), tree.getNodeById('<root>').getNextSibling());
@@ -431,7 +431,7 @@ test('tree.insertNodeBefore', (t) => {
 
     const notNode = {};
     tree.insertNodeBefore({ id: 'new-node' }, notNode);
-    t.equal(tree.getNodeById('new-node'), null);
+    t.equal(tree.getNodeById('new-node'), undefined);
 
     tree.insertNodeBefore({ id: 'new-node' }, tree.getNodeById('<root>'));
     t.same(tree.getNodeById('new-node'), tree.getNodeById('<root>').getPreviousSibling());
@@ -790,18 +790,48 @@ test('tree.updateNode', (t) => {
         data: getTreeData()
     });
 
-    const node = tree.getNodeById('<root>');
-    const lastUpdated = new Date().getTime();
-    tree.updateNode(node, {
-        props: {
-            lastUpdated: lastUpdated
-        }
-    });
+    { // #1: Update props
+        const node = tree.getNodeById('<root>');
+        const lastUpdated = new Date().getTime();
+        tree.updateNode(node, {
+            props: {
+                lastUpdated: lastUpdated
+            }
+        });
 
-    const wanted = {
-        lastUpdated: lastUpdated
-    };
-    t.same(node.props, wanted);
+        const wanted = {
+            lastUpdated: lastUpdated
+        };
+        t.same(node.props, wanted);
+    }
+
+    { // #2: Update node id
+        const node = tree.getNodeById('<root>');
+        t.equal(node.id, '<root>');
+
+        t.equal(tree.nodeTable.get('<root>'), node);
+        t.equal(tree.nodeTable.get('<root.0>'), undefined);
+
+        tree.updateNode(node, { id: '<root.0>' });
+        t.equal(node.id, '<root.0>');
+
+        t.equal(tree.nodeTable.get('<root>'), undefined);
+        t.equal(tree.nodeTable.get('<root.0>'), node);
+        t.equal(tree.getNodeById('<root>'), undefined);
+        t.equal(tree.getNodeById('<root.0>'), node);
+
+        tree.updateNode(node, { id: '<root>' });
+        t.equal(node.id, '<root>');
+        t.equal(tree.nodeTable.get('<root>'), node);
+        t.equal(tree.nodeTable.get('<root.0>'), undefined);
+        t.equal(tree.getNodeById('<root>'), node);
+        t.equal(tree.getNodeById('<root.0>'), undefined);
+
+        tree.updateNode(node, { id: undefined });
+        t.equal(node.id, '<root>');
+        tree.updateNode(node, { id: null });
+        t.equal(node.id, '<root>');
+    }
 
     t.end();
 });
