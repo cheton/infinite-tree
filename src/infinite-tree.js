@@ -653,7 +653,7 @@ class InfiniteTree extends events.EventEmitter {
                 return (node.id === id);
             })[0];
             if (!node) {
-                return;
+                return undefined;
             }
             this.nodeTable.set(node.id, node);
         }
