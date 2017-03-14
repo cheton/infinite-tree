@@ -74,7 +74,8 @@
     "tap": "^10.3.0",
     "url-loader": "^0.5.8",
     "webpack": "^2.2.1",
-    "webpack-dev-server": "^2.4.1"
+    "webpack-dev-server": "^2.4.1",
+    "which": "~1.2.12"
   },
   "nyc": {
     "exclude": []
