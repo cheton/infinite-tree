@@ -1,4 +1,4 @@
-/*! infinite-tree v1.8.2 | (c) 2017 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
+/*! infinite-tree v1.9.0 | (c) 2017 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -74,7 +74,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 15);
+/******/ 	return __webpack_require__(__webpack_require__.s = 6);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -405,7 +405,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-var _events = __webpack_require__(10);
+var _events = __webpack_require__(11);
 
 var _events2 = _interopRequireDefault(_events);
 
@@ -413,25 +413,25 @@ var _classnames = __webpack_require__(0);
 
 var _classnames2 = _interopRequireDefault(_classnames);
 
-var _clusterize = __webpack_require__(8);
+var _clusterize = __webpack_require__(9);
 
 var _clusterize2 = _interopRequireDefault(_clusterize);
 
-var _elementClass = __webpack_require__(9);
+var _elementClass = __webpack_require__(10);
 
 var _elementClass2 = _interopRequireDefault(_elementClass);
 
-var _isDom = __webpack_require__(14);
+var _isDom = __webpack_require__(15);
 
 var _isDom2 = _interopRequireDefault(_isDom);
 
-var _flattree = __webpack_require__(12);
+var _flattree = __webpack_require__(13);
 
-var _lookupTable = __webpack_require__(6);
+var _lookupTable = __webpack_require__(7);
 
 var _lookupTable2 = _interopRequireDefault(_lookupTable);
 
-var _renderer = __webpack_require__(7);
+var _renderer = __webpack_require__(8);
 
 var _domEvents = __webpack_require__(5);
 
@@ -1237,6 +1237,27 @@ var InfiniteTree = function (_events$EventEmitter) {
         // Updates list with new data
         this.update();
     };
+    // Moves a node from its current position to the new position.
+    // @param {Node} node The Node object.
+    // @param {Node} parentNode The Node object that defines the parent node.
+    // @param {number} [index] The 0-based index of where to insert the child node.
+    // @return {boolean} Returns true on success, false otherwise.
+
+
+    InfiniteTree.prototype.moveNodeTo = function moveNodeTo(node, parentNode, index) {
+        if (!ensureNodeInstance(node) || !ensureNodeInstance(parentNode)) {
+            return false;
+        }
+
+        for (var p = parentNode; p !== null; p = p.parent) {
+            if (p === node) {
+                error('Cannot move an ancestor node (id=' + node.id + ') to the specified parent node (id=' + parentNode.id + ').');
+                return false;
+            }
+        }
+
+        return this.removeNode(node) && this.addChildNodes(node, index, parentNode);
+    };
     // Opens a node to display its children.
     // @param {Node} node The Node object.
     // @param {object} [options] The options object.
@@ -1708,6 +1729,41 @@ var InfiniteTree = function (_events$EventEmitter) {
 
         return true;
     };
+    // Swaps two nodes.
+    // @param {Node} node1 The Node object.
+    // @param {Node} node2 The Node object.
+    // @return {boolean} Returns true on success, false otherwise.
+
+
+    InfiniteTree.prototype.swapNodes = function swapNodes(node1, node2) {
+        if (!ensureNodeInstance(node1) || !ensureNodeInstance(node1.parent)) {
+            return false;
+        }
+        if (!ensureNodeInstance(node2) || !ensureNodeInstance(node2.parent)) {
+            return false;
+        }
+
+        var parentNode1 = node1.parent;
+        var parentNode2 = node2.parent;
+
+        for (var p = parentNode1; p !== null; p = p.parent) {
+            if (p === node2) {
+                error('Cannot swap two nodes with one being an ancestor of the other.');
+                return false;
+            }
+        }
+        for (var _p = parentNode2; _p !== null; _p = _p.parent) {
+            if (_p === node1) {
+                error('Cannot swap two nodes with one being an ancestor of the other.');
+                return false;
+            }
+        }
+
+        var nodeIndex1 = parentNode1.children.indexOf(node1);
+        var nodeIndex2 = parentNode2.children.indexOf(node2);
+
+        return this.moveNodeTo(node1, parentNode2, nodeIndex2) && this.moveNodeTo(node2, parentNode1, nodeIndex1);
+    };
     // Toggles a node to display or hide its children.
     // @param {Node} node The Node object.
     // @param {object} [options] The options object.
@@ -1910,6 +1966,21 @@ exports.removeEventListener = removeEventListener;
 "use strict";
 
 
+var _infiniteTree = __webpack_require__(4);
+
+var _infiniteTree2 = _interopRequireDefault(_infiniteTree);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+module.exports = _infiniteTree2['default'];
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
 exports.__esModule = true;
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -1950,7 +2021,7 @@ var LookupTable = function () {
 exports["default"] = LookupTable;
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1967,7 +2038,7 @@ var _escapeHtml = __webpack_require__(1);
 
 var _escapeHtml2 = _interopRequireDefault(_escapeHtml);
 
-var _html5Tag = __webpack_require__(13);
+var _html5Tag = __webpack_require__(14);
 
 var _html5Tag2 = _interopRequireDefault(_html5Tag);
 
@@ -2039,7 +2110,7 @@ var defaultRowRenderer = function defaultRowRenderer(node, treeOptions) {
 exports.defaultRowRenderer = defaultRowRenderer;
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*! Clusterize.js - v0.17.6 - 2017-03-05
@@ -2373,7 +2444,7 @@ exports.defaultRowRenderer = defaultRowRenderer;
 }));
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports) {
 
 module.exports = function(opts) {
@@ -2438,7 +2509,7 @@ ElementClass.prototype.toggle = function(className) {
 
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports) {
 
 // Copyright Joyent, Inc. and other Node contributors.
@@ -2746,7 +2817,7 @@ function isUndefined(arg) {
 
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2951,7 +3022,7 @@ var flatten = function flatten() {
 exports['default'] = flatten;
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2960,7 +3031,7 @@ exports['default'] = flatten;
 exports.__esModule = true;
 exports.Node = exports.flatten = undefined;
 
-var _flatten = __webpack_require__(11);
+var _flatten = __webpack_require__(12);
 
 var _flatten2 = _interopRequireDefault(_flatten);
 
@@ -2975,7 +3046,7 @@ exports.flatten = _flatten2['default'];
 exports.Node = _node2['default'];
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3031,7 +3102,7 @@ module.exports = function (tag, attrs, text) {
 };
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports) {
 
 module.exports = isNode
@@ -3045,21 +3116,6 @@ function isNode (val) {
         (typeof val.nodeName === 'string')
 }
 
-
-/***/ }),
-/* 15 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _infiniteTree = __webpack_require__(4);
-
-var _infiniteTree2 = _interopRequireDefault(_infiniteTree);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-module.exports = _infiniteTree2['default'];
 
 /***/ })
 /******/ ]);

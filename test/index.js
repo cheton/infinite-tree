@@ -497,6 +497,36 @@ test('tree.openNode', (t) => {
     t.end();
 });
 
+test('tree.moveNodeTo', (t) => {
+    const el = getTreeElement();
+    const tree = new InfiniteTree(el, {
+        autoOpen: false,
+        data: getTreeData()
+    });
+
+    { // Move "alpha" to "bravo"
+        const root = tree.getNodeById('<root>');
+        const alpha = tree.getNodeById('alpha');
+        const bravo = tree.getNodeById('bravo');
+        t.equal(root.children.indexOf(alpha), 0);
+        t.equal(root.children.indexOf(bravo), 1);
+        t.ok(tree.moveNodeTo(alpha, bravo));
+        t.equal(root.children.indexOf(alpha), -1);
+        t.equal(root.children.indexOf(bravo), 0);
+        t.equal(bravo.children.indexOf(alpha), 3);
+    }
+
+    { // Move "bravo" to "root"
+        const root = tree.getNodeById('<root>');
+        const bravo = tree.getNodeById('bravo');
+        t.equal(bravo.parent, root);
+        t.notOk(tree.moveNodeTo(root, bravo));
+        t.equal(bravo.parent, root);
+    }
+
+    t.end();
+});
+
 test('tree.removeChildNodes', (t) => {
     const el = getTreeElement();
     const tree = new InfiniteTree(el, {
@@ -694,6 +724,52 @@ test('tree.selectNode', (t) => {
 
     // Check event fired count
     t.same(eventFiredCount, 6 + 3);
+
+    t.end();
+});
+
+test('tree.swapNodes', (t) => {
+    const el = getTreeElement();
+    const tree = new InfiniteTree(el, {
+        autoOpen: false,
+        data: getTreeData()
+    });
+
+    { // Swap "alpha" and "bravo"
+        const root = tree.getNodeById('<root>');
+        const alpha = tree.getNodeById('alpha');
+        const bravo = tree.getNodeById('bravo');
+        t.equal(root.children.indexOf(alpha), 0);
+        t.equal(root.children.indexOf(bravo), 1);
+        t.ok(tree.swapNodes(alpha, bravo));
+        t.equal(root.children.indexOf(alpha), 1);
+        t.equal(root.children.indexOf(bravo), 0);
+    }
+
+    { // Swap "bravo" and "delta"
+        const root = tree.getNodeById('<root>');
+        const bravo = tree.getNodeById('bravo');
+        const charlie = tree.getNodeById('charlie');
+        const delta = tree.getNodeById('delta');
+        t.equal(bravo.parent, root);
+        t.equal(delta.parent, charlie);
+        t.notOk(tree.swapNodes(bravo, delta));
+        t.equal(bravo.parent, root);
+        t.equal(delta.parent, charlie);
+    }
+
+    { // Swap "alpha" and "delta"
+        const root = tree.getNodeById('<root>');
+        const alpha = tree.getNodeById('alpha');
+        const bravo = tree.getNodeById('bravo');
+        const charlie = tree.getNodeById('charlie');
+        const delta = tree.getNodeById('delta');
+        t.equal(alpha.parent, root);
+        t.equal(delta.parent, charlie);
+        t.ok(tree.swapNodes(alpha, delta));
+        t.equal(alpha.parent, charlie);
+        t.equal(delta.parent, root);
+    }
 
     t.end();
 });

@@ -746,6 +746,25 @@ class InfiniteTree extends events.EventEmitter {
         // Updates list with new data
         this.update();
     }
+    // Moves a node from its current position to the new position.
+    // @param {Node} node The Node object.
+    // @param {Node} parentNode The Node object that defines the parent node.
+    // @param {number} [index] The 0-based index of where to insert the child node.
+    // @return {boolean} Returns true on success, false otherwise.
+    moveNodeTo(node, parentNode, index) {
+        if (!ensureNodeInstance(node) || !ensureNodeInstance(parentNode)) {
+            return false;
+        }
+
+        for (let p = parentNode; p !== null; p = p.parent) {
+            if (p === node) {
+                error(`Cannot move an ancestor node (id=${node.id}) to the specified parent node (id=${parentNode.id}).`);
+                return false;
+            }
+        }
+
+        return this.removeNode(node) && this.addChildNodes(node, index, parentNode);
+    }
     // Opens a node to display its children.
     // @param {Node} node The Node object.
     // @param {object} [options] The options object.
@@ -1183,6 +1202,39 @@ class InfiniteTree extends events.EventEmitter {
         this.update();
 
         return true;
+    }
+    // Swaps two nodes.
+    // @param {Node} node1 The Node object.
+    // @param {Node} node2 The Node object.
+    // @return {boolean} Returns true on success, false otherwise.
+    swapNodes(node1, node2) {
+        if (!ensureNodeInstance(node1) || !ensureNodeInstance(node1.parent)) {
+            return false;
+        }
+        if (!ensureNodeInstance(node2) || !ensureNodeInstance(node2.parent)) {
+            return false;
+        }
+
+        const parentNode1 = node1.parent;
+        const parentNode2 = node2.parent;
+
+        for (let p = parentNode1; p !== null; p = p.parent) {
+            if (p === node2) {
+                error('Cannot swap two nodes with one being an ancestor of the other.');
+                return false;
+            }
+        }
+        for (let p = parentNode2; p !== null; p = p.parent) {
+            if (p === node1) {
+                error('Cannot swap two nodes with one being an ancestor of the other.');
+                return false;
+            }
+        }
+
+        const nodeIndex1 = parentNode1.children.indexOf(node1);
+        const nodeIndex2 = parentNode2.children.indexOf(node2);
+
+        return this.moveNodeTo(node1, parentNode2, nodeIndex2) && this.moveNodeTo(node2, parentNode1, nodeIndex1);
     }
     // Toggles a node to display or hide its children.
     // @param {Node} node The Node object.
