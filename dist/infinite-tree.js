@@ -1131,7 +1131,7 @@ var InfiniteTree = function (_events$EventEmitter) {
     // Returns the node at the specified point. If the specified point is outside the visible bounds or either coordinate is negative, the result is null.
     // @param {number} x A horizontal position within the current viewport.
     // @param {number} y A vertical position within the current viewport.
-    // @return {Node} The Node object under the given points.
+    // @return {Node} The Node object under the given point.
 
 
     InfiniteTree.prototype.getNodeFromPoint = function getNodeFromPoint(x, y) {
