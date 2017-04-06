@@ -649,11 +649,9 @@ class InfiniteTree extends events.EventEmitter {
         let node = this.nodeTable.get(id);
         if (!node) {
             // Find the first node that matches the id
-            node = this.nodes.filter((node) => {
-                return (node.id === id);
-            })[0];
+            node = this.nodes.filter(node => node.id === id)[0];
             if (!node) {
-                return undefined;
+                return null;
             }
             this.nodeTable.set(node.id, node);
         }
