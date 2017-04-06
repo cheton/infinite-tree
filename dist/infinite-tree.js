@@ -1,4 +1,4 @@
-/*! infinite-tree v1.9.0 | (c) 2017 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
+/*! infinite-tree v1.10.0 | (c) 2017 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -1122,10 +1122,29 @@ var InfiniteTree = function (_events$EventEmitter) {
                 return node.id === id;
             })[0];
             if (!node) {
-                return undefined;
+                return null;
             }
             this.nodeTable.set(node.id, node);
         }
+        return node;
+    };
+    // Returns the node at the specified point. If the specified point is outside the visible bounds or either coordinate is negative, the result is null.
+    // @param {number} x A horizontal position within the current viewport.
+    // @param {number} y A vertical position within the current viewport.
+    // @return {Node} The Node object under the given points.
+
+
+    InfiniteTree.prototype.getNodeFromPoint = function getNodeFromPoint(x, y) {
+        var el = document.elementFromPoint(x, y);
+        while (el && el.parentElement !== this.contentElement) {
+            el = el.parentElement;
+        }
+        if (!el) {
+            return null;
+        }
+        var id = el.getAttribute(this.options.nodeIdAttr);
+        var node = this.getNodeById(id);
+
         return node;
     };
     // Gets an array of open nodes.
