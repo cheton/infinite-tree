@@ -659,6 +659,23 @@ class InfiniteTree extends events.EventEmitter {
         }
         return node;
     }
+    // Returns the node at the specified point. If the specified point is outside the visible bounds or either coordinate is negative, the result is null.
+    // @param {number} x A horizontal position within the current viewport.
+    // @param {number} y A vertical position within the current viewport.
+    // @return {Node} The Node object under the given points.
+    getNodeFromPoint(x, y) {
+        let el = document.elementFromPoint(x, y);
+        while (el && el.parentElement !== this.contentElement) {
+            el = el.parentElement;
+        }
+        if (!el) {
+            return null;
+        }
+        const id = el.getAttribute(this.options.nodeIdAttr);
+        const node = this.getNodeById(id);
+
+        return node;
+    }
     // Gets an array of open nodes.
     // @return {array} Returns an array of Node objects containing open nodes.
     getOpenNodes() {
