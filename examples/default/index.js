@@ -82,8 +82,61 @@ const tree = new InfiniteTree(document.querySelector('#default [data-id="tree"]'
     }
 });
 
+let selectedNodes = [];
 tree.on('click', (event) => {
     console.log('click', event);
+
+    const currentNode = tree.getNodeFromPoint(event.x, event.y);
+    if (!currentNode) {
+        return;
+    }
+
+    const multipleSelectionMode = event.ctrlKey || event.metaKey;
+
+    if (!multipleSelectionMode) {
+        if (selectedNodes.length > 0) {
+            // Call event.stopPropagation() to stop event bubbling
+            event.stopPropagation();
+
+            // Empty an array of selected nodes
+            selectedNodes.forEach(selectedNode => {
+                selectedNode.state.selected = false;
+                tree.updateNode(selectedNode, {}, { shallowRendering: true });
+            });
+            selectedNodes = [];
+
+            // Select current node
+            tree.state.selectedNode = currentNode;
+            currentNode.state.selected = true;
+            tree.updateNode(currentNode, {}, { shallowRendering: true });
+        }
+        return;
+    }
+
+    // Call event.stopPropagation() to stop event bubbling
+    event.stopPropagation();
+
+    const selectedNode = tree.getSelectedNode();
+    if (selectedNodes.length === 0 && selectedNode) {
+        selectedNodes.push(selectedNode);
+        tree.state.selectedNode = null;
+    }
+
+    const index = selectedNodes.indexOf(currentNode);
+
+    // Remove current node if the array length of selected nodes is greater than 1
+    if (index >= 0 && selectedNodes.length > 1) {
+        currentNode.state.selected = false;
+        selectedNodes.splice(index, 1);
+        tree.updateNode(currentNode, {}, { shallowRendering: true });
+    }
+
+    // Add current node to the selected nodes
+    if (index < 0) {
+        currentNode.state.selected = true;
+        selectedNodes.push(currentNode);
+        tree.updateNode(currentNode, {}, { shallowRendering: true });
+    }
 });
 tree.on('doubleClick', (event) => {
     console.log('doubleClick', event);
