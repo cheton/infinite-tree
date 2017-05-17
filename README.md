@@ -115,7 +115,9 @@ tree.on('contentDidUpdate', function() {});
 tree.on('openNode', function(node) {});
 tree.on('closeNode', function(node) {});
 tree.on('selectNode', function(node) {});
-tree.on('dropNode', function(node) {});
+tree.on('willOpenNode', function(node) {});
+tree.on('willCloseNode', function(node) {});
+tree.on('willSelectNode', function(node) {});
 ```
 
 ## API Documentation

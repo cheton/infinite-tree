@@ -528,6 +528,8 @@ class InfiniteTree extends events.EventEmitter {
             return false;
         }
 
+        this.emit('willCloseNode', node);
+
         // Retrieve node index
         const nodeIndex = this.nodes.indexOf(node);
         if (nodeIndex < 0) {
@@ -791,6 +793,8 @@ class InfiniteTree extends events.EventEmitter {
         if (!ensureNodeInstance(node)) {
             return false;
         }
+
+        this.emit('willOpenNode', node);
 
         // Retrieve node index
         const nodeIndex = this.nodes.indexOf(node);
@@ -1116,6 +1120,8 @@ class InfiniteTree extends events.EventEmitter {
     selectNode(node = null, options) {
         const { selectable, shouldSelectNode } = this.options;
         const { autoScroll = true, silent = false } = { ...options };
+
+        this.emit('willSelectNode', node);
 
         if (!selectable) {
             return false;
