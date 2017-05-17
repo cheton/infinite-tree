@@ -1,4 +1,4 @@
-/*! infinite-tree v1.10.0 | (c) 2017 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
+/*! infinite-tree v1.11.0 | (c) 2017 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -989,6 +989,8 @@ var InfiniteTree = function (_events$EventEmitter) {
             return false;
         }
 
+        this.emit('willCloseNode', node);
+
         // Retrieve node index
         var nodeIndex = this.nodes.indexOf(node);
         if (nodeIndex < 0) {
@@ -1294,6 +1296,8 @@ var InfiniteTree = function (_events$EventEmitter) {
         if (!ensureNodeInstance(node)) {
             return false;
         }
+
+        this.emit('willOpenNode', node);
 
         // Retrieve node index
         var nodeIndex = this.nodes.indexOf(node);
@@ -1646,6 +1650,8 @@ var InfiniteTree = function (_events$EventEmitter) {
             autoScroll = _options4$autoScroll === undefined ? true : _options4$autoScroll,
             _options4$silent = _options4.silent,
             silent = _options4$silent === undefined ? false : _options4$silent;
+
+        this.emit('willSelectNode', node);
 
         if (!selectable) {
             return false;

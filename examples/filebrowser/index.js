@@ -82,6 +82,15 @@ tree.on('closeNode', (node) => {
 tree.on('selectNode', (node) => {
     console.log('selectNode', node);
 });
+tree.on('willOpenNode', (node) => {
+    console.log('willOpenNode:', node);
+});
+tree.on('willCloseNode', (node) => {
+    console.log('willCloseNode:', node);
+});
+tree.on('willSelectNode', (node) => {
+    console.log('willSelectNode:', node);
+});
 
 tree.loadData(data);
 

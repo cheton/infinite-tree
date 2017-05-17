@@ -180,6 +180,15 @@ tree.on('selectNode', (node) => {
     console.log('selectNode', node);
     updatePreview(node);
 });
+tree.on('willOpenNode', (node) => {
+    console.log('willOpenNode:', node);
+});
+tree.on('willCloseNode', (node) => {
+    console.log('willCloseNode:', node);
+});
+tree.on('willSelectNode', (node) => {
+    console.log('willSelectNode:', node);
+});
 tree.on('clusterDidChange', () => {
     const overlayElement = document.createElement('div');
     const top = tree.nodes.indexOf(tree.getNodeById('<root>.1'));
