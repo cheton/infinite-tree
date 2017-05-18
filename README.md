@@ -200,6 +200,27 @@ tree.on('keyDown', (event) => {
 });
 ```
 
+#### Creating tree nodes with checkboxes
+
+```js
+tree.on('willSelectNode', function(node) {
+    node.props.checked = !node.props.checked;
+    tree.updateNode(node);
+});
+```
+
+Sets the checked attribute in your rowRenderer:
+
+```js
+const tag = require('html5-tag');
+
+const checkbox = tag('input', {
+  type: 'checkbox',
+  checked: node.props.checked
+}, '');
+```
+
+
 #### How to select multiple nodes using the ctrl key (or meta key)?
 
 You need to maintain an array of selected nodes by yourself. See below for details:
