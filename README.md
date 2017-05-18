@@ -128,6 +128,32 @@ tree.on('willSelectNode', function(node) {});
 
 ## FAQ
 
+### Index
+* [Creating tree nodes with checkboxes](#creating-tree-nodes-with-checkboxes)
+* [How to attach click event listeners to nodes?](#how-to-attach-click-event-listeners-to-nodes)
+* [How to use keyboard shortcuts to navigate through nodes?](#how-to-use-keyboard-shortcuts-to-navigate-through-nodes)
+* [How to select multiple nodes using the ctrl key (or meta key)?](#how-to-select-multiple-nodes-using-the-ctrl-key-or-meta-key)
+
+#### Creating tree nodes with checkboxes
+
+```js
+tree.on('willSelectNode', function(node) {
+    node.props.checked = !node.props.checked;
+    tree.updateNode(node);
+});
+```
+
+Sets the checked attribute in your rowRenderer:
+
+```js
+const tag = require('html5-tag');
+
+const checkbox = tag('input', {
+  type: 'checkbox',
+  checked: node.props.checked
+}, '');
+```
+
 #### How to attach click event listeners to nodes?
 
 Use <b>event delegation</b> <sup>[[1](http://javascript.info/tutorial/event-delegation), [2](http://davidwalsh.name/event-delegate)]</sup>
@@ -199,27 +225,6 @@ tree.on('keyDown', (event) => {
     }
 });
 ```
-
-#### Creating tree nodes with checkboxes
-
-```js
-tree.on('willSelectNode', function(node) {
-    node.props.checked = !node.props.checked;
-    tree.updateNode(node);
-});
-```
-
-Sets the checked attribute in your rowRenderer:
-
-```js
-const tag = require('html5-tag');
-
-const checkbox = tag('input', {
-  type: 'checkbox',
-  checked: node.props.checked
-}, '');
-```
-
 
 #### How to select multiple nodes using the ctrl key (or meta key)?
 
