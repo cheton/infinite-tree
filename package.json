@@ -9,7 +9,7 @@
     "build": "babel --out-dir ./lib ./src",
     "build-examples": "cd examples; webpack",
     "pack-examples": "npm run build-examples && zip -r examples.zip examples/{dist,vendor,*.html,*.css}",
-    "test": "tap test/*.js --coverage --nyc-arg=--require --nyc-arg=babel-register --nyc-arg=--require --nyc-arg=babel-polyfill",
+    "test": "tap test/*.js --node-arg=--require --node-arg=babel-register --node-arg=--require --node-arg=babel-polyfill",
     "dist": "webpack; BUILD_ENV=dist webpack",
     "release": "mkdir -p releases; rm -f releases/*; cp -f dist/infinite-tree.css releases/infinite-tree-${npm_package_version}.css; cp -f dist/infinite-tree.js releases/infinite-tree-${npm_package_version}.js; cp -f dist/infinite-tree.min.js releases/infinite-tree-${npm_package_version}.min.js",
     "lint": "npm run eslint && npm run stylint",
