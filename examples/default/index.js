@@ -2,6 +2,7 @@ import classNames from 'classnames';
 import elementClass from 'element-class';
 import escapeHTML from 'escape-html';
 import InfiniteTree from '../../src';
+import renderer from './renderer';
 import './index.styl';
 import './animation.styl';
 import { addEventListener, preventDefault, stopPropagation } from '../../src/dom-events';
@@ -30,7 +31,7 @@ const tree = new InfiniteTree(document.querySelector('#default [data-id="tree"]'
     autoOpen: true, // Defaults to false
     droppable: {
         hoverClass: 'infinite-tree-drop-hover',
-        accept: function(event, opts) {
+        accept: (event, opts) => {
             const { type, draggableTarget, droppableTarget, node } = opts;
 
             if (elementClass(event.target).has('infinite-tree-overlay')) {
@@ -42,7 +43,7 @@ const tree = new InfiniteTree(document.querySelector('#default [data-id="tree"]'
 
             return true;
         },
-        drop: function(event, opts) {
+        drop: (event, opts) => {
             const { draggableTarget, droppableTarget, node } = opts;
 
             if (elementClass(event.target).has('infinite-tree-overlay')) {
@@ -73,6 +74,7 @@ const tree = new InfiniteTree(document.querySelector('#default [data-id="tree"]'
             done(null, nodes);
         }, 1000);
     },
+    rowRenderer: renderer,
     selectable: true, // Defaults to true
     shouldSelectNode: (node) => { // Defaults to null
         if (!node || (node === tree.getSelectedNode())) {
@@ -244,6 +246,87 @@ const load = () => {
         tree.selectNode(childNodes[0]);
     }
 };
+
+let ghostElement = null;
+let draggingX = 0;
+let draggingY = 0;
+
+addEventListener(document, 'dragstart', (e) => {
+    draggingX = 0;
+    draggingY = 0;
+});
+
+addEventListener(document, 'dragend', (e) => {
+    if (ghostElement) {
+        ghostElement.parentNode.removeChild(ghostElement);
+        ghostElement = null;
+    }
+});
+
+addEventListener(tree.contentElement, 'dragover', (e) => {
+    preventDefault(event);
+
+    event = event || window.event;
+
+    const movementX = event.x - (Number(draggingX) || event.x);
+    const movementY = event.y - (Number(draggingY) || event.y);
+
+    draggingX = event.x;
+    draggingY = event.y;
+
+    if (movementY === 0) {
+        return;
+    }
+
+    let el = document.elementFromPoint(event.x, event.y);
+    while (el && el.parentElement !== tree.contentElement) {
+        el = el.parentElement;
+    }
+    if (!el || el === ghostElement) {
+        return;
+    }
+
+    const id = el.getAttribute(tree.options.nodeIdAttr);
+    if (id === undefined) {
+        return;
+    }
+
+    const rect = el.getBoundingClientRect();
+    const tolerance = 5;
+
+    if (event.y <= rect.top + tolerance) {
+        if (ghostElement) {
+            ghostElement.parentNode.removeChild(ghostElement);
+            ghostElement = null;
+        }
+
+        if (el.parentNode) {
+            ghostElement = document.createElement('div');
+            ghostElement.style.height = '20px';
+            ghostElement.style.border = '1px dotted #ccc';
+            ghostElement.style.backgroundColor = '#f5f6f7';
+            el.parentNode.insertBefore(ghostElement, el);
+        }
+    } else if (rect.top + el.offsetHeight <= event.y) {
+        if (el.nextSibling !== ghostElement) {
+            if (ghostElement) {
+                ghostElement.parentNode.removeChild(ghostElement);
+                ghostElement = null;
+            }
+
+            if (el.parentNode) {
+                ghostElement = document.createElement('div');
+                ghostElement.style.height = '20px';
+                ghostElement.style.border = '1px dotted #ccc';
+                ghostElement.style.backgroundColor = '#f5f6f7';
+                el.parentNode.insertBefore(ghostElement, el.nextSibling);
+            }
+        }
+    } else if (ghostElement) {
+        ghostElement.parentNode.removeChild(ghostElement);
+        ghostElement = null;
+    }
+});
 
 window.examples = {
     ...window.examples,

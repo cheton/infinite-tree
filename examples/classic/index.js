@@ -31,7 +31,7 @@ const tree = new InfiniteTree(document.querySelector('#classic [data-id="tree"]'
     autoOpen: true, // Defaults to false
     droppable: {
         hoverClass: 'infinite-tree-drop-hover',
-        accept: function(opts) {
+        accept: (opts) => {
             const { type, draggableTarget, droppableTarget, node } = opts;
 
             if (elementClass(event.target).has('infinite-tree-overlay')) {
@@ -43,7 +43,7 @@ const tree = new InfiniteTree(document.querySelector('#classic [data-id="tree"]'
 
             return true;
         },
-        drop: function(e, opts) {
+        drop: (e, opts) => {
             const { draggableTarget, droppableTarget, node } = opts;
 
             if (elementClass(event.target).has('infinite-tree-overlay')) {
@@ -243,6 +243,87 @@ const load = () => {
         tree.selectNode(childNodes[0]);
     }
 };
+
+let ghostElement = null;
+let draggingX = 0;
+let draggingY = 0;
+
+addEventListener(document, 'dragstart', (e) => {
+    draggingX = 0;
+    draggingY = 0;
+});
+
+addEventListener(document, 'dragend', (e) => {
+    if (ghostElement) {
+        ghostElement.parentNode.removeChild(ghostElement);
+        ghostElement = null;
+    }
+});
+
+addEventListener(tree.contentElement, 'dragover', (e) => {
+    preventDefault(event);
+
+    event = event || window.event;
+
+    const movementX = event.x - (Number(draggingX) || event.x);
+    const movementY = event.y - (Number(draggingY) || event.y);
+
+    draggingX = event.x;
+    draggingY = event.y;
+
+    if (movementY === 0) {
+        return;
+    }
+
+    let el = document.elementFromPoint(event.x, event.y);
+    while (el && el.parentElement !== tree.contentElement) {
+        el = el.parentElement;
+    }
+    if (!el || el === ghostElement) {
+        return;
+    }
+
+    const id = el.getAttribute(tree.options.nodeIdAttr);
+    if (id === undefined) {
+        return;
+    }
+
+    const rect = el.getBoundingClientRect();
+    const tolerance = 5;
+
+    if (event.y <= rect.top + tolerance) {
+        if (ghostElement) {
+            ghostElement.parentNode.removeChild(ghostElement);
+            ghostElement = null;
+        }
+
+        if (el.parentNode) {
+            ghostElement = document.createElement('div');
+            ghostElement.style.height = '20px';
+            ghostElement.style.border = '1px dotted #ccc';
+            ghostElement.style.backgroundColor = '#f5f6f7';
+            el.parentNode.insertBefore(ghostElement, el);
+        }
+    } else if (rect.top + el.offsetHeight <= event.y) {
+        if (el.nextSibling !== ghostElement) {
+            if (ghostElement) {
+                ghostElement.parentNode.removeChild(ghostElement);
+                ghostElement = null;
+            }
+
+            if (el.parentNode) {
+                ghostElement = document.createElement('div');
+                ghostElement.style.height = '20px';
+                ghostElement.style.border = '1px dotted #ccc';
+                ghostElement.style.backgroundColor = '#f5f6f7';
+                el.parentNode.insertBefore(ghostElement, el.nextSibling);
+            }
+        }
+    } else if (ghostElement) {
+        ghostElement.parentNode.removeChild(ghostElement);
+        ghostElement = null;
+    }
+});
 
 window.examples = {
     ...window.examples,

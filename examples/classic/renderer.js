@@ -74,6 +74,7 @@ const renderer = (node, treeOptions) => {
     }, toggler + icon + title + loadingIcon + count);
 
     let treeNodeAttributes = {
+        'draggable': 'true',
         'data-id': id,
         'data-expanded': more && open,
         'data-depth': depth,
