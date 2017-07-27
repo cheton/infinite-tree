@@ -82,18 +82,45 @@
             <section class="bs-docs-section" id="default">
                 <h2 class="page-header">Default</h2>
                 <div class="container-fluid">
-                    <div class="row" style="margin-bottom: 10px;">
-                        <div class="col-xs-12">
+                    <div class="row" style="margin-bottom: 10px">
+                        <div class="col-xs-6">
                             <button
                                 type="button"
                                 class="btn btn-default"
                                 draggable="true"
                                 data-id="draggable-element"
-                                style="margin-right: 10px"
+                                style="margin-right: 10px; vertical-align: top"
                             >
                                 Drag me!
                             </button>
                             <span class="dropped-result" data-id="dropped-result"></span>
+                        </div>
+                    </div>
+                    <div class="row" style="margin-bottom: 10px">
+                        <div class="col-xs-6">
+                            <div class="input-group">
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    name="text-filter"
+                                    placeholder="Type to filter by text"
+                                />
+                                <span class="input-group-btn">
+                                    <button
+                                        type="button"
+                                        class="btn btn-default"
+                                        name="search"
+                                    >
+                                        Search
+                                    </button>
+                                </span>
+                            </div>
+                            <div class="checkbox">
+                                <label><input type="checkbox" name="filter-ancestors" value="" checked> Filter ancestors</label>
+                            </div>
+                            <div class="checkbox">
+                                <label><input type="checkbox" name="filter-descendants" value="" checked> Filter descendants</label>
+                            </div>
                         </div>
                     </div>
                     <div class="row" style="margin-bottom: 5px;">
@@ -117,18 +144,45 @@
             <section class="bs-docs-section" id="classic">
                 <h2 class="page-header">Classic</h2>
                 <div class="container-fluid">
-                    <div class="row" style="margin-bottom: 10px;">
-                        <div class="col-xs-12">
+                    <div class="row" style="margin-bottom: 10px">
+                        <div class="col-xs-6">
                             <button
                                 type="button"
                                 class="btn btn-default"
                                 draggable="true"
                                 data-id="draggable-element"
-                                style="margin-right: 10px"
+                                style="margin-right: 10px; vertical-align: top"
                             >
                                 Drag me!
                             </button>
                             <span class="dropped-result" data-id="dropped-result"></span>
+                        </div>
+                    </div>
+                    <div class="row" style="margin-bottom: 10px">
+                        <div class="col-xs-6">
+                            <div class="input-group">
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    name="text-filter"
+                                    placeholder="Type to filter by text"
+                                />
+                                <span class="input-group-btn">
+                                    <button
+                                        type="button"
+                                        class="btn btn-default"
+                                        name="search"
+                                    >
+                                        Search
+                                    </button>
+                                </span>
+                            </div>
+                            <div class="checkbox">
+                                <label><input type="checkbox" name="filter-ancestors" value="" checked> Filter ancestors</label>
+                            </div>
+                            <div class="checkbox">
+                                <label><input type="checkbox" name="filter-descendants" value="" checked> Filter descendants</label>
+                            </div>
                         </div>
                     </div>
                     <div class="row" style="margin-bottom: 5px;">

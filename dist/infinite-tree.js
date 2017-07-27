@@ -1,4 +1,4 @@
-/*! infinite-tree v1.11.0 | (c) 2017 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
+/*! infinite-tree v1.12.0 | (c) 2017 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -74,7 +74,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 6);
+/******/ 	return __webpack_require__(__webpack_require__.s = 7);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -405,7 +405,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-var _events = __webpack_require__(11);
+var _events = __webpack_require__(12);
 
 var _events2 = _interopRequireDefault(_events);
 
@@ -413,25 +413,29 @@ var _classnames = __webpack_require__(0);
 
 var _classnames2 = _interopRequireDefault(_classnames);
 
-var _clusterize = __webpack_require__(9);
+var _clusterize = __webpack_require__(10);
 
 var _clusterize2 = _interopRequireDefault(_clusterize);
 
-var _elementClass = __webpack_require__(10);
+var _elementClass = __webpack_require__(11);
 
 var _elementClass2 = _interopRequireDefault(_elementClass);
 
-var _isDom = __webpack_require__(15);
+var _isDom = __webpack_require__(16);
 
 var _isDom2 = _interopRequireDefault(_isDom);
 
-var _flattree = __webpack_require__(13);
+var _flattree = __webpack_require__(14);
 
-var _lookupTable = __webpack_require__(7);
+var _get = __webpack_require__(6);
+
+var _get2 = _interopRequireDefault(_get);
+
+var _lookupTable = __webpack_require__(8);
 
 var _lookupTable2 = _interopRequireDefault(_lookupTable);
 
-var _renderer = __webpack_require__(8);
+var _renderer = __webpack_require__(9);
 
 var _domEvents = __webpack_require__(5);
 
@@ -441,8 +445,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } /* eslint prefer-spread: 0 */
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } /* eslint no-continue: 0 */
 /* eslint operator-assignment: 0 */
+/* eslint prefer-spread: 0 */
 
 
 var error = function error() {
@@ -514,6 +519,7 @@ var InfiniteTree = function (_events$EventEmitter) {
         _this.nodeTable = new _lookupTable2['default']();
         _this.nodes = [];
         _this.rows = [];
+        _this.filtered = false;
         _this.scrollElement = null;
         _this.contentElement = null;
         _this.draggableTarget = null;
@@ -907,9 +913,13 @@ var InfiniteTree = function (_events$EventEmitter) {
 
         var deleteCount = parentNode.state.total;
         var nodes = (0, _flattree.flatten)(parentNode.children, { openNodes: this.state.openNodes });
-        var rows = nodes.map(function (node) {
-            return _this3.options.rowRenderer(node, _this3.options);
-        });
+        var rows = [];
+        // Update rows
+        rows.length = nodes.length;
+        for (var i = 0; i < nodes.length; ++i) {
+            var node = nodes[i];
+            rows[i] = this.options.rowRenderer(node, this.options);
+        }
 
         if (parentNode === this.state.rootNode) {
             this.nodes = nodes;
@@ -935,7 +945,7 @@ var InfiniteTree = function (_events$EventEmitter) {
             });
         });
 
-        // Updates list with new data
+        // Update list
         this.update();
 
         return true;
@@ -1011,8 +1021,9 @@ var InfiniteTree = function (_events$EventEmitter) {
             // row #3       node.0.0.1
             // row #4     node.0.1
             var selectedIndex = this.nodes.indexOf(this.state.selectedNode);
+            var _total = node.state.total;
             var rangeFrom = nodeIndex + 1;
-            var rangeTo = nodeIndex + node.state.total;
+            var rangeTo = nodeIndex + _total;
 
             if (rangeFrom <= selectedIndex && selectedIndex <= rangeTo) {
                 this.selectNode(node, options);
@@ -1025,16 +1036,15 @@ var InfiniteTree = function (_events$EventEmitter) {
         });
         this.state.openNodes = openNodes;
 
-        var deleteCount = node.state.total;
-
-        // Subtract the deleteCount for all ancestors (parent, grandparent, etc.) of the current node
+        // Subtract total from ancestor nodes
+        var total = node.state.total;
         for (var p = node; p !== null; p = p.parent) {
-            p.state.total = p.state.total - deleteCount;
+            p.state.total = p.state.total - total;
         }
 
         // Update nodes & rows
-        this.nodes.splice(nodeIndex + 1, deleteCount);
-        this.rows.splice(nodeIndex + 1, deleteCount);
+        this.nodes.splice(nodeIndex + 1, total);
+        this.rows.splice(nodeIndex + 1, total);
 
         // Update the row corresponding to the node
         this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
@@ -1044,7 +1054,7 @@ var InfiniteTree = function (_events$EventEmitter) {
             this.emit('closeNode', node);
         }
 
-        // Updates list with new data
+        // Update list
         this.update();
 
         return true;
@@ -1251,11 +1261,13 @@ var InfiniteTree = function (_events$EventEmitter) {
         });
 
         // Update rows
-        this.rows = this.nodes.map(function (node) {
-            return _this4.options.rowRenderer(node, _this4.options);
-        });
+        this.rows.length = this.nodes.length;
+        for (var i = 0; i < this.nodes.length; ++i) {
+            var node = this.nodes[i];
+            this.rows[i] = this.options.rowRenderer(node, this.options);
+        }
 
-        // Updates list with new data
+        // Update list
         this.update();
     };
     // Moves a node from its current position to the new position.
@@ -1325,7 +1337,7 @@ var InfiniteTree = function (_events$EventEmitter) {
             node.state.loading = true;
             this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
 
-            // Updates list with new data
+            // Update list
             this.update();
 
             this.options.loadNodes(node, function (err, nodes) {
@@ -1333,7 +1345,7 @@ var InfiniteTree = function (_events$EventEmitter) {
                 node.state.loading = false;
                 _this5.rows[nodeIndex] = _this5.options.rowRenderer(node, _this5.options);
 
-                // Updates list with new data
+                // Update list
                 _this5.update();
 
                 if (err) {
@@ -1368,9 +1380,13 @@ var InfiniteTree = function (_events$EventEmitter) {
         this.state.openNodes = openNodes;
 
         var nodes = (0, _flattree.flatten)(node.children, { openNodes: this.state.openNodes });
-        var rows = nodes.map(function (node) {
-            return _this5.options.rowRenderer(node, _this5.options);
-        });
+        var rows = [];
+        // Update rows
+        rows.length = nodes.length;
+        for (var i = 0; i < nodes.length; ++i) {
+            var _node = nodes[i];
+            rows[i] = this.options.rowRenderer(_node, this.options);
+        }
 
         // Update nodes & rows
         this.nodes.splice.apply(this.nodes, [nodeIndex + 1, 0].concat(nodes));
@@ -1393,7 +1409,7 @@ var InfiniteTree = function (_events$EventEmitter) {
             this.emit('openNode', node);
         }
 
-        // Updates list with new data
+        // Update list
         this.update();
 
         return true;
@@ -1477,7 +1493,7 @@ var InfiniteTree = function (_events$EventEmitter) {
             });
         }
 
-        // Updates list with new data
+        // Update list
         this.update();
 
         return true;
@@ -1568,7 +1584,7 @@ var InfiniteTree = function (_events$EventEmitter) {
             });
         }
 
-        // Updates list with new data
+        // Update list
         this.update();
 
         return true;
@@ -1678,7 +1694,7 @@ var InfiniteTree = function (_events$EventEmitter) {
                     this.emit('selectNode', null);
                 }
 
-                // Updates list with new data
+                // Update list
                 this.update();
 
                 return true;
@@ -1749,7 +1765,7 @@ var InfiniteTree = function (_events$EventEmitter) {
             }
         }
 
-        // Updates list with new data
+        // Update list
         this.update();
 
         return true;
@@ -1802,10 +1818,10 @@ var InfiniteTree = function (_events$EventEmitter) {
         }
 
         if (this.state.openNodes.indexOf(node) >= 0) {
-            // close node
+            // Close node
             return this.closeNode(node, options);
         } else {
-            // open node
+            // Open node
             return this.openNode(node, options);
         }
     };
@@ -1859,6 +1875,145 @@ var InfiniteTree = function (_events$EventEmitter) {
 
         return traverse(node);
     };
+    // Filters nodes.
+    // @param {string|function} predicate A text string, or a function to test each node of the tree. The function returns true to keep the node, false otherwise.
+    // @param {object} [options] The options object.
+    // @param {boolean} [options.caseSensitive] Defaults to false. This option is only available for text string.
+    // @param {boolean} [options.exactMatch] Defaults to false. This option is only available for text string.
+    // @param {string} [options.filterPath] Gets the value at path of Node object. Defaults to 'name'. This option is only available for text string.
+    // @param {boolean} [options.filterAncestors] Defaults to true.
+    // @param {boolean} [options.filterDescendants] Defaults to true.
+    // @example
+    //
+    // const filterOptions = {
+    //     caseSensitive: false,
+    //     exactMatch: false,
+    //     filterPath: 'props.some.other.key',
+    //     filterAncestors: true,
+    //     filterDescendants: true
+    // };
+    // tree.filter('keyword', filterOptions);
+    //
+    // @example
+    //
+    // const filterOptions = {
+    //     filterAncestors: true,
+    //     filterDescendants: true
+    // };
+    // tree.filter(function(node) {
+    //     const keyword = 'keyword';
+    //     const filterText = node.name || '';
+    //     return filterText.toLowerCase().indexOf(keyword) >= 0;
+    // }, filterOptions);
+
+
+    InfiniteTree.prototype.filter = function filter(predicate, options) {
+        options = _extends({
+            caseSensitive: false,
+            exactMatch: false,
+            filterPath: 'name',
+            filterAncestors: true,
+            filterDescendants: true
+        }, options);
+
+        this.filtered = true;
+
+        var rootNode = this.state.rootNode;
+        var traverse = function traverse(node) {
+            var filterNode = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+
+            if (!node || !node.children) {
+                return false;
+            }
+
+            if (node === rootNode) {
+                node.state.filtered = false;
+            } else if (filterNode) {
+                node.state.filtered = true;
+            } else if (typeof predicate === 'string') {
+                // text string
+                var filterText = (0, _get2['default'])(node, options.filterPath, '');
+                var keyword = predicate;
+                if (!options.caseSensitive) {
+                    filterText = filterText.toLowerCase();
+                    keyword = keyword.toLowerCase();
+                }
+                node.state.filtered = options.exactMatch ? filterText === keyword : filterText.indexOf(keyword) >= 0;
+            } else if (typeof predicate === 'function') {
+                // function
+                var callback = predicate;
+                node.state.filtered = !!callback(node);
+            }
+
+            if (options.filterDescendants) {
+                filterNode = filterNode || node.state.filtered;
+            }
+
+            var filtered = false;
+            for (var i = 0; i < node.children.length; ++i) {
+                var childNode = node.children[i];
+                if (!childNode) {
+                    continue;
+                }
+                if (traverse(childNode, filterNode)) {
+                    filtered = true;
+                }
+            }
+            if (options.filterAncestors && filtered) {
+                node.state.filtered = true;
+            }
+
+            return node.state.filtered;
+        };
+
+        traverse(rootNode);
+
+        // Update rows
+        this.rows.length = this.nodes.length;
+        for (var i = 0; i < this.nodes.length; ++i) {
+            var node = this.nodes[i];
+            this.rows[i] = this.options.rowRenderer(node, this.options);
+        }
+
+        this.update();
+    };
+    // Unfilters nodes.
+
+
+    InfiniteTree.prototype.unfilter = function unfilter() {
+        this.filtered = false;
+
+        var rootNode = this.state.rootNode;
+        var traverse = function traverse(node) {
+            if (!node || !node.children) {
+                return;
+            }
+
+            delete node.state.filtered;
+
+            for (var i = 0; i < node.children.length; ++i) {
+                var childNode = node.children[i];
+                if (!childNode) {
+                    continue;
+                }
+
+                delete childNode.state.filtered;
+
+                traverse(childNode);
+            }
+        };
+
+        traverse(rootNode);
+
+        // Update rows
+        this.rows.length = this.nodes.length;
+        for (var i = 0; i < this.nodes.length; ++i) {
+            var node = this.nodes[i];
+            this.rows[i] = this.options.rowRenderer(node, this.options);
+        }
+
+        this.update();
+    };
     // Updates the tree.
 
 
@@ -1866,8 +2021,11 @@ var InfiniteTree = function (_events$EventEmitter) {
         // Emit a "contentWillUpdate" event
         this.emit('contentWillUpdate');
 
-        // Update the list with new data
-        this.clusterize.update(this.rows);
+        // Update list
+        var rows = this.rows.filter(function (row) {
+            return !!row;
+        });
+        this.clusterize.update(rows);
 
         // Emit a "contentWillUpdate" event
         this.emit('contentDidUpdate');
@@ -1914,14 +2072,15 @@ var InfiniteTree = function (_events$EventEmitter) {
             this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
 
             if (!shallowRendering) {
+                var total = node.state.total;
                 var rangeFrom = nodeIndex + 1;
-                var rangeTo = nodeIndex + node.state.total;
+                var rangeTo = nodeIndex + total;
                 for (var index = rangeFrom; index <= rangeTo; ++index) {
                     this.rows[index] = this.options.rowRenderer(this.nodes[index], this.options);
                 }
             }
 
-            // Updates list with new data
+            // Update list
             this.update();
         }
     };
@@ -1991,6 +2150,51 @@ exports.removeEventListener = removeEventListener;
 "use strict";
 
 
+exports.__esModule = true;
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+var re = new RegExp(/[\w\-]+|\[[^\]]*\]+/g);
+
+var get = function get(object, path, defaultValue) {
+    if (!object || (typeof object === 'undefined' ? 'undefined' : _typeof(object)) !== 'object') {
+        return defaultValue;
+    }
+
+    // Ensure string
+    path = '' + path;
+
+    var keys = path.match(re);
+    if (!keys) {
+        return defaultValue;
+    }
+
+    for (var i = 0; i < keys.length; i++) {
+        var key = keys[i].trim();
+        if (['\'', '"', '[', ']'].indexOf(key.charAt(0)) >= 0) {
+            key = key.slice(1, -1);
+        }
+        if (object === undefined || object === null || (typeof object === 'undefined' ? 'undefined' : _typeof(object)) !== 'object') {
+            break;
+        }
+        object = object[key];
+        if (object === undefined) {
+            break;
+        }
+    }
+
+    return object !== undefined ? object : defaultValue;
+};
+
+exports['default'] = get;
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
 var _infiniteTree = __webpack_require__(4);
 
 var _infiniteTree2 = _interopRequireDefault(_infiniteTree);
@@ -2000,7 +2204,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 module.exports = _infiniteTree2['default'];
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2046,7 +2250,7 @@ var LookupTable = function () {
 exports["default"] = LookupTable;
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2063,7 +2267,7 @@ var _escapeHtml = __webpack_require__(1);
 
 var _escapeHtml2 = _interopRequireDefault(_escapeHtml);
 
-var _html5Tag = __webpack_require__(14);
+var _html5Tag = __webpack_require__(15);
 
 var _html5Tag2 = _interopRequireDefault(_html5Tag);
 
@@ -2083,10 +2287,15 @@ var defaultRowRenderer = function defaultRowRenderer(node, treeOptions) {
         path = state.path,
         total = state.total,
         _state$selected = state.selected,
-        selected = _state$selected === undefined ? false : _state$selected;
+        selected = _state$selected === undefined ? false : _state$selected,
+        filtered = state.filtered;
 
     var childrenLength = Object.keys(children).length;
     var more = node.hasChildren();
+
+    if (filtered === false) {
+        return '';
+    }
 
     var togglerContent = '';
     if (!more && loadOnDemand) {
@@ -2135,7 +2344,7 @@ var defaultRowRenderer = function defaultRowRenderer(node, treeOptions) {
 exports.defaultRowRenderer = defaultRowRenderer;
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*! Clusterize.js - v0.17.6 - 2017-03-05
@@ -2469,7 +2678,7 @@ exports.defaultRowRenderer = defaultRowRenderer;
 }));
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports) {
 
 module.exports = function(opts) {
@@ -2534,7 +2743,7 @@ ElementClass.prototype.toggle = function(className) {
 
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports) {
 
 // Copyright Joyent, Inc. and other Node contributors.
@@ -2842,7 +3051,7 @@ function isUndefined(arg) {
 
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3047,7 +3256,7 @@ var flatten = function flatten() {
 exports['default'] = flatten;
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3056,7 +3265,7 @@ exports['default'] = flatten;
 exports.__esModule = true;
 exports.Node = exports.flatten = undefined;
 
-var _flatten = __webpack_require__(12);
+var _flatten = __webpack_require__(13);
 
 var _flatten2 = _interopRequireDefault(_flatten);
 
@@ -3071,7 +3280,7 @@ exports.flatten = _flatten2['default'];
 exports.Node = _node2['default'];
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3127,7 +3336,7 @@ module.exports = function (tag, attrs, text) {
 };
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports) {
 
 module.exports = isNode
