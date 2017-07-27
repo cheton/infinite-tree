@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import classNames from 'classnames';
 import elementClass from 'element-class';
 import escapeHTML from 'escape-html';
@@ -10,18 +11,40 @@ import data from '../data.json';
 
 const updatePreview = (node) => {
     const el = document.querySelector('#default [data-id="preview"]');
+    if (!el) {
+        return;
+    }
+
     if (node) {
-        let o = {
+        const o = {
             id: node.id,
             name: node.name,
             children: node.children ? node.children.length : 0,
-            parent: node.parent ? node.parent.id : null,
-            state: node.state
+            parent: (node.state.depth === 0)
+                ? '(root)'
+                : node.parent.id,
+            state: {
+                depth: node.state.depth,
+                open: node.state.open,
+                path: node.state.path,
+                prefixMask: node.state.prefixMask,
+                selected: node.state.selected,
+                total: node.state.total,
+                filtered: node.state.filtered,
+                unfilteredChildren: node.state.unfilteredChildren
+                    ? node.state.unfilteredChildren.map(node => node.id)
+                    : undefined,
+                unfilteredTotal: node.state.unfilteredTotal
+            }
         };
         if (node.loadOnDemand !== undefined) {
             o.loadOnDemand = node.loadOnDemand;
         }
-        el.innerHTML = JSON.stringify(o, null, 2).replace(/\n/g, '<br>').replace(/\s/g, '&nbsp;');
+        el.innerHTML = JSON.stringify(o, null, 2)
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/\n/g, '<br>')
+            .replace(/\s/g, '&nbsp;');
     } else {
         el.innerHTML = '';
     }
@@ -153,13 +176,35 @@ tree.on('keyDown', (event) => {
     if (event.keyCode === 37) { // Left
         tree.closeNode(node);
     } else if (event.keyCode === 38) { // Up
-        const prevNode = tree.nodes[nodeIndex - 1] || node;
-        tree.selectNode(prevNode);
+        if (tree.filtered) {
+            let prevNode = node;
+            for (let i = nodeIndex - 1; i >= 0; --i) {
+                if (tree.nodes[i].state.filtered) {
+                    prevNode = tree.nodes[i];
+                    break;
+                }
+            }
+            tree.selectNode(prevNode);
+        } else {
+            const prevNode = tree.nodes[nodeIndex - 1] || node;
+            tree.selectNode(prevNode);
+        }
     } else if (event.keyCode === 39) { // Right
         tree.openNode(node);
     } else if (event.keyCode === 40) { // Down
-        const nextNode = tree.nodes[nodeIndex + 1] || node;
-        tree.selectNode(nextNode);
+        if (tree.filtered) {
+            let nextNode = node;
+            for (let i = nodeIndex + 1; i < tree.nodes.length; ++i) {
+                if (tree.nodes[i].state.filtered) {
+                    nextNode = tree.nodes[i];
+                    break;
+                }
+            }
+            tree.selectNode(nextNode);
+        } else {
+            const nextNode = tree.nodes[nodeIndex + 1] || node;
+            tree.selectNode(nextNode);
+        }
     }
 });
 tree.on('keyUp', (event) => {
@@ -193,10 +238,18 @@ tree.on('willSelectNode', (node) => {
     console.log('willSelectNode:', node);
 });
 tree.on('clusterDidChange', () => {
+    // No overlay on filtered mode
+    if (tree.filtered) {
+        return;
+    }
+
     const overlayElement = document.createElement('div');
     const top = tree.nodes.indexOf(tree.getNodeById('<root>.1'));
     const bottom = tree.nodes.indexOf(tree.getNodeById('<root>.2'));
     const el = tree.contentElement.querySelector('.infinite-tree-item');
+    if (!el) {
+        return;
+    }
     const height = parseFloat(getComputedStyle(el).height);
 
     overlayElement.className = classNames(
@@ -210,6 +263,51 @@ tree.on('clusterDidChange', () => {
 });
 
 tree.loadData(JSON.parse(JSON.stringify(data)));
+
+// Filter
+const inputTextFilter = document.querySelector('#default input[name="text-filter"]');
+const inputFilterAncestors = document.querySelector('#default input[name="filter-ancestors"]');
+const inputFilterDescendants = document.querySelector('#default input[name="filter-descendants"]');
+const btnSearch = document.querySelector('#default button[name="search"]');
+
+const searchKeyword = (keyword) => {
+    keyword = keyword || inputTextFilter.value || '';
+
+    if (!keyword) {
+        tree.unfilter();
+        return;
+    }
+
+    const filterAncestors = inputFilterAncestors.checked;
+    const filterDescendants = inputFilterDescendants.checked;
+
+    tree.filter(keyword, {
+        caseSensitive: false,
+        exactMatch: false,
+        filterKey: 'name',
+        filterAncestors: filterAncestors,
+        filterDescendants: filterDescendants
+    });
+};
+
+addEventListener(inputFilterAncestors, 'change', (e) => {
+    searchKeyword();
+});
+addEventListener(inputFilterDescendants, 'change', (e) => {
+    searchKeyword();
+});
+addEventListener(inputTextFilter, 'keydown', (e) => {
+    const keyCode = e.keyCode;
+    if (keyCode === 13) {
+        searchKeyword();
+    }
+});
+addEventListener(inputTextFilter, 'keypress', _.debounce(function() {
+    searchKeyword();
+}, 250));
+addEventListener(btnSearch, 'click', (e) => {
+    searchKeyword();
+});
 
 // Scroll Element
 addEventListener(tree.scrollElement, 'scroll', (e) => {

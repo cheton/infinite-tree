@@ -1,11 +1,13 @@
-/* eslint prefer-spread: 0 */
+/* eslint no-continue: 0 */
 /* eslint operator-assignment: 0 */
+/* eslint prefer-spread: 0 */
 import events from 'events';
 import classNames from 'classnames';
 import Clusterize from 'clusterize.js';
 import elementClass from 'element-class';
 import isDOM from 'is-dom';
 import { flatten, Node } from 'flattree';
+import get from './get';
 import LookupTable from './lookup-table';
 import { defaultRowRenderer } from './renderer';
 import {
@@ -70,6 +72,7 @@ class InfiniteTree extends events.EventEmitter {
     nodeTable = new LookupTable();
     nodes = [];
     rows = [];
+    filtered = false;
     scrollElement = null;
     contentElement = null;
     draggableTarget = null;
@@ -456,7 +459,13 @@ class InfiniteTree extends events.EventEmitter {
 
         const deleteCount = parentNode.state.total;
         const nodes = flatten(parentNode.children, { openNodes: this.state.openNodes });
-        const rows = nodes.map(node => this.options.rowRenderer(node, this.options));
+        const rows = [];
+        // Update rows
+        rows.length = nodes.length;
+        for (let i = 0; i < nodes.length; ++i) {
+            const node = nodes[i];
+            rows[i] = this.options.rowRenderer(node, this.options);
+        }
 
         if (parentNode === this.state.rootNode) {
             this.nodes = nodes;
@@ -482,7 +491,7 @@ class InfiniteTree extends events.EventEmitter {
             });
         });
 
-        // Updates list with new data
+        // Update list
         this.update();
 
         return true;
@@ -550,8 +559,9 @@ class InfiniteTree extends events.EventEmitter {
             // row #3       node.0.0.1
             // row #4     node.0.1
             const selectedIndex = this.nodes.indexOf(this.state.selectedNode);
+            const total = node.state.total;
             const rangeFrom = nodeIndex + 1;
-            const rangeTo = nodeIndex + node.state.total;
+            const rangeTo = nodeIndex + total;
 
             if ((rangeFrom <= selectedIndex) && (selectedIndex <= rangeTo)) {
                 this.selectNode(node, options);
@@ -564,16 +574,15 @@ class InfiniteTree extends events.EventEmitter {
         });
         this.state.openNodes = openNodes;
 
-        const deleteCount = node.state.total;
-
-        // Subtract the deleteCount for all ancestors (parent, grandparent, etc.) of the current node
+        // Subtract total from ancestor nodes
+        const total = node.state.total;
         for (let p = node; p !== null; p = p.parent) {
-            p.state.total = p.state.total - deleteCount;
+            p.state.total = p.state.total - total;
         }
 
         // Update nodes & rows
-        this.nodes.splice(nodeIndex + 1, deleteCount);
-        this.rows.splice(nodeIndex + 1, deleteCount);
+        this.nodes.splice(nodeIndex + 1, total);
+        this.rows.splice(nodeIndex + 1, total);
 
         // Update the row corresponding to the node
         this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
@@ -583,7 +592,7 @@ class InfiniteTree extends events.EventEmitter {
             this.emit('closeNode', node);
         }
 
-        // Updates list with new data
+        // Update list
         this.update();
 
         return true;
@@ -758,9 +767,13 @@ class InfiniteTree extends events.EventEmitter {
         });
 
         // Update rows
-        this.rows = this.nodes.map(node => this.options.rowRenderer(node, this.options));
+        this.rows.length = this.nodes.length;
+        for (let i = 0; i < this.nodes.length; ++i) {
+            const node = this.nodes[i];
+            this.rows[i] = this.options.rowRenderer(node, this.options);
+        }
 
-        // Updates list with new data
+        // Update list
         this.update();
     }
     // Moves a node from its current position to the new position.
@@ -822,7 +835,7 @@ class InfiniteTree extends events.EventEmitter {
             node.state.loading = true;
             this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
 
-            // Updates list with new data
+            // Update list
             this.update();
 
             this.options.loadNodes(node, (err, nodes) => {
@@ -830,7 +843,7 @@ class InfiniteTree extends events.EventEmitter {
                 node.state.loading = false;
                 this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
 
-                // Updates list with new data
+                // Update list
                 this.update();
 
                 if (err) {
@@ -865,7 +878,13 @@ class InfiniteTree extends events.EventEmitter {
         this.state.openNodes = openNodes;
 
         const nodes = flatten(node.children, { openNodes: this.state.openNodes });
-        const rows = nodes.map(node => this.options.rowRenderer(node, this.options));
+        const rows = [];
+        // Update rows
+        rows.length = nodes.length;
+        for (let i = 0; i < nodes.length; ++i) {
+            const node = nodes[i];
+            rows[i] = this.options.rowRenderer(node, this.options);
+        }
 
         // Update nodes & rows
         this.nodes.splice.apply(this.nodes, [nodeIndex + 1, 0].concat(nodes));
@@ -888,7 +907,7 @@ class InfiniteTree extends events.EventEmitter {
             this.emit('openNode', node);
         }
 
-        // Updates list with new data
+        // Update list
         this.update();
 
         return true;
@@ -967,7 +986,7 @@ class InfiniteTree extends events.EventEmitter {
             });
         }
 
-        // Updates list with new data
+        // Update list
         this.update();
 
         return true;
@@ -1053,7 +1072,7 @@ class InfiniteTree extends events.EventEmitter {
             });
         }
 
-        // Updates list with new data
+        // Update list
         this.update();
 
         return true;
@@ -1148,7 +1167,7 @@ class InfiniteTree extends events.EventEmitter {
                     this.emit('selectNode', null);
                 }
 
-                // Updates list with new data
+                // Update list
                 this.update();
 
                 return true;
@@ -1219,7 +1238,7 @@ class InfiniteTree extends events.EventEmitter {
             }
         }
 
-        // Updates list with new data
+        // Update list
         this.update();
 
         return true;
@@ -1268,10 +1287,10 @@ class InfiniteTree extends events.EventEmitter {
         }
 
         if (this.state.openNodes.indexOf(node) >= 0) {
-            // close node
+            // Close node
             return this.closeNode(node, options);
         } else {
-            // open node
+            // Open node
             return this.openNode(node, options);
         }
     }
@@ -1314,13 +1333,150 @@ class InfiniteTree extends events.EventEmitter {
 
         return traverse(node);
     }
+    // Filters nodes.
+    // @param {string|function} predicate A text string, or a function to test each node of the tree. The function returns true to keep the node, false otherwise.
+    // @param {object} [options] The options object.
+    // @param {boolean} [options.caseSensitive] Defaults to false. This option is only available for text string.
+    // @param {boolean} [options.exactMatch] Defaults to false. This option is only available for text string.
+    // @param {string} [options.filterPath] Gets the value at path of Node object. Defaults to 'name'. This option is only available for text string.
+    // @param {boolean} [options.filterAncestors] Defaults to true.
+    // @param {boolean} [options.filterDescendants] Defaults to true.
+    // @example
+    //
+    // const filterOptions = {
+    //     caseSensitive: false,
+    //     exactMatch: false,
+    //     filterPath: 'props.some.other.key',
+    //     filterAncestors: true,
+    //     filterDescendants: true
+    // };
+    // tree.filter('keyword', filterOptions);
+    //
+    // @example
+    //
+    // const filterOptions = {
+    //     filterAncestors: true,
+    //     filterDescendants: true
+    // };
+    // tree.filter(function(node) {
+    //     const keyword = 'keyword';
+    //     const filterText = node.name || '';
+    //     return filterText.toLowerCase().indexOf(keyword) >= 0;
+    // }, filterOptions);
+    filter(predicate, options) {
+        options = {
+            caseSensitive: false,
+            exactMatch: false,
+            filterPath: 'name',
+            filterAncestors: true,
+            filterDescendants: true,
+            ...options
+        };
+
+        this.filtered = true;
+
+        const rootNode = this.state.rootNode;
+        const traverse = (node, filterNode = false) => {
+            if (!node || !node.children) {
+                return false;
+            }
+
+            if (node === rootNode) {
+                node.state.filtered = false;
+            } else if (filterNode) {
+                node.state.filtered = true;
+            } else if (typeof predicate === 'string') {
+                // text string
+                let filterText = get(node, options.filterPath, '');
+                let keyword = predicate;
+                if (!options.caseSensitive) {
+                    filterText = filterText.toLowerCase();
+                    keyword = keyword.toLowerCase();
+                }
+                node.state.filtered = options.exactMatch
+                    ? (filterText === keyword)
+                    : (filterText.indexOf(keyword) >= 0);
+            } else if (typeof predicate === 'function') {
+                // function
+                const callback = predicate;
+                node.state.filtered = !!callback(node);
+            }
+
+            if (options.filterDescendants) {
+                filterNode = filterNode || node.state.filtered;
+            }
+
+            let filtered = false;
+            for (let i = 0; i < node.children.length; ++i) {
+                const childNode = node.children[i];
+                if (!childNode) {
+                    continue;
+                }
+                if (traverse(childNode, filterNode)) {
+                    filtered = true;
+                }
+            }
+            if (options.filterAncestors && filtered) {
+                node.state.filtered = true;
+            }
+
+            return node.state.filtered;
+        };
+
+        traverse(rootNode);
+
+        // Update rows
+        this.rows.length = this.nodes.length;
+        for (let i = 0; i < this.nodes.length; ++i) {
+            const node = this.nodes[i];
+            this.rows[i] = this.options.rowRenderer(node, this.options);
+        }
+
+        this.update();
+    }
+    // Unfilters nodes.
+    unfilter() {
+        this.filtered = false;
+
+        const rootNode = this.state.rootNode;
+        const traverse = (node) => {
+            if (!node || !node.children) {
+                return;
+            }
+
+            delete node.state.filtered;
+
+            for (let i = 0; i < node.children.length; ++i) {
+                const childNode = node.children[i];
+                if (!childNode) {
+                    continue;
+                }
+
+                delete childNode.state.filtered;
+
+                traverse(childNode);
+            }
+        };
+
+        traverse(rootNode);
+
+        // Update rows
+        this.rows.length = this.nodes.length;
+        for (let i = 0; i < this.nodes.length; ++i) {
+            const node = this.nodes[i];
+            this.rows[i] = this.options.rowRenderer(node, this.options);
+        }
+
+        this.update();
+    }
     // Updates the tree.
     update() {
         // Emit a "contentWillUpdate" event
         this.emit('contentWillUpdate');
 
-        // Update the list with new data
-        this.clusterize.update(this.rows);
+        // Update list
+        const rows = this.rows.filter(row => !!row);
+        this.clusterize.update(rows);
 
         // Emit a "contentWillUpdate" event
         this.emit('contentDidUpdate');
@@ -1361,14 +1517,15 @@ class InfiniteTree extends events.EventEmitter {
             this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
 
             if (!shallowRendering) {
+                const total = node.state.total;
                 const rangeFrom = nodeIndex + 1;
-                const rangeTo = nodeIndex + node.state.total;
+                const rangeTo = nodeIndex + total;
                 for (let index = rangeFrom; index <= rangeTo; ++index) {
                     this.rows[index] = this.options.rowRenderer(this.nodes[index], this.options);
                 }
             }
 
-            // Updates list with new data
+            // Update list
             this.update();
         }
     }

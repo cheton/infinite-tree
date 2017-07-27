@@ -5,9 +5,13 @@ import tag from 'html5-tag';
 const renderer = (node, treeOptions) => {
     const { id, name, loadOnDemand = false, children, state, props = {} } = node;
     const droppable = (treeOptions.droppable) && (props.droppable);
-    const { depth, open, path, total, loading = false, selected = false } = state;
+    const { depth, open, path, total, loading = false, selected = false, filtered } = state;
     const childrenLength = Object.keys(children).length;
     const more = node.hasChildren();
+
+    if (filtered === false) {
+        return;
+    }
 
     let togglerContent = '';
     if (!more && loadOnDemand) {
