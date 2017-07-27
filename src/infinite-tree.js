@@ -7,7 +7,7 @@ import Clusterize from 'clusterize.js';
 import elementClass from 'element-class';
 import isDOM from 'is-dom';
 import { flatten, Node } from 'flattree';
-import get from './get';
+import { get } from './utilities';
 import LookupTable from './lookup-table';
 import { defaultRowRenderer } from './renderer';
 import {

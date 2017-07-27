@@ -1,11 +1,19 @@
-const re = new RegExp(/[\w\-]+|\[[^\]]*\]+/g);
+export const trim = (str, chars = ' \f\n\r\t\v') => {
+    while (chars.indexOf(str[0]) >= 0) {
+        str = str.slice(1);
+    }
+    while (chars.indexOf(str[str.length - 1]) >= 0) {
+        str = str.slice(0, -1);
+    }
+    return str;
+};
 
-const get = function(object, path, defaultValue) {
+const re = new RegExp(/[\w\-]+|\[[^\]]*\]+/g);
+export const get = (object, path, defaultValue) => {
     if (!object || typeof object !== 'object') {
         return defaultValue;
     }
 
-    // Ensure string
     path = '' + path;
 
     const keys = path.match(re);
@@ -14,14 +22,19 @@ const get = function(object, path, defaultValue) {
     }
 
     for (let i = 0; i < keys.length; i++) {
-        let key = keys[i].trim();
-        if (['\'', '"', '[', ']'].indexOf(key.charAt(0)) >= 0) {
-            key = key.slice(1, -1);
+        let key = keys[i];
+        key = trim(key, ' \f\n\r\t\v');
+        if (key[0] === '[') {
+            key = trim(key.slice(1, -1), ' \f\n\r\t\v');
         }
+        key = trim(key, '\'"');
+
         if ((object === undefined) || (object === null) || typeof object !== 'object') {
             break;
         }
+
         object = object[key];
+
         if (object === undefined) {
             break;
         }
@@ -29,5 +42,3 @@ const get = function(object, path, defaultValue) {
 
     return (object !== undefined) ? object : defaultValue;
 };
-
-export default get;
