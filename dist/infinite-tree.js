@@ -74,7 +74,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 7);
+/******/ 	return __webpack_require__(__webpack_require__.s = 6);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -427,15 +427,13 @@ var _isDom2 = _interopRequireDefault(_isDom);
 
 var _flattree = __webpack_require__(14);
 
-var _get = __webpack_require__(6);
+var _utilities = __webpack_require__(9);
 
-var _get2 = _interopRequireDefault(_get);
-
-var _lookupTable = __webpack_require__(8);
+var _lookupTable = __webpack_require__(7);
 
 var _lookupTable2 = _interopRequireDefault(_lookupTable);
 
-var _renderer = __webpack_require__(9);
+var _renderer = __webpack_require__(8);
 
 var _domEvents = __webpack_require__(5);
 
@@ -1932,7 +1930,7 @@ var InfiniteTree = function (_events$EventEmitter) {
                 node.state.filtered = true;
             } else if (typeof predicate === 'string') {
                 // text string
-                var filterText = (0, _get2['default'])(node, options.filterPath, '');
+                var filterText = (0, _utilities.get)(node, options.filterPath, '');
                 var keyword = predicate;
                 if (!options.caseSensitive) {
                     filterText = filterText.toLowerCase();
@@ -2150,51 +2148,6 @@ exports.removeEventListener = removeEventListener;
 "use strict";
 
 
-exports.__esModule = true;
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-var re = new RegExp(/[\w\-]+|\[[^\]]*\]+/g);
-
-var get = function get(object, path, defaultValue) {
-    if (!object || (typeof object === 'undefined' ? 'undefined' : _typeof(object)) !== 'object') {
-        return defaultValue;
-    }
-
-    // Ensure string
-    path = '' + path;
-
-    var keys = path.match(re);
-    if (!keys) {
-        return defaultValue;
-    }
-
-    for (var i = 0; i < keys.length; i++) {
-        var key = keys[i].trim();
-        if (['\'', '"', '[', ']'].indexOf(key.charAt(0)) >= 0) {
-            key = key.slice(1, -1);
-        }
-        if (object === undefined || object === null || (typeof object === 'undefined' ? 'undefined' : _typeof(object)) !== 'object') {
-            break;
-        }
-        object = object[key];
-        if (object === undefined) {
-            break;
-        }
-    }
-
-    return object !== undefined ? object : defaultValue;
-};
-
-exports['default'] = get;
-
-/***/ }),
-/* 7 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
 var _infiniteTree = __webpack_require__(4);
 
 var _infiniteTree2 = _interopRequireDefault(_infiniteTree);
@@ -2204,7 +2157,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 module.exports = _infiniteTree2['default'];
 
 /***/ }),
-/* 8 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2250,7 +2203,7 @@ var LookupTable = function () {
 exports["default"] = LookupTable;
 
 /***/ }),
-/* 9 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2342,6 +2295,64 @@ var defaultRowRenderer = function defaultRowRenderer(node, treeOptions) {
     }, treeNode);
 }; /* eslint import/prefer-default-export: 0 */
 exports.defaultRowRenderer = defaultRowRenderer;
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+var trim = exports.trim = function trim(str) {
+    var chars = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : ' \f\n\r\t\v';
+
+    while (chars.indexOf(str[0]) >= 0) {
+        str = str.slice(1);
+    }
+    while (chars.indexOf(str[str.length - 1]) >= 0) {
+        str = str.slice(0, -1);
+    }
+    return str;
+};
+
+var re = new RegExp(/[\w\-]+|\[[^\]]*\]+/g);
+var get = exports.get = function get(object, path, defaultValue) {
+    if (!object || (typeof object === 'undefined' ? 'undefined' : _typeof(object)) !== 'object') {
+        return defaultValue;
+    }
+
+    path = '' + path;
+
+    var keys = path.match(re);
+    if (!keys) {
+        return defaultValue;
+    }
+
+    for (var i = 0; i < keys.length; i++) {
+        var key = keys[i];
+        key = trim(key, ' \f\n\r\t\v');
+        if (key[0] === '[') {
+            key = trim(key.slice(1, -1), ' \f\n\r\t\v');
+        }
+        key = trim(key, '\'"');
+
+        if (object === undefined || object === null || (typeof object === 'undefined' ? 'undefined' : _typeof(object)) !== 'object') {
+            break;
+        }
+
+        object = object[key];
+
+        if (object === undefined) {
+            break;
+        }
+    }
+
+    return object !== undefined ? object : defaultValue;
+};
 
 /***/ }),
 /* 10 */
