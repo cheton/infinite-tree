@@ -216,6 +216,180 @@ test('tree.closeNode', (t) => {
     t.end();
 });
 
+test('tree.filter', (t) => {
+    const el = getTreeElement();
+    const tree = new InfiniteTree(el, {
+        autoOpen: true,
+        data: getTreeData()
+    });
+
+    { // Empty keyword
+        tree.filter();
+        const nodes = tree.flattenChildNodes();
+        t.equal(tree.filtered, true);
+        t.equal(nodes.filter(node => node.state.filtered === true).length, 0);
+        t.equal(nodes.filter(node => node.state.filtered === false).length, 12);
+        t.equal(tree.rows.filter(row => !!row).length, 0);
+    }
+
+    { // Not matched
+        tree.filter('none');
+        const nodes = tree.flattenChildNodes();
+        t.equal(tree.filtered, true);
+        t.equal(nodes.filter(node => node.state.filtered === true).length, 0);
+        t.equal(nodes.filter(node => node.state.filtered === false).length, 12);
+        t.equal(tree.rows.filter(row => !!row).length, 0);
+    }
+
+    const testCases = [
+        { // Empty predicate
+            predicate: null,
+            options: {
+                caseSensitive: false,
+                exactMatch: false,
+                includeAncestors: true,
+                includeDescendants: true
+            },
+            wanted: []
+        },
+        { // Case sensitive
+            predicate: 'charlie',
+            options: {
+                caseSensitive: true,
+                exactMatch: false,
+                includeAncestors: false,
+                includeDescendants: false
+            },
+            wanted: []
+        },
+        { // Case sensitive
+            predicate: 'Charlie',
+            options: {
+                caseSensitive: true,
+                exactMatch: false,
+                includeAncestors: false,
+                includeDescendants: false
+            },
+            wanted: ['Charlie']
+        },
+        { // Exact match
+            predicate: 'Charlie ',
+            options: {
+                caseSensitive: true,
+                exactMatch: true,
+                includeAncestors: false,
+                includeDescendants: false
+            },
+            wanted: []
+        },
+        { // Exact match
+            predicate: 'Charlie',
+            options: {
+                caseSensitive: true,
+                exactMatch: true,
+                includeAncestors: false,
+                includeDescendants: false
+            },
+            wanted: ['Charlie']
+        },
+        { // Include ancestors
+            predicate: 'charlie',
+            options: {
+                caseSensitive: false,
+                exactMatch: false,
+                includeAncestors: true,
+                includeDescendants: false
+            },
+            wanted: ['<root>', 'Bravo', 'Charlie']
+        },
+        { // Include descendants
+            predicate: 'charlie',
+            options: {
+                caseSensitive: false,
+                exactMatch: false,
+                includeAncestors: false,
+                includeDescendants: true
+            },
+            wanted: ['Charlie', 'Delta', 'Echo', 'Foxtrot', 'Golf']
+        },
+        { // Include ancestors and descendants
+            predicate: 'charlie',
+            options: {
+                caseSensitive: false,
+                exactMatch: false,
+                includeAncestors: true,
+                includeDescendants: true
+            },
+            wanted: ['<root>', 'Bravo', 'Charlie', 'Delta', 'Echo', 'Foxtrot', 'Golf']
+        },
+        { // No ancestors and descendants
+            predicate: 'charlie',
+            options: {
+                caseSensitive: false,
+                exactMatch: false,
+                includeAncestors: false,
+                includeDescendants: false
+            },
+            wanted: ['Charlie']
+        },
+        { // Function
+            predicate: function(node) {
+                return node.label === 'Charlie';
+            },
+            options: {
+                includeAncestors: false,
+                includeDescendants: false
+            },
+            wanted: ['Charlie']
+        },
+        { // Function
+            predicate: function(node) {
+                return node.label === 'Charlie';
+            },
+            options: {
+                includeAncestors: true,
+                includeDescendants: false
+            },
+            wanted: ['<root>', 'Bravo', 'Charlie']
+        },
+        { // Function
+            predicate: function(node) {
+                return node.label === 'Charlie';
+            },
+            options: {
+                includeAncestors: false,
+                includeDescendants: true
+            },
+            wanted: ['Charlie', 'Delta', 'Echo', 'Foxtrot', 'Golf']
+        },
+        { // Function
+            predicate: function(node) {
+                return node.label === 'Charlie';
+            },
+            options: {
+                includeAncestors: true,
+                includeDescendants: true
+            },
+            wanted: ['<root>', 'Bravo', 'Charlie', 'Delta', 'Echo', 'Foxtrot', 'Golf']
+        }
+    ];
+
+    for (let i = 0; i < testCases.length; ++i) {
+        const testCase = testCases[i];
+        const { predicate, options } = testCase;
+        if (typeof predicate === 'string') {
+            options.filterPath = options.filterPath || 'label';
+        }
+        tree.filter(predicate, options);
+        const found = tree.flattenChildNodes()
+            .filter(node => node.state.filtered)
+            .map(node => node.label);
+        t.strictSame(found, testCase.wanted);
+    }
+
+    t.end();
+});
+
 test('tree.flattenChildNodes', (t) => {
     const el = getTreeElement();
     const tree = new InfiniteTree(el, {
@@ -844,6 +1018,29 @@ test('tree.toString', (t) => {
         const wanted = '[{"id":"bravo","label":"Bravo","children":[{"id":"charlie","label":"Charlie","children":[{"id":"delta","label":"Delta","children":[],"state":{"depth":3,"open":false,"path":".0.1.0.0","prefixMask":"0001","total":0}},{"id":"delta","label":"Delta","children":[],"state":{"depth":3,"open":false,"path":".0.1.0.0","prefixMask":"0001","total":0}}],"state":{"depth":2,"open":false,"path":".0.1.0","prefixMask":"000","total":0}},{"id":"charlie","label":"Charlie","children":[],"state":{"depth":2,"open":false,"path":".0.1.0","prefixMask":"000","total":0}}],"state":{"depth":1,"open":false,"path":".0.1","prefixMask":"00","total":0}},{"id":"bravo","label":"Bravo","children":[{"id":"hotel","label":"Hotel","children":[{"id":"india","label":"India","children":[],"state":{"depth":3,"open":false,"path":".0.1.1.0","prefixMask":"0001","total":0}}],"state":{"depth":2,"open":false,"path":".0.1.1","prefixMask":"000","total":0}}],"state":{"depth":1,"open":false,"path":".0.1","prefixMask":"00","total":0}},{"id":"bravo","label":"Bravo","children":[],"state":{"depth":1,"open":false,"path":".0.1","prefixMask":"00","total":0}}]';
         t.same(JSON.parse(found), JSON.parse(wanted));
     }
+
+    t.end();
+});
+
+test('tree.unfilter', (t) => {
+    const el = getTreeElement();
+    const tree = new InfiniteTree(el, {
+        autoOpen: true,
+        data: getTreeData()
+    });
+
+    // Filter
+    tree.filter();
+    t.equal(tree.filtered, true);
+
+    // Unfilter
+    tree.unfilter();
+    t.equal(tree.filtered, false);
+    const found = tree.flattenChildNodes()
+        .filter(node => node.state.filtered === undefined)
+        .map(node => node.label);
+    const wanted = ['<root>', 'Alpha', 'Bravo', 'Charlie', 'Delta', 'Echo', 'Foxtrot', 'Golf', 'Hotel', 'India', 'Juliet', 'Kilo'];
+    t.strictSame(found, wanted);
 
     t.end();
 });
