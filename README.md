@@ -268,7 +268,7 @@ const renderer = (node, treeOptions) => {
 };
 ```
 
-The filter function accepts a keyword string, or a callback function to test each node of the tree. The callback function returns <i>true</i> to keep the node, <i>false</i> otherwise.
+The filter function accepts a keyword string, or a function to test each node of the tree. The function returns <i>true</i> to keep the node, <i>false</i> otherwise.
 
 ##### Filter by string
 
@@ -278,8 +278,8 @@ const filterOptions = {
     caseSensitive: false,
     exactMatch: false,
     filterPath: 'props.name', // Defaults to 'name'
-    filterAncestors: true,
-    filterDescendants: true
+    includeAncestors: true,
+    includeDescendants: true
 };
 tree.filter(keyword, filterOptions);
 ```
@@ -289,8 +289,8 @@ tree.filter(keyword, filterOptions);
 ```js
 const keyword = 'text-to-filter';
 const filterOptions = {
-    filterAncestors: true,
-    filterDescendants: true
+    includeAncestors: true,
+    includeDescendants: true
 };
 tree.filter(function(node) {
     const name = node.name || '';
