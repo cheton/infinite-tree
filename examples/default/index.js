@@ -268,8 +268,8 @@ tree.loadData(JSON.parse(JSON.stringify(data)));
 const inputTextFilter = document.querySelector('#default input[name="text-filter"]');
 const inputCaseSensitive = document.querySelector('#default input[name="case-sensitive"]');
 const inputExactMatch = document.querySelector('#default input[name="exact-match"]');
-const inputFilterAncestors = document.querySelector('#default input[name="filter-ancestors"]');
-const inputFilterDescendants = document.querySelector('#default input[name="filter-descendants"]');
+const inputIncludeAncestors = document.querySelector('#default input[name="include-ancestors"]');
+const inputIncludeDescendants = document.querySelector('#default input[name="include-descendants"]');
 
 const searchKeyword = (keyword) => {
     keyword = keyword || inputTextFilter.value || '';
@@ -281,15 +281,15 @@ const searchKeyword = (keyword) => {
 
     const caseSensitive = inputCaseSensitive.checked;
     const exactMatch = inputExactMatch.checked;
-    const filterAncestors = inputFilterAncestors.checked;
-    const filterDescendants = inputFilterDescendants.checked;
+    const includeAncestors = inputIncludeAncestors.checked;
+    const includeDescendants = inputIncludeDescendants.checked;
 
     tree.filter(keyword, {
         caseSensitive: caseSensitive,
         exactMatch: exactMatch,
         filterKey: 'name',
-        filterAncestors: filterAncestors,
-        filterDescendants: filterDescendants
+        includeAncestors: includeAncestors,
+        includeDescendants: includeDescendants
     });
 };
 
@@ -299,10 +299,10 @@ addEventListener(inputCaseSensitive, 'change', (e) => {
 addEventListener(inputExactMatch, 'change', (e) => {
     searchKeyword();
 });
-addEventListener(inputFilterAncestors, 'change', (e) => {
+addEventListener(inputIncludeAncestors, 'change', (e) => {
     searchKeyword();
 });
-addEventListener(inputFilterDescendants, 'change', (e) => {
+addEventListener(inputIncludeDescendants, 'change', (e) => {
     searchKeyword();
 });
 addEventListener(inputTextFilter, 'keyup', _.debounce(e => {

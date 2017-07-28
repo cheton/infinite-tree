@@ -1876,27 +1876,27 @@ var InfiniteTree = function (_events$EventEmitter) {
     // Filters nodes.
     // @param {string|function} predicate A keyword string, or a function to test each node of the tree. The function returns true to keep the node, false otherwise.
     // @param {object} [options] The options object.
-    // @param {boolean} [options.caseSensitive] Defaults to false. This option is only available for string.
-    // @param {boolean} [options.exactMatch] Defaults to false. This option is only available for string.
-    // @param {string} [options.filterPath] Gets the value at path of Node object. Defaults to 'name'. This option is only available for string.
-    // @param {boolean} [options.filterAncestors] Defaults to true.
-    // @param {boolean} [options.filterDescendants] Defaults to true.
+    // @param {boolean} [options.caseSensitive] Case sensitive string comparison. Defaults to false. This option is only available for string comparison.
+    // @param {boolean} [options.exactMatch] Exact string matching. Defaults to false. This option is only available for string comparison.
+    // @param {string} [options.filterPath] Gets the value at path of Node object. Defaults to 'name'. This option is only available for string comparison.
+    // @param {boolean} [options.includeAncestors] Whether to include ancestor nodes. Defaults to true.
+    // @param {boolean} [options.includeDescendants] Whether to include descendant nodes. Defaults to true.
     // @example
     //
     // const filterOptions = {
     //     caseSensitive: false,
     //     exactMatch: false,
     //     filterPath: 'props.some.other.key',
-    //     filterAncestors: true,
-    //     filterDescendants: true
+    //     includeAncestors: true,
+    //     includeDescendants: true
     // };
     // tree.filter('keyword', filterOptions);
     //
     // @example
     //
     // const filterOptions = {
-    //     filterAncestors: true,
-    //     filterDescendants: true
+    //     includeAncestors: true,
+    //     includeDescendants: true
     // };
     // tree.filter(function(node) {
     //     const keyword = 'keyword';
@@ -1910,8 +1910,8 @@ var InfiniteTree = function (_events$EventEmitter) {
             caseSensitive: false,
             exactMatch: false,
             filterPath: 'name',
-            filterAncestors: true,
-            filterDescendants: true
+            includeAncestors: true,
+            includeDescendants: true
         }, options);
 
         this.filtered = true;
@@ -1943,7 +1943,7 @@ var InfiniteTree = function (_events$EventEmitter) {
                 node.state.filtered = !!callback(node);
             }
 
-            if (options.filterDescendants) {
+            if (options.includeDescendants) {
                 filterNode = filterNode || node.state.filtered;
             }
 
@@ -1957,7 +1957,7 @@ var InfiniteTree = function (_events$EventEmitter) {
                     filtered = true;
                 }
             }
-            if (options.filterAncestors && filtered) {
+            if (options.includeAncestors && filtered) {
                 node.state.filtered = true;
             }
 
