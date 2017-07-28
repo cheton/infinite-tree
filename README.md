@@ -21,6 +21,7 @@ Demo: http://cheton.github.io/infinite-tree
 ![Chrome](https://github.com/alrra/browser-logos/raw/master/src/chrome/chrome_48x48.png)<br>Chrome | ![Edge](https://github.com/alrra/browser-logos/raw/master/src/edge/edge_48x48.png)<br>Edge | ![Firefox](https://github.com/alrra/browser-logos/raw/master/src/firefox/firefox_48x48.png)<br>Firefox | ![IE](https://github.com/alrra/browser-logos/raw/master/src/archive/internet-explorer_9-11/internet-explorer_9-11_48x48.png)<br>IE | ![Opera](https://github.com/alrra/browser-logos/raw/master/src/opera/opera_48x48.png)<br>Opera | ![Safari](https://github.com/alrra/browser-logos/raw/master/src/safari/safari_48x48.png)<br>Safari
 --- | --- | --- | --- | --- | --- |
  Yes | Yes | Yes| 8+ | Yes | Yes | 
+
 Need to include [es5-shim](https://github.com/es-shims/es5-shim#example-of-applying-es-compatability-shims-in-a-browser-project) polyfill for IE8
 
 ## React Support
@@ -132,6 +133,7 @@ tree.on('willSelectNode', function(node) {});
 * [Creating tree nodes with checkboxes](#creating-tree-nodes-with-checkboxes)
 * [How to attach click event listeners to nodes?](#how-to-attach-click-event-listeners-to-nodes)
 * [How to use keyboard shortcuts to navigate through nodes?](#how-to-use-keyboard-shortcuts-to-navigate-through-nodes)
+* [How to filter nodes?](#how-to-filter-nodes)
 * [How to select multiple nodes using the ctrl key (or meta key)?](#how-to-select-multiple-nodes-using-the-ctrl-key-or-meta-key)
 
 #### Creating tree nodes with checkboxes
@@ -251,6 +253,7 @@ tree.on('keyDown', (event) => {
 #### How to filter nodes?
 
 In your row renderer, returns <i>undefined</i> or an empty string to filter out unwanted nodes (i.e. `node.state.filtered === false`):
+
 ```js
 import tag from 'html5-tag';
 
@@ -268,6 +271,7 @@ const renderer = (node, treeOptions) => {
 The filter function accepts a keyword string, or a callback function to test each node of the tree. The callback function returns <i>true</i> to keep the node, <i>false</i> otherwise.
 
 ##### Filter by string
+
 ```js
 const keyword = 'text-to-filter';
 const filterOptions = {
@@ -281,6 +285,7 @@ tree.filter(keyword, filterOptions);
 ```
 
 ##### Filter by function
+
 ```js
 const keyword = 'text-to-filter';
 const filterOptions = {
@@ -294,7 +299,9 @@ tree.filter(function(node) {
 ```
 
 ##### Turn off filter
+
 Calls `tree.unfilter()` to turn off filter.
+
 ```js
 tree.unfilter();
 ```
