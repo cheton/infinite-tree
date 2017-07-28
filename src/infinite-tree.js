@@ -1440,20 +1440,19 @@ class InfiniteTree extends events.EventEmitter {
 
         const rootNode = this.state.rootNode;
         const traverse = (node) => {
-            if (!node || !node.children) {
+            if (!node) {
                 return;
             }
-
             delete node.state.filtered;
 
+            if (!node.children) {
+                return;
+            }
             for (let i = 0; i < node.children.length; ++i) {
                 const childNode = node.children[i];
                 if (!childNode) {
                     continue;
                 }
-
-                delete childNode.state.filtered;
-
                 traverse(childNode);
             }
         };
