@@ -215,15 +215,88 @@ tree.on('keyDown', (event) => {
     if (event.keyCode === 37) { // Left
         tree.closeNode(node);
     } else if (event.keyCode === 38) { // Up
-        const prevNode = tree.nodes[nodeIndex - 1] || node;
-        tree.selectNode(prevNode);
+        if (tree.filtered) { // filtered mode
+            let prevNode = node;
+            for (let i = nodeIndex - 1; i >= 0; --i) {
+                if (tree.nodes[i].state.filtered) {
+                    prevNode = tree.nodes[i];
+                    break;
+                }
+            }
+            tree.selectNode(prevNode);
+        } else {
+            const prevNode = tree.nodes[nodeIndex - 1] || node;
+            tree.selectNode(prevNode);
+        }
     } else if (event.keyCode === 39) { // Right
         tree.openNode(node);
     } else if (event.keyCode === 40) { // Down
-        const nextNode = tree.nodes[nodeIndex + 1] || node;
-        tree.selectNode(nextNode);
+        if (tree.filtered) { // filtered mode
+            let nextNode = node;
+            for (let i = nodeIndex + 1; i < tree.nodes.length; ++i) {
+                if (tree.nodes[i].state.filtered) {
+                    nextNode = tree.nodes[i];
+                    break;
+                }
+            }
+            tree.selectNode(nextNode);
+        } else {
+            const nextNode = tree.nodes[nodeIndex + 1] || node;
+            tree.selectNode(nextNode);
+        }
     }
 });
+```
+
+#### How to filter nodes?
+
+In your row renderer, returns <i>undefined</i> or an empty string to filter out unwanted nodes (i.e. `node.state.filtered === false`):
+```js
+import tag from 'html5-tag';
+
+const renderer = (node, treeOptions) => {
+    if (node.state.filtered === false) {
+        return;
+    }
+
+    // Do something
+
+    return tag('div', treeNodeAttributes, treeNode);
+};
+```
+
+The filter function accepts a keyword string, or a callback function to test each node of the tree. The callback function returns <i>true</i> to keep the node, <i>false</i> otherwise.
+
+##### Filter by string
+```js
+const keyword = 'text-to-filter';
+const filterOptions = {
+    caseSensitive: false,
+    exactMatch: false,
+    filterPath: 'props.name', // Defaults to 'name'
+    filterAncestors: true,
+    filterDescendants: true
+};
+tree.filter(keyword, filterOptions);
+```
+
+##### Filter by function
+```js
+const keyword = 'text-to-filter';
+const filterOptions = {
+    filterAncestors: true,
+    filterDescendants: true
+};
+tree.filter(function(node) {
+    const name = node.name || '';
+    return name.toLowerCase().indexOf(keyword) >= 0;
+});
+```
+
+##### Turn off filter
+Calls `tree.unfilter()` to turn off filter.
+```js
+tree.unfilter();
 ```
 
 #### How to select multiple nodes using the ctrl key (or meta key)?
