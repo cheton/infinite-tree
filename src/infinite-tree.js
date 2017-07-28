@@ -1400,6 +1400,8 @@ class InfiniteTree extends events.EventEmitter {
                 // function
                 const callback = predicate;
                 node.state.filtered = !!callback(node);
+            } else {
+                node.state.filtered = false;
             }
 
             if (options.includeDescendants) {
