@@ -223,13 +223,22 @@ test('tree.filter', (t) => {
         data: getTreeData()
     });
 
-    { // Empty keyword
+    { // No predicate
         tree.filter();
         const nodes = tree.flattenChildNodes();
         t.equal(tree.filtered, true);
         t.equal(nodes.filter(node => node.state.filtered === true).length, 0);
         t.equal(nodes.filter(node => node.state.filtered === false).length, 12);
         t.equal(tree.rows.filter(row => !!row).length, 0);
+    }
+
+    { // Empty keyword
+        tree.filter('');
+        const nodes = tree.flattenChildNodes();
+        t.equal(tree.filtered, true);
+        t.equal(nodes.filter(node => node.state.filtered === true).length, 12);
+        t.equal(nodes.filter(node => node.state.filtered === false).length, 0);
+        t.equal(tree.rows.filter(row => !!row).length, 12);
     }
 
     { // Not matched
