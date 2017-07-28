@@ -262,9 +262,10 @@ tree.loadData(JSON.parse(JSON.stringify(data)));
 
 // Filter
 const inputTextFilter = document.querySelector('#classic input[name="text-filter"]');
+const inputCaseSensitive = document.querySelector('#classic input[name="case-sensitive"]');
+const inputExactMatch = document.querySelector('#classic input[name="exact-match"]');
 const inputFilterAncestors = document.querySelector('#classic input[name="filter-ancestors"]');
 const inputFilterDescendants = document.querySelector('#classic input[name="filter-descendants"]');
-const btnSearch = document.querySelector('#classic button[name="search"]');
 
 const searchKeyword = (keyword) => {
     keyword = keyword || inputTextFilter.value || '';
@@ -274,36 +275,43 @@ const searchKeyword = (keyword) => {
         return;
     }
 
+    const caseSensitive = inputCaseSensitive.checked;
+    const exactMatch = inputExactMatch.checked;
     const filterAncestors = inputFilterAncestors.checked;
     const filterDescendants = inputFilterDescendants.checked;
 
     tree.filter(keyword, {
-        caseSensitive: false,
-        exactMatch: false,
+        caseSensitive: caseSensitive,
+        exactMatch: exactMatch,
         filterKey: 'name',
         filterAncestors: filterAncestors,
         filterDescendants: filterDescendants
     });
 };
 
+addEventListener(inputCaseSensitive, 'change', (e) => {
+    searchKeyword();
+});
+addEventListener(inputExactMatch, 'change', (e) => {
+    searchKeyword();
+});
 addEventListener(inputFilterAncestors, 'change', (e) => {
     searchKeyword();
 });
 addEventListener(inputFilterDescendants, 'change', (e) => {
     searchKeyword();
 });
-addEventListener(inputTextFilter, 'keydown', (e) => {
+addEventListener(inputTextFilter, 'keyup', _.debounce(e => {
     const keyCode = e.keyCode;
-    if (keyCode === 13) {
+    const DELETE = 8;
+    const ENTER = 13;
+    if (keyCode === DELETE || keyCode === ENTER) {
         searchKeyword();
     }
-});
-addEventListener(inputTextFilter, 'keypress', _.debounce(function() {
+}, 100));
+addEventListener(inputTextFilter, 'keypress', _.debounce(e => {
     searchKeyword();
 }, 250));
-addEventListener(btnSearch, 'click', (e) => {
-    searchKeyword();
-});
 
 // Scroll Element
 addEventListener(tree.scrollElement, 'scroll', (e) => {

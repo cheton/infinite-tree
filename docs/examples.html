@@ -82,7 +82,8 @@
             <section class="bs-docs-section" id="default">
                 <h2 class="page-header">Default</h2>
                 <div class="container-fluid">
-                    <div class="row" style="margin-bottom: 10px">
+                    <h4>Drag and Drop</h4>
+                    <div class="row" style="margin-bottom: 20px">
                         <div class="col-xs-6">
                             <button
                                 type="button"
@@ -96,34 +97,42 @@
                             <span class="dropped-result" data-id="dropped-result"></span>
                         </div>
                     </div>
-                    <div class="row" style="margin-bottom: 10px">
+                    <h4>Filter</h4>
+                    <div class="row">
                         <div class="col-xs-6">
-                            <div class="input-group">
-                                <input
-                                    type="text"
-                                    class="form-control"
-                                    name="text-filter"
-                                    placeholder="Type to filter by text"
-                                />
-                                <span class="input-group-btn">
-                                    <button
-                                        type="button"
-                                        class="btn btn-default"
-                                        name="search"
-                                    >
-                                        Search
-                                    </button>
-                                </span>
+                            <input
+                                type="text"
+                                class="form-control"
+                                name="text-filter"
+                                placeholder="Type to filter by text"
+                            />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-3">
+                            <div class="checkbox" style="margin: 5px 0">
+                                <label><input type="checkbox" name="case-sensitive" value=""> Case-sensitive</label>
                             </div>
-                            <div class="checkbox">
+                        </div>
+                        <div class="col-xs-3">
+                            <div class="checkbox" style="margin: 5px 0">
+                                <label><input type="checkbox" name="exact-match" value=""> Exact match</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-3">
+                            <div class="checkbox" style="margin: 5px 0">
                                 <label><input type="checkbox" name="filter-ancestors" value="" checked> Filter ancestors</label>
                             </div>
-                            <div class="checkbox">
+                        </div>
+                        <div class="col-xs-3">
+                            <div class="checkbox" style="margin: 5px 0">
                                 <label><input type="checkbox" name="filter-descendants" value="" checked> Filter descendants</label>
                             </div>
                         </div>
                     </div>
-                    <div class="row" style="margin-bottom: 5px;">
+                    <div class="row" style="margin-top: 10px; margin-bottom: 5px">
                         <div class="col-xs-6">
                             <div class="tree" data-id="tree"></div>
                         </div>
@@ -144,7 +153,8 @@
             <section class="bs-docs-section" id="classic">
                 <h2 class="page-header">Classic</h2>
                 <div class="container-fluid">
-                    <div class="row" style="margin-bottom: 10px">
+                    <h4>Drag and Drop</h4>
+                    <div class="row" style="margin-bottom: 20px">
                         <div class="col-xs-6">
                             <button
                                 type="button"
@@ -158,34 +168,42 @@
                             <span class="dropped-result" data-id="dropped-result"></span>
                         </div>
                     </div>
-                    <div class="row" style="margin-bottom: 10px">
+                    <h4>Filter</h4>
+                    <div class="row">
                         <div class="col-xs-6">
-                            <div class="input-group">
-                                <input
-                                    type="text"
-                                    class="form-control"
-                                    name="text-filter"
-                                    placeholder="Type to filter by text"
-                                />
-                                <span class="input-group-btn">
-                                    <button
-                                        type="button"
-                                        class="btn btn-default"
-                                        name="search"
-                                    >
-                                        Search
-                                    </button>
-                                </span>
+                            <input
+                                type="text"
+                                class="form-control"
+                                name="text-filter"
+                                placeholder="Type to filter by text"
+                            />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-3">
+                            <div class="checkbox" style="margin: 5px 0">
+                                <label><input type="checkbox" name="case-sensitive" value=""> Case-sensitive</label>
                             </div>
-                            <div class="checkbox">
+                        </div>
+                        <div class="col-xs-3">
+                            <div class="checkbox" style="margin: 5px 0">
+                                <label><input type="checkbox" name="exact-match" value=""> Exact match</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-3">
+                            <div class="checkbox" style="margin: 5px 0">
                                 <label><input type="checkbox" name="filter-ancestors" value="" checked> Filter ancestors</label>
                             </div>
-                            <div class="checkbox">
+                        </div>
+                        <div class="col-xs-3">
+                            <div class="checkbox" style="margin: 5px 0">
                                 <label><input type="checkbox" name="filter-descendants" value="" checked> Filter descendants</label>
                             </div>
                         </div>
                     </div>
-                    <div class="row" style="margin-bottom: 5px;">
+                    <div class="row" style="margin-top: 10px; margin-bottom: 5px">
                         <div class="col-xs-6">
                             <div class="tree" data-id="tree"></div>
                         </div>
