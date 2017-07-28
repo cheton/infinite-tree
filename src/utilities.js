@@ -8,37 +8,40 @@ export const trim = (str, chars = ' \f\n\r\t\v') => {
     return str;
 };
 
-const re = new RegExp(/[\w\-]+|\[[^\]]*\]+/g);
-export const get = (object, path, defaultValue) => {
-    if (!object || typeof object !== 'object') {
-        return defaultValue;
-    }
+export const get = (function() {
+    const re = new RegExp(/[\w\-]+|\[[^\]]*\]+/g);
 
-    path = '' + path;
-
-    const keys = path.match(re);
-    if (!keys) {
-        return defaultValue;
-    }
-
-    for (let i = 0; i < keys.length; i++) {
-        let key = keys[i];
-        key = trim(key, ' \f\n\r\t\v');
-        if (key[0] === '[') {
-            key = trim(key.slice(1, -1), ' \f\n\r\t\v');
-        }
-        key = trim(key, '\'"');
-
-        if ((object === undefined) || (object === null) || typeof object !== 'object') {
-            break;
+    return (object, path, defaultValue) => {
+        if (!object || typeof object !== 'object') {
+            return defaultValue;
         }
 
-        object = object[key];
+        path = '' + path;
 
-        if (object === undefined) {
-            break;
+        const keys = path.match(re);
+        if (!keys) {
+            return defaultValue;
         }
-    }
 
-    return (object !== undefined) ? object : defaultValue;
-};
+        for (let i = 0; i < keys.length; i++) {
+            let key = keys[i];
+            key = trim(key, ' \f\n\r\t\v');
+            if (key[0] === '[') {
+                key = trim(key.slice(1, -1), ' \f\n\r\t\v');
+            }
+            key = trim(key, '\'"');
+
+            if ((object === undefined) || (object === null) || typeof object !== 'object') {
+                break;
+            }
+
+            object = object[key];
+
+            if (object === undefined) {
+                break;
+            }
+        }
+
+        return (object !== undefined) ? object : defaultValue;
+    };
+}());
