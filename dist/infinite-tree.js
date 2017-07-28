@@ -1874,11 +1874,11 @@ var InfiniteTree = function (_events$EventEmitter) {
         return traverse(node);
     };
     // Filters nodes.
-    // @param {string|function} predicate A text string, or a function to test each node of the tree. The function returns true to keep the node, false otherwise.
+    // @param {string|function} predicate A keyword string, or a function to test each node of the tree. The function returns true to keep the node, false otherwise.
     // @param {object} [options] The options object.
-    // @param {boolean} [options.caseSensitive] Defaults to false. This option is only available for text string.
-    // @param {boolean} [options.exactMatch] Defaults to false. This option is only available for text string.
-    // @param {string} [options.filterPath] Gets the value at path of Node object. Defaults to 'name'. This option is only available for text string.
+    // @param {boolean} [options.caseSensitive] Defaults to false. This option is only available for string.
+    // @param {boolean} [options.exactMatch] Defaults to false. This option is only available for string.
+    // @param {string} [options.filterPath] Gets the value at path of Node object. Defaults to 'name'. This option is only available for string.
     // @param {boolean} [options.filterAncestors] Defaults to true.
     // @param {boolean} [options.filterDescendants] Defaults to true.
     // @example
@@ -1929,7 +1929,7 @@ var InfiniteTree = function (_events$EventEmitter) {
             } else if (filterNode) {
                 node.state.filtered = true;
             } else if (typeof predicate === 'string') {
-                // text string
+                // string
                 var filterText = (0, _utilities.get)(node, options.filterPath, '');
                 var keyword = predicate;
                 if (!options.caseSensitive) {
