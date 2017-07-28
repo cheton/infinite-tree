@@ -307,9 +307,10 @@ addEventListener(inputIncludeDescendants, 'change', (e) => {
 });
 addEventListener(inputTextFilter, 'keyup', _.debounce(e => {
     const keyCode = e.keyCode;
-    const DELETE = 8;
+    const BACKSPACE = 8;
+    const DELETE = 46;
     const ENTER = 13;
-    if (keyCode === DELETE || keyCode === ENTER) {
+    if (_.includes([BACKSPACE, DELETE, ENTER], keyCode)) {
         searchKeyword();
     }
 }, 100));
