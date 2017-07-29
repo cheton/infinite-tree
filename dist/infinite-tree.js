@@ -1,4 +1,4 @@
-/*! infinite-tree v1.12.0 | (c) 2017 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
+/*! infinite-tree v1.12.1 | (c) 2017 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -1941,6 +1941,8 @@ var InfiniteTree = function (_events$EventEmitter) {
                 // function
                 var callback = predicate;
                 node.state.filtered = !!callback(node);
+            } else {
+                node.state.filtered = false;
             }
 
             if (options.includeDescendants) {
@@ -1983,20 +1985,19 @@ var InfiniteTree = function (_events$EventEmitter) {
 
         var rootNode = this.state.rootNode;
         var traverse = function traverse(node) {
-            if (!node || !node.children) {
+            if (!node) {
                 return;
             }
-
             delete node.state.filtered;
 
+            if (!node.children) {
+                return;
+            }
             for (var i = 0; i < node.children.length; ++i) {
                 var childNode = node.children[i];
                 if (!childNode) {
                     continue;
                 }
-
-                delete childNode.state.filtered;
-
                 traverse(childNode);
             }
         };
@@ -2319,40 +2320,43 @@ var trim = exports.trim = function trim(str) {
     return str;
 };
 
-var re = new RegExp(/[\w\-]+|\[[^\]]*\]+/g);
-var get = exports.get = function get(object, path, defaultValue) {
-    if (!object || (typeof object === 'undefined' ? 'undefined' : _typeof(object)) !== 'object') {
-        return defaultValue;
-    }
+var get = exports.get = function () {
+    var re = new RegExp(/[\w\-]+|\[[^\]]*\]+/g);
 
-    path = '' + path;
-
-    var keys = path.match(re);
-    if (!keys) {
-        return defaultValue;
-    }
-
-    for (var i = 0; i < keys.length; i++) {
-        var key = keys[i];
-        key = trim(key, ' \f\n\r\t\v');
-        if (key[0] === '[') {
-            key = trim(key.slice(1, -1), ' \f\n\r\t\v');
-        }
-        key = trim(key, '\'"');
-
-        if (object === undefined || object === null || (typeof object === 'undefined' ? 'undefined' : _typeof(object)) !== 'object') {
-            break;
+    return function (object, path, defaultValue) {
+        if (!object || (typeof object === 'undefined' ? 'undefined' : _typeof(object)) !== 'object') {
+            return defaultValue;
         }
 
-        object = object[key];
+        path = '' + path;
 
-        if (object === undefined) {
-            break;
+        var keys = path.match(re);
+        if (!keys) {
+            return defaultValue;
         }
-    }
 
-    return object !== undefined ? object : defaultValue;
-};
+        for (var i = 0; i < keys.length; i++) {
+            var key = keys[i];
+            key = trim(key, ' \f\n\r\t\v');
+            if (key[0] === '[') {
+                key = trim(key.slice(1, -1), ' \f\n\r\t\v');
+            }
+            key = trim(key, '\'"');
+
+            if (object === undefined || object === null || (typeof object === 'undefined' ? 'undefined' : _typeof(object)) !== 'object') {
+                break;
+            }
+
+            object = object[key];
+
+            if (object === undefined) {
+                break;
+            }
+        }
+
+        return object !== undefined ? object : defaultValue;
+    };
+}();
 
 /***/ }),
 /* 10 */
