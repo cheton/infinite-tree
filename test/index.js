@@ -234,6 +234,24 @@ test('tree.filter', (t) => {
         t.equal(tree.rows.filter(row => !!row).length, 0);
     }
 
+    { // Invalid predicate: Object
+        tree.filter({});
+        t.equal(tree.filtered, true);
+        const nodes = tree.flattenChildNodes();
+        t.equal(nodes.filter(node => node.state.filtered === true).length, 0);
+        t.equal(nodes.filter(node => node.state.filtered === false).length, 12);
+        t.equal(tree.rows.filter(row => !!row).length, 0);
+    }
+
+    { // Invalid predicate: Number
+        tree.filter(0);
+        t.equal(tree.filtered, true);
+        const nodes = tree.flattenChildNodes();
+        t.equal(nodes.filter(node => node.state.filtered === true).length, 0);
+        t.equal(nodes.filter(node => node.state.filtered === false).length, 12);
+        t.equal(tree.rows.filter(row => !!row).length, 0);
+    }
+
     { // Empty keyword
         tree.filter('');
         t.equal(tree.filtered, true);
