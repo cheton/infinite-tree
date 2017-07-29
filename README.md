@@ -268,7 +268,13 @@ const renderer = (node, treeOptions) => {
 };
 ```
 
-The filter function accepts a keyword string, or a function to test each node of the tree. The function returns <i>true</i> to keep the node, <i>false</i> otherwise.
+##### Usage
+
+```js
+tree.filter(predicate, options)
+```
+
+Use a string or a function to test each node of the tree. Otherwise, it will render nothing after filtering (e.g. tree.filter(), tree.filter(null), tree.flter(0), tree.filter({}), etc.). If the predicate is an empty string, all nodes will be filtered. If the predicate is a function, returns <i>true</i> to keep the node, <i>false</i> otherwise.
 
 ##### Filter by string
 
