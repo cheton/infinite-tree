@@ -1873,8 +1873,8 @@ var InfiniteTree = function (_events$EventEmitter) {
 
         return traverse(node);
     };
-    // Filters nodes.
-    // @param {string|function} predicate A keyword string, or a function to test each node of the tree. The function returns true to keep the node, false otherwise.
+    // Filters nodes. Use a string or a function to test each node of the tree. Otherwise, it will render nothing after filtering (e.g. tree.filter(), tree.filter(null), tree.flter(0), tree.filter({}), etc.).
+    // @param {string|function} predicate A keyword string, or a function to test each node of the tree. If the predicate is an empty string, all nodes will be filtered. If the predicate is a function, returns true to keep the node, false otherwise.
     // @param {object} [options] The options object.
     // @param {boolean} [options.caseSensitive] Case sensitive string comparison. Defaults to false. This option is only available for string comparison.
     // @param {boolean} [options.exactMatch] Exact string matching. Defaults to false. This option is only available for string comparison.
