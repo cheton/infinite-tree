@@ -1,4 +1,4 @@
-/*! infinite-tree v1.12.1 | (c) 2017 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
+/*! infinite-tree v1.12.2 | (c) 2017 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -448,14 +448,25 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 /* eslint prefer-spread: 0 */
 
 
-var error = function error() {
-    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-        args[_key] = arguments[_key];
+var error = function error(format) {
+    for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+        args[_key - 1] = arguments[_key];
     }
 
+    var argIndex = 0;
+    var message = 'Error: ' + format.replace(/%s/g, function () {
+        return args[argIndex++];
+    });
+
     if (console && console.error) {
-        var prefix = '[InfiniteTree]';
-        console.error.apply(console, [prefix].concat(args));
+        console.error(message);
+    }
+    try {
+        // This error was thrown as a convenience so that you can use this stack
+        // to find the callsite that caused this error to fire.
+        throw new Error(message);
+    } catch (e) {
+        // Ignore
     }
 };
 
@@ -745,7 +756,7 @@ var InfiniteTree = function (_events$EventEmitter) {
         _this.options = _extends({}, _this.options, options);
 
         if (!_this.options.el) {
-            console.error('Failed to initialize infinite-tree: el is not specified.', options);
+            error('Failed to initialize infinite-tree: el is not specified.', options);
             return _possibleConstructorReturn(_this);
         }
 
@@ -1056,6 +1067,110 @@ var InfiniteTree = function (_events$EventEmitter) {
         this.update();
 
         return true;
+    };
+    // Filters nodes. Use a string or a function to test each node of the tree. Otherwise, it will render nothing after filtering (e.g. tree.filter(), tree.filter(null), tree.flter(0), tree.filter({}), etc.).
+    // @param {string|function} predicate A keyword string, or a function to test each node of the tree. If the predicate is an empty string, all nodes will be filtered. If the predicate is a function, returns true to keep the node, false otherwise.
+    // @param {object} [options] The options object.
+    // @param {boolean} [options.caseSensitive] Case sensitive string comparison. Defaults to false. This option is only available for string comparison.
+    // @param {boolean} [options.exactMatch] Exact string matching. Defaults to false. This option is only available for string comparison.
+    // @param {string} [options.filterPath] Gets the value at path of Node object. Defaults to 'name'. This option is only available for string comparison.
+    // @param {boolean} [options.includeAncestors] Whether to include ancestor nodes. Defaults to true.
+    // @param {boolean} [options.includeDescendants] Whether to include descendant nodes. Defaults to true.
+    // @example
+    //
+    // const filterOptions = {
+    //     caseSensitive: false,
+    //     exactMatch: false,
+    //     filterPath: 'props.some.other.key',
+    //     includeAncestors: true,
+    //     includeDescendants: true
+    // };
+    // tree.filter('keyword', filterOptions);
+    //
+    // @example
+    //
+    // const filterOptions = {
+    //     includeAncestors: true,
+    //     includeDescendants: true
+    // };
+    // tree.filter(function(node) {
+    //     const keyword = 'keyword';
+    //     const filterText = node.name || '';
+    //     return filterText.toLowerCase().indexOf(keyword) >= 0;
+    // }, filterOptions);
+
+
+    InfiniteTree.prototype.filter = function filter(predicate, options) {
+        options = _extends({
+            caseSensitive: false,
+            exactMatch: false,
+            filterPath: 'name',
+            includeAncestors: true,
+            includeDescendants: true
+        }, options);
+
+        this.filtered = true;
+
+        var rootNode = this.state.rootNode;
+        var traverse = function traverse(node) {
+            var filterNode = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+
+            if (!node || !node.children) {
+                return false;
+            }
+
+            if (node === rootNode) {
+                node.state.filtered = false;
+            } else if (filterNode) {
+                node.state.filtered = true;
+            } else if (typeof predicate === 'string') {
+                // string
+                var filterText = (0, _utilities.get)(node, options.filterPath, '');
+                var keyword = predicate;
+                if (!options.caseSensitive) {
+                    filterText = filterText.toLowerCase();
+                    keyword = keyword.toLowerCase();
+                }
+                node.state.filtered = options.exactMatch ? filterText === keyword : filterText.indexOf(keyword) >= 0;
+            } else if (typeof predicate === 'function') {
+                // function
+                var callback = predicate;
+                node.state.filtered = !!callback(node);
+            } else {
+                node.state.filtered = false;
+            }
+
+            if (options.includeDescendants) {
+                filterNode = filterNode || node.state.filtered;
+            }
+
+            var filtered = false;
+            for (var i = 0; i < node.children.length; ++i) {
+                var childNode = node.children[i];
+                if (!childNode) {
+                    continue;
+                }
+                if (traverse(childNode, filterNode)) {
+                    filtered = true;
+                }
+            }
+            if (options.includeAncestors && filtered) {
+                node.state.filtered = true;
+            }
+
+            return node.state.filtered;
+        };
+
+        traverse(rootNode);
+
+        // Update rows
+        this.rows.length = this.nodes.length;
+        for (var i = 0; i < this.nodes.length; ++i) {
+            var node = this.nodes[i];
+            this.rows[i] = this.options.rowRenderer(node, this.options);
+        }
+
+        this.update();
     };
     // Flattens all child nodes of a parent node by performing full tree traversal using child-parent link.
     // No recursion or stack is involved.
@@ -1872,110 +1987,6 @@ var InfiniteTree = function (_events$EventEmitter) {
         }
 
         return traverse(node);
-    };
-    // Filters nodes. Use a string or a function to test each node of the tree. Otherwise, it will render nothing after filtering (e.g. tree.filter(), tree.filter(null), tree.flter(0), tree.filter({}), etc.).
-    // @param {string|function} predicate A keyword string, or a function to test each node of the tree. If the predicate is an empty string, all nodes will be filtered. If the predicate is a function, returns true to keep the node, false otherwise.
-    // @param {object} [options] The options object.
-    // @param {boolean} [options.caseSensitive] Case sensitive string comparison. Defaults to false. This option is only available for string comparison.
-    // @param {boolean} [options.exactMatch] Exact string matching. Defaults to false. This option is only available for string comparison.
-    // @param {string} [options.filterPath] Gets the value at path of Node object. Defaults to 'name'. This option is only available for string comparison.
-    // @param {boolean} [options.includeAncestors] Whether to include ancestor nodes. Defaults to true.
-    // @param {boolean} [options.includeDescendants] Whether to include descendant nodes. Defaults to true.
-    // @example
-    //
-    // const filterOptions = {
-    //     caseSensitive: false,
-    //     exactMatch: false,
-    //     filterPath: 'props.some.other.key',
-    //     includeAncestors: true,
-    //     includeDescendants: true
-    // };
-    // tree.filter('keyword', filterOptions);
-    //
-    // @example
-    //
-    // const filterOptions = {
-    //     includeAncestors: true,
-    //     includeDescendants: true
-    // };
-    // tree.filter(function(node) {
-    //     const keyword = 'keyword';
-    //     const filterText = node.name || '';
-    //     return filterText.toLowerCase().indexOf(keyword) >= 0;
-    // }, filterOptions);
-
-
-    InfiniteTree.prototype.filter = function filter(predicate, options) {
-        options = _extends({
-            caseSensitive: false,
-            exactMatch: false,
-            filterPath: 'name',
-            includeAncestors: true,
-            includeDescendants: true
-        }, options);
-
-        this.filtered = true;
-
-        var rootNode = this.state.rootNode;
-        var traverse = function traverse(node) {
-            var filterNode = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-
-            if (!node || !node.children) {
-                return false;
-            }
-
-            if (node === rootNode) {
-                node.state.filtered = false;
-            } else if (filterNode) {
-                node.state.filtered = true;
-            } else if (typeof predicate === 'string') {
-                // string
-                var filterText = (0, _utilities.get)(node, options.filterPath, '');
-                var keyword = predicate;
-                if (!options.caseSensitive) {
-                    filterText = filterText.toLowerCase();
-                    keyword = keyword.toLowerCase();
-                }
-                node.state.filtered = options.exactMatch ? filterText === keyword : filterText.indexOf(keyword) >= 0;
-            } else if (typeof predicate === 'function') {
-                // function
-                var callback = predicate;
-                node.state.filtered = !!callback(node);
-            } else {
-                node.state.filtered = false;
-            }
-
-            if (options.includeDescendants) {
-                filterNode = filterNode || node.state.filtered;
-            }
-
-            var filtered = false;
-            for (var i = 0; i < node.children.length; ++i) {
-                var childNode = node.children[i];
-                if (!childNode) {
-                    continue;
-                }
-                if (traverse(childNode, filterNode)) {
-                    filtered = true;
-                }
-            }
-            if (options.includeAncestors && filtered) {
-                node.state.filtered = true;
-            }
-
-            return node.state.filtered;
-        };
-
-        traverse(rootNode);
-
-        // Update rows
-        this.rows.length = this.nodes.length;
-        for (var i = 0; i < this.nodes.length; ++i) {
-            var node = this.nodes[i];
-            this.rows[i] = this.options.rowRenderer(node, this.options);
-        }
-
-        this.update();
     };
     // Unfilters nodes.
 
