@@ -82,19 +82,18 @@ const tree = new InfiniteTree(document.querySelector('#classic [data-id="tree"]'
     },
     loadNodes: (parentNode, done) => {
         const suffix = parentNode.id.replace(/(\w)+/, '');
-        const nodes = [
-            {
-                id: 'node1' + suffix,
-                name: 'Node 1'
-            },
-            {
-                id: 'node2' + suffix,
-                name: 'Node 2'
-            }
-        ];
-        setTimeout(() => {
-            done(null, nodes);
-        }, 1000);
+        const nodes = [];
+        const count = 10000;
+
+        nodes.length = count;
+        for (let i = 0; i < count; ++i) {
+            nodes[i] = {
+                id: `node-${i}-${suffix}`,
+                name: `${parentNode.name} - #${i + 1}`
+            };
+        }
+
+        done(null, nodes);
     },
     rowRenderer: renderer,
     selectable: true, // Defaults to true

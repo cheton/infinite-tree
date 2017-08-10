@@ -5,7 +5,7 @@ import tag from 'html5-tag';
 const renderer = (node, treeOptions) => {
     const { id, name, loadOnDemand = false, children, state, props = {} } = node;
     const droppable = (treeOptions.droppable) && (props.droppable);
-    const { depth, open, path, total, loading = false, selected = false, filtered } = state;
+    const { depth, open, path, total, selected = false, filtered } = state;
     const childrenLength = Object.keys(children).length;
     const more = node.hasChildren();
 
@@ -28,6 +28,15 @@ const renderer = (node, treeOptions) => {
         togglerContent = tag('i', {
             'class': classNames('glyphicon', 'glyphicon-triangle-right')
         }, '');
+    }
+    if (state.expanding && !state.loading) {
+        console.log('## state:', state.expanding, state.loading);
+        togglerContent = tag('i', {
+            'class': classNames('glyphicon', 'glyphicon-refresh', 'rotating')
+        }, '');
+    }
+    if (state.collapsing) {
+        // TODO
     }
     const toggler = tag('a', {
         'class': (() => {
@@ -56,21 +65,21 @@ const renderer = (node, treeOptions) => {
 
     const title = tag('span', {
         'class': classNames('infinite-tree-title')
-    }, escapeHTML(name));
+    }, escapeHTML(loadOnDemand ? '(loadOnDemand) ' + name : name));
 
     const loadingIcon = tag('i', {
         'style': 'margin-left: 5px',
         'class': classNames(
-            { 'hidden': !loading },
+            { 'hidden': !state.loading },
             'glyphicon',
             'glyphicon-refresh',
-            { 'rotating': loading }
+            { 'rotating': state.loading }
         )
     }, '');
 
     const count = tag('span', {
         'class': 'count'
-    }, childrenLength);
+    }, !more && loadOnDemand ? '?' : childrenLength);
 
     const treeNode = tag('div', {
         'class': 'infinite-tree-node',

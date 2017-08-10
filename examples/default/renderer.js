@@ -4,7 +4,7 @@ import escapeHTML from 'escape-html';
 import tag from 'html5-tag';
 
 export default (node, treeOptions) => {
-    const { id, name, loadOnDemand = false, children, state } = node;
+    const { id, name, loadOnDemand = false, children, state, props = {} } = node;
     const droppable = treeOptions.droppable;
     const { depth, open, path, total, selected = false, filtered } = state;
     const childrenLength = Object.keys(children).length;
@@ -40,11 +40,20 @@ export default (node, treeOptions) => {
     }, togglerContent);
     const title = tag('span', {
         'class': classNames('infinite-tree-title')
-    }, escapeHTML(name));
+    }, escapeHTML(loadOnDemand ? '(loadOnDemand) ' + name : name));
+    const loadingIcon = tag('i', {
+        'style': 'margin-left: 5px',
+        'class': classNames(
+            { 'hidden': !state.loading },
+            'glyphicon',
+            'glyphicon-refresh',
+            { 'rotating': state.loading }
+        )
+    }, '');
     const treeNode = tag('div', {
         'class': 'infinite-tree-node',
         'style': `margin-left: ${depth * 18}px`
-    }, toggler + title);
+    }, toggler + title + loadingIcon);
 
     return tag('div', {
         'draggable': 'true',

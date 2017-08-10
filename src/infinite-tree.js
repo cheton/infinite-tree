@@ -7,6 +7,7 @@ import Clusterize from 'clusterize.js';
 import elementClass from 'element-class';
 import isDOM from 'is-dom';
 import { flatten, Node } from 'flattree';
+import ensureArray from './ensure-array';
 import { get } from './utilities';
 import LookupTable from './lookup-table';
 import { defaultRowRenderer } from './renderer';
@@ -15,6 +16,8 @@ import {
     addEventListener,
     removeEventListener
 } from './dom-events';
+
+const noop = () => {};
 
 const error = (format, ...args) => {
     let argIndex = 0;
@@ -150,7 +153,7 @@ class InfiniteTree extends events.EventEmitter {
 
                 // Click on the toggler to open/close a tree node
                 if (clickToggler) {
-                    this.toggleNode(node);
+                    this.toggleNode(node, { async: true });
                     return;
                 }
 
@@ -542,7 +545,11 @@ class InfiniteTree extends events.EventEmitter {
     // @param {boolean} [options.silent] Pass true to prevent "closeNode" and "selectNode" events from being triggered.
     // @return {boolean} Returns true on success, false otherwise.
     closeNode(node, options) {
-        const { silent = false } = { ...options };
+        const {
+            async = false,
+            asyncCallback = noop,
+            silent = false
+        } = { ...options };
 
         if (!ensureNodeInstance(node)) {
             return false;
@@ -562,49 +569,69 @@ class InfiniteTree extends events.EventEmitter {
             return false;
         }
 
-        // Keep selected node unchanged if "node" is equal to "this.state.selectedNode"
-        if (this.state.selectedNode && (this.state.selectedNode !== node)) {
-            // row #0 - node.0         => parent node (total=4)
-            // row #1   - node.0.0     => close this node; next selected node (total=2)
-            // row #2       node.0.0.0 => selected node (total=0)
-            // row #3       node.0.0.1
-            // row #4     node.0.1
-            const selectedIndex = this.nodes.indexOf(this.state.selectedNode);
-            const total = node.state.total;
-            const rangeFrom = nodeIndex + 1;
-            const rangeTo = nodeIndex + total;
-
-            if ((rangeFrom <= selectedIndex) && (selectedIndex <= rangeTo)) {
-                this.selectNode(node, options);
-            }
-        }
-
-        node.state.open = false; // Set the open state to false
-        const openNodes = this.state.openNodes.filter((node) => {
-            return node.hasChildren() && node.state.open;
-        });
-        this.state.openNodes = openNodes;
-
-        // Subtract total from ancestor nodes
-        const total = node.state.total;
-        for (let p = node; p !== null; p = p.parent) {
-            p.state.total = p.state.total - total;
-        }
-
-        // Update nodes & rows
-        this.nodes.splice(nodeIndex + 1, total);
-        this.rows.splice(nodeIndex + 1, total);
-
+        // Toggle the collapsing state
+        node.state.collapsing = true;
         // Update the row corresponding to the node
         this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
-
-        if (!silent) {
-            // Emit a "closeNode" event
-            this.emit('closeNode', node);
-        }
-
         // Update list
         this.update();
+
+        const fn = () => {
+            // Keep selected node unchanged if "node" is equal to "this.state.selectedNode"
+            if (this.state.selectedNode && (this.state.selectedNode !== node)) {
+                // row #0 - node.0         => parent node (total=4)
+                // row #1   - node.0.0     => close this node; next selected node (total=2)
+                // row #2       node.0.0.0 => selected node (total=0)
+                // row #3       node.0.0.1
+                // row #4     node.0.1
+                const selectedIndex = this.nodes.indexOf(this.state.selectedNode);
+                const total = node.state.total;
+                const rangeFrom = nodeIndex + 1;
+                const rangeTo = nodeIndex + total;
+
+                if ((rangeFrom <= selectedIndex) && (selectedIndex <= rangeTo)) {
+                    this.selectNode(node, options);
+                }
+            }
+
+            node.state.open = false; // Set the open state to false
+            const openNodes = this.state.openNodes.filter((node) => {
+                return node.hasChildren() && node.state.open;
+            });
+            this.state.openNodes = openNodes;
+
+            // Subtract total from ancestor nodes
+            const total = node.state.total;
+            for (let p = node; p !== null; p = p.parent) {
+                p.state.total = p.state.total - total;
+            }
+
+            // Update nodes & rows
+            this.nodes.splice(nodeIndex + 1, total);
+            this.rows.splice(nodeIndex + 1, total);
+
+            // Toggle the collapsing state
+            node.state.collapsing = false;
+            // Update the row corresponding to the node
+            this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
+            // Update list
+            this.update();
+
+            if (!silent) {
+                // Emit a "closeNode" event
+                this.emit('closeNode', node);
+            }
+
+            if (typeof asyncCallback === 'function') {
+                asyncCallback();
+            }
+        };
+
+        if (async) {
+            setTimeout(fn, 0);
+        } else {
+            fn();
+        }
 
         return true;
     }
@@ -915,7 +942,11 @@ class InfiniteTree extends events.EventEmitter {
     // @param {boolean} [options.silent] Pass true to prevent "openNode" event from being triggered.
     // @return {boolean} Returns true on success, false otherwise.
     openNode(node, options) {
-        const { silent = false } = { ...options };
+        const {
+            async = false,
+            asyncCallback = noop,
+            silent = false
+        } = { ...options };
 
         if (!ensureNodeInstance(node)) {
             return false;
@@ -945,84 +976,118 @@ class InfiniteTree extends events.EventEmitter {
                 return false;
             }
 
-            // Set loading state to true
+            // Toggle the loading state
             node.state.loading = true;
+            // Update the row corresponding to the node
             this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
-
             // Update list
             this.update();
 
-            this.options.loadNodes(node, (err, nodes) => {
-                // Set loading state to false
-                node.state.loading = false;
-                this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
+            // Do a setTimeout to prevent the CPU intensive task
+            setTimeout(() => {
+                this.options.loadNodes(node, (err, nodes) => {
+                    nodes = ensureArray(nodes);
 
-                // Update list
-                this.update();
+                    if (err || nodes.length === 0) {
+                        // Toggle the loading state
+                        node.state.loading = false;
+                        // Update the row corresponding to the node
+                        this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
+                        // Update list
+                        this.update();
+                        return;
+                    }
 
-                if (err) {
-                    return;
-                }
-                if (!nodes) {
-                    return;
-                }
+                    this.addChildNodes(nodes, node);
 
-                nodes = [].concat(nodes || []); // Ensure array
-                if (nodes.length === 0) {
-                    return;
-                }
-
-                // Append child nodes
-                nodes.forEach((childNode) => {
-                    this.appendChildNode(childNode, node);
+                    // Ensure the node has children to prevent infinite loop
+                    if (node.hasChildren()) {
+                        // Call openNode again
+                        this.openNode(node, {
+                            ...options,
+                            async: true,
+                            asyncCallback: () => {
+                                // Toggle the loading state
+                                node.state.loading = false;
+                                // Update the row corresponding to the node
+                                this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
+                                // Update list
+                                this.update();
+                            }
+                        });
+                    } else {
+                        // Toggle the loading state
+                        node.state.loading = false;
+                        // Update the row corresponding to the node
+                        this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
+                        // Update list
+                        this.update();
+                    }
                 });
-
-                // Ensure the node has children to prevent from infinite loop
-                if (node.hasChildren()) {
-                    // Call openNode again
-                    this.openNode(node, options);
-                }
-            });
+            }, 0);
 
             return true;
         }
 
-        node.state.open = true; // Set node.state.open to true
-        const openNodes = [node].concat(this.state.openNodes); // the most recently used items first
-        this.state.openNodes = openNodes;
-
-        const nodes = flatten(node.children, { openNodes: this.state.openNodes });
-        const rows = [];
-        // Update rows
-        rows.length = nodes.length;
-        for (let i = 0; i < nodes.length; ++i) {
-            const node = nodes[i];
-            rows[i] = this.options.rowRenderer(node, this.options);
-        }
-
-        // Update nodes & rows
-        this.nodes.splice.apply(this.nodes, [nodeIndex + 1, 0].concat(nodes));
-        this.rows.splice.apply(this.rows, [nodeIndex + 1, 0].concat(rows));
-
+        // Toggle the expanding state
+        node.state.expanding = true;
         // Update the row corresponding to the node
         this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
-
-        // Add all child nodes to the lookup table if the first child does not exist in the lookup table
-        if ((nodes.length > 0) && !(this.nodeTable.get(nodes[0]))) {
-            nodes.forEach((node) => {
-                if (node.id !== undefined) {
-                    this.nodeTable.set(node.id, node);
-                }
-            });
-        }
-
-        if (!silent) {
-            // Emit a "openNode" event
-            this.emit('openNode', node);
-        }
-
         // Update list
         this.update();
+
+        const fn = () => {
+            node.state.open = true; // Set node.state.open to true
+            const openNodes = [node].concat(this.state.openNodes); // the most recently used items first
+            this.state.openNodes = openNodes;
+
+            const nodes = flatten(node.children, { openNodes: this.state.openNodes });
+            const rows = [];
+            // Update rows
+            rows.length = nodes.length;
+            for (let i = 0; i < nodes.length; ++i) {
+                const node = nodes[i];
+                rows[i] = this.options.rowRenderer(node, this.options);
+            }
+
+            // Update nodes & rows
+            this.nodes.splice.apply(this.nodes, [nodeIndex + 1, 0].concat(nodes));
+            this.rows.splice.apply(this.rows, [nodeIndex + 1, 0].concat(rows));
+
+            // Update the row corresponding to the node
+            this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
+
+            // Add all child nodes to the lookup table if the first child does not exist in the lookup table
+            if ((nodes.length > 0) && !(this.nodeTable.get(nodes[0]))) {
+                nodes.forEach((node) => {
+                    if (node.id !== undefined) {
+                        this.nodeTable.set(node.id, node);
+                    }
+                });
+            }
+
+            // Toggle the expanding state
+            node.state.expanding = false;
+            // Update the row corresponding to the node
+            this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
+            // Update list
+            this.update();
+
+            if (!silent) {
+                // Emit a "openNode" event
+                this.emit('openNode', node);
+            }
+
+            if (typeof asyncCallback === 'function') {
+                asyncCallback();
+            }
+        };
+
+        if (async) {
+            setTimeout(fn, 0);
+        } else {
+            fn();
+        }
 
         return true;
     }
@@ -1276,13 +1341,13 @@ class InfiniteTree extends events.EventEmitter {
                 this.rows[selectedIndex] = this.options.rowRenderer(selectedNode, this.options);
                 this.state.selectedNode = null;
 
+                // Update list
+                this.update();
+
                 if (!silent) {
                     // Emit a "selectNode" event
                     this.emit('selectNode', null);
                 }
-
-                // Update list
-                this.update();
 
                 return true;
             }
