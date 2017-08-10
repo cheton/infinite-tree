@@ -1,4 +1,4 @@
-/*! infinite-tree v1.12.2 | (c) 2017 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
+/*! infinite-tree v1.12.3 | (c) 2017 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -74,7 +74,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 6);
+/******/ 	return __webpack_require__(__webpack_require__.s = 7);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -405,7 +405,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-var _events = __webpack_require__(12);
+var _events = __webpack_require__(13);
 
 var _events2 = _interopRequireDefault(_events);
 
@@ -413,27 +413,31 @@ var _classnames = __webpack_require__(0);
 
 var _classnames2 = _interopRequireDefault(_classnames);
 
-var _clusterize = __webpack_require__(10);
+var _clusterize = __webpack_require__(11);
 
 var _clusterize2 = _interopRequireDefault(_clusterize);
 
-var _elementClass = __webpack_require__(11);
+var _elementClass = __webpack_require__(12);
 
 var _elementClass2 = _interopRequireDefault(_elementClass);
 
-var _isDom = __webpack_require__(16);
+var _isDom = __webpack_require__(17);
 
 var _isDom2 = _interopRequireDefault(_isDom);
 
-var _flattree = __webpack_require__(14);
+var _flattree = __webpack_require__(15);
 
-var _utilities = __webpack_require__(9);
+var _ensureArray = __webpack_require__(6);
 
-var _lookupTable = __webpack_require__(7);
+var _ensureArray2 = _interopRequireDefault(_ensureArray);
+
+var _utilities = __webpack_require__(10);
+
+var _lookupTable = __webpack_require__(8);
 
 var _lookupTable2 = _interopRequireDefault(_lookupTable);
 
-var _renderer = __webpack_require__(8);
+var _renderer = __webpack_require__(9);
 
 var _domEvents = __webpack_require__(5);
 
@@ -447,6 +451,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 /* eslint operator-assignment: 0 */
 /* eslint prefer-spread: 0 */
 
+
+var noop = function noop() {};
 
 var error = function error(format) {
     for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
@@ -595,7 +601,7 @@ var InfiniteTree = function (_events$EventEmitter) {
 
                     // Click on the toggler to open/close a tree node
                     if (clickToggler) {
-                        _this.toggleNode(node);
+                        _this.toggleNode(node, { async: true });
                         return;
                     }
 
@@ -1000,7 +1006,13 @@ var InfiniteTree = function (_events$EventEmitter) {
 
 
     InfiniteTree.prototype.closeNode = function closeNode(node, options) {
+        var _this4 = this;
+
         var _options = _extends({}, options),
+            _options$async = _options.async,
+            async = _options$async === undefined ? false : _options$async,
+            _options$asyncCallbac = _options.asyncCallback,
+            asyncCallback = _options$asyncCallbac === undefined ? noop : _options$asyncCallbac,
             _options$silent = _options.silent,
             silent = _options$silent === undefined ? false : _options$silent;
 
@@ -1022,49 +1034,69 @@ var InfiniteTree = function (_events$EventEmitter) {
             return false;
         }
 
-        // Keep selected node unchanged if "node" is equal to "this.state.selectedNode"
-        if (this.state.selectedNode && this.state.selectedNode !== node) {
-            // row #0 - node.0         => parent node (total=4)
-            // row #1   - node.0.0     => close this node; next selected node (total=2)
-            // row #2       node.0.0.0 => selected node (total=0)
-            // row #3       node.0.0.1
-            // row #4     node.0.1
-            var selectedIndex = this.nodes.indexOf(this.state.selectedNode);
-            var _total = node.state.total;
-            var rangeFrom = nodeIndex + 1;
-            var rangeTo = nodeIndex + _total;
-
-            if (rangeFrom <= selectedIndex && selectedIndex <= rangeTo) {
-                this.selectNode(node, options);
-            }
-        }
-
-        node.state.open = false; // Set the open state to false
-        var openNodes = this.state.openNodes.filter(function (node) {
-            return node.hasChildren() && node.state.open;
-        });
-        this.state.openNodes = openNodes;
-
-        // Subtract total from ancestor nodes
-        var total = node.state.total;
-        for (var p = node; p !== null; p = p.parent) {
-            p.state.total = p.state.total - total;
-        }
-
-        // Update nodes & rows
-        this.nodes.splice(nodeIndex + 1, total);
-        this.rows.splice(nodeIndex + 1, total);
-
+        // Toggle the collapsing state
+        node.state.collapsing = true;
         // Update the row corresponding to the node
         this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
-
-        if (!silent) {
-            // Emit a "closeNode" event
-            this.emit('closeNode', node);
-        }
-
         // Update list
         this.update();
+
+        var fn = function fn() {
+            // Keep selected node unchanged if "node" is equal to "this.state.selectedNode"
+            if (_this4.state.selectedNode && _this4.state.selectedNode !== node) {
+                // row #0 - node.0         => parent node (total=4)
+                // row #1   - node.0.0     => close this node; next selected node (total=2)
+                // row #2       node.0.0.0 => selected node (total=0)
+                // row #3       node.0.0.1
+                // row #4     node.0.1
+                var selectedIndex = _this4.nodes.indexOf(_this4.state.selectedNode);
+                var _total = node.state.total;
+                var rangeFrom = nodeIndex + 1;
+                var rangeTo = nodeIndex + _total;
+
+                if (rangeFrom <= selectedIndex && selectedIndex <= rangeTo) {
+                    _this4.selectNode(node, options);
+                }
+            }
+
+            node.state.open = false; // Set the open state to false
+            var openNodes = _this4.state.openNodes.filter(function (node) {
+                return node.hasChildren() && node.state.open;
+            });
+            _this4.state.openNodes = openNodes;
+
+            // Subtract total from ancestor nodes
+            var total = node.state.total;
+            for (var p = node; p !== null; p = p.parent) {
+                p.state.total = p.state.total - total;
+            }
+
+            // Update nodes & rows
+            _this4.nodes.splice(nodeIndex + 1, total);
+            _this4.rows.splice(nodeIndex + 1, total);
+
+            // Toggle the collapsing state
+            node.state.collapsing = false;
+            // Update the row corresponding to the node
+            _this4.rows[nodeIndex] = _this4.options.rowRenderer(node, _this4.options);
+            // Update list
+            _this4.update();
+
+            if (!silent) {
+                // Emit a "closeNode" event
+                _this4.emit('closeNode', node);
+            }
+
+            if (typeof asyncCallback === 'function') {
+                asyncCallback();
+            }
+        };
+
+        if (async) {
+            setTimeout(fn, 0);
+        } else {
+            fn();
+        }
 
         return true;
     };
@@ -1340,7 +1372,7 @@ var InfiniteTree = function (_events$EventEmitter) {
 
 
     InfiniteTree.prototype.loadData = function loadData() {
-        var _this4 = this;
+        var _this5 = this;
 
         var data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
 
@@ -1369,7 +1401,7 @@ var InfiniteTree = function (_events$EventEmitter) {
         // Update the lookup table with newly added nodes
         this.flattenChildNodes(this.state.rootNode).forEach(function (node) {
             if (node.id !== undefined) {
-                _this4.nodeTable.set(node.id, node);
+                _this5.nodeTable.set(node.id, node);
             }
         });
 
@@ -1412,9 +1444,13 @@ var InfiniteTree = function (_events$EventEmitter) {
 
 
     InfiniteTree.prototype.openNode = function openNode(node, options) {
-        var _this5 = this;
+        var _this6 = this;
 
         var _options2 = _extends({}, options),
+            _options2$async = _options2.async,
+            async = _options2$async === undefined ? false : _options2$async,
+            _options2$asyncCallba = _options2.asyncCallback,
+            asyncCallback = _options2$asyncCallba === undefined ? noop : _options2$asyncCallba,
             _options2$silent = _options2.silent,
             silent = _options2$silent === undefined ? false : _options2$silent;
 
@@ -1446,84 +1482,117 @@ var InfiniteTree = function (_events$EventEmitter) {
                 return false;
             }
 
-            // Set loading state to true
+            // Toggle the loading state
             node.state.loading = true;
+            // Update the row corresponding to the node
             this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
-
             // Update list
             this.update();
 
-            this.options.loadNodes(node, function (err, nodes) {
-                // Set loading state to false
-                node.state.loading = false;
-                _this5.rows[nodeIndex] = _this5.options.rowRenderer(node, _this5.options);
+            // Do a setTimeout to prevent the CPU intensive task
+            setTimeout(function () {
+                _this6.options.loadNodes(node, function (err, nodes) {
+                    nodes = (0, _ensureArray2['default'])(nodes);
 
-                // Update list
-                _this5.update();
+                    if (err || nodes.length === 0) {
+                        // Toggle the loading state
+                        node.state.loading = false;
+                        // Update the row corresponding to the node
+                        _this6.rows[nodeIndex] = _this6.options.rowRenderer(node, _this6.options);
+                        // Update list
+                        _this6.update();
+                        return;
+                    }
 
-                if (err) {
-                    return;
-                }
-                if (!nodes) {
-                    return;
-                }
+                    _this6.addChildNodes(nodes, node);
 
-                nodes = [].concat(nodes || []); // Ensure array
-                if (nodes.length === 0) {
-                    return;
-                }
-
-                // Append child nodes
-                nodes.forEach(function (childNode) {
-                    _this5.appendChildNode(childNode, node);
+                    // Ensure the node has children to prevent infinite loop
+                    if (node.hasChildren()) {
+                        // Call openNode again
+                        _this6.openNode(node, _extends({}, options, {
+                            async: true,
+                            asyncCallback: function asyncCallback() {
+                                // Toggle the loading state
+                                node.state.loading = false;
+                                // Update the row corresponding to the node
+                                _this6.rows[nodeIndex] = _this6.options.rowRenderer(node, _this6.options);
+                                // Update list
+                                _this6.update();
+                            }
+                        }));
+                    } else {
+                        // Toggle the loading state
+                        node.state.loading = false;
+                        // Update the row corresponding to the node
+                        _this6.rows[nodeIndex] = _this6.options.rowRenderer(node, _this6.options);
+                        // Update list
+                        _this6.update();
+                    }
                 });
-
-                // Ensure the node has children to prevent from infinite loop
-                if (node.hasChildren()) {
-                    // Call openNode again
-                    _this5.openNode(node, options);
-                }
-            });
+            }, 0);
 
             return true;
         }
 
-        node.state.open = true; // Set node.state.open to true
-        var openNodes = [node].concat(this.state.openNodes); // the most recently used items first
-        this.state.openNodes = openNodes;
-
-        var nodes = (0, _flattree.flatten)(node.children, { openNodes: this.state.openNodes });
-        var rows = [];
-        // Update rows
-        rows.length = nodes.length;
-        for (var i = 0; i < nodes.length; ++i) {
-            var _node = nodes[i];
-            rows[i] = this.options.rowRenderer(_node, this.options);
-        }
-
-        // Update nodes & rows
-        this.nodes.splice.apply(this.nodes, [nodeIndex + 1, 0].concat(nodes));
-        this.rows.splice.apply(this.rows, [nodeIndex + 1, 0].concat(rows));
-
+        // Toggle the expanding state
+        node.state.expanding = true;
         // Update the row corresponding to the node
         this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
-
-        // Add all child nodes to the lookup table if the first child does not exist in the lookup table
-        if (nodes.length > 0 && !this.nodeTable.get(nodes[0])) {
-            nodes.forEach(function (node) {
-                if (node.id !== undefined) {
-                    _this5.nodeTable.set(node.id, node);
-                }
-            });
-        }
-
-        if (!silent) {
-            // Emit a "openNode" event
-            this.emit('openNode', node);
-        }
-
         // Update list
         this.update();
+
+        var fn = function fn() {
+            node.state.open = true; // Set node.state.open to true
+            var openNodes = [node].concat(_this6.state.openNodes); // the most recently used items first
+            _this6.state.openNodes = openNodes;
+
+            var nodes = (0, _flattree.flatten)(node.children, { openNodes: _this6.state.openNodes });
+            var rows = [];
+            // Update rows
+            rows.length = nodes.length;
+            for (var i = 0; i < nodes.length; ++i) {
+                var _node = nodes[i];
+                rows[i] = _this6.options.rowRenderer(_node, _this6.options);
+            }
+
+            // Update nodes & rows
+            _this6.nodes.splice.apply(_this6.nodes, [nodeIndex + 1, 0].concat(nodes));
+            _this6.rows.splice.apply(_this6.rows, [nodeIndex + 1, 0].concat(rows));
+
+            // Update the row corresponding to the node
+            _this6.rows[nodeIndex] = _this6.options.rowRenderer(node, _this6.options);
+
+            // Add all child nodes to the lookup table if the first child does not exist in the lookup table
+            if (nodes.length > 0 && !_this6.nodeTable.get(nodes[0])) {
+                nodes.forEach(function (node) {
+                    if (node.id !== undefined) {
+                        _this6.nodeTable.set(node.id, node);
+                    }
+                });
+            }
+
+            // Toggle the expanding state
+            node.state.expanding = false;
+            // Update the row corresponding to the node
+            _this6.rows[nodeIndex] = _this6.options.rowRenderer(node, _this6.options);
+            // Update list
+            _this6.update();
+
+            if (!silent) {
+                // Emit a "openNode" event
+                _this6.emit('openNode', node);
+            }
+
+            if (typeof asyncCallback === 'function') {
+                asyncCallback();
+            }
+        };
+
+        if (async) {
+            setTimeout(fn, 0);
+        } else {
+            fn();
+        }
 
         return true;
     };
@@ -1535,7 +1604,7 @@ var InfiniteTree = function (_events$EventEmitter) {
 
 
     InfiniteTree.prototype.removeChildNodes = function removeChildNodes(parentNode, options) {
-        var _this6 = this;
+        var _this7 = this;
 
         if (!ensureNodeInstance(parentNode)) {
             return false;
@@ -1602,7 +1671,7 @@ var InfiniteTree = function (_events$EventEmitter) {
             });
 
             removedNodes.forEach(function (node) {
-                _this6.nodeTable.unset(node.id);
+                _this7.nodeTable.unset(node.id);
             });
         }
 
@@ -1619,7 +1688,7 @@ var InfiniteTree = function (_events$EventEmitter) {
 
 
     InfiniteTree.prototype.removeNode = function removeNode(node, options) {
-        var _this7 = this;
+        var _this8 = this;
 
         if (!ensureNodeInstance(node)) {
             return false;
@@ -1693,7 +1762,7 @@ var InfiniteTree = function (_events$EventEmitter) {
             });
 
             removedNodes.forEach(function (node) {
-                _this7.nodeTable.unset(node.id);
+                _this8.nodeTable.unset(node.id);
             });
         }
 
@@ -1802,13 +1871,13 @@ var InfiniteTree = function (_events$EventEmitter) {
                 this.rows[selectedIndex] = this.options.rowRenderer(selectedNode, this.options);
                 this.state.selectedNode = null;
 
+                // Update list
+                this.update();
+
                 if (!silent) {
                     // Emit a "selectNode" event
                     this.emit('selectNode', null);
                 }
-
-                // Update list
-                this.update();
 
                 return true;
             }
@@ -2160,6 +2229,30 @@ exports.removeEventListener = removeEventListener;
 "use strict";
 
 
+exports.__esModule = true;
+var ensureArray = function ensureArray() {
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
+    }
+
+    if (args.length === 0 || args[0] === undefined || args[0] === null) {
+        return [];
+    }
+    if (args.length === 1) {
+        return [].concat(args[0]);
+    }
+    return [].concat(args);
+};
+
+exports["default"] = ensureArray;
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
 var _infiniteTree = __webpack_require__(4);
 
 var _infiniteTree2 = _interopRequireDefault(_infiniteTree);
@@ -2169,7 +2262,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 module.exports = _infiniteTree2['default'];
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2215,7 +2308,7 @@ var LookupTable = function () {
 exports["default"] = LookupTable;
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2232,7 +2325,7 @@ var _escapeHtml = __webpack_require__(1);
 
 var _escapeHtml2 = _interopRequireDefault(_escapeHtml);
 
-var _html5Tag = __webpack_require__(15);
+var _html5Tag = __webpack_require__(16);
 
 var _html5Tag2 = _interopRequireDefault(_html5Tag);
 
@@ -2309,7 +2402,7 @@ var defaultRowRenderer = function defaultRowRenderer(node, treeOptions) {
 exports.defaultRowRenderer = defaultRowRenderer;
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2370,7 +2463,7 @@ var get = exports.get = function () {
 }();
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*! Clusterize.js - v0.17.6 - 2017-03-05
@@ -2704,7 +2797,7 @@ var get = exports.get = function () {
 }));
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports) {
 
 module.exports = function(opts) {
@@ -2769,7 +2862,7 @@ ElementClass.prototype.toggle = function(className) {
 
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports) {
 
 // Copyright Joyent, Inc. and other Node contributors.
@@ -3077,7 +3170,7 @@ function isUndefined(arg) {
 
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3282,7 +3375,7 @@ var flatten = function flatten() {
 exports['default'] = flatten;
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3291,7 +3384,7 @@ exports['default'] = flatten;
 exports.__esModule = true;
 exports.Node = exports.flatten = undefined;
 
-var _flatten = __webpack_require__(13);
+var _flatten = __webpack_require__(14);
 
 var _flatten2 = _interopRequireDefault(_flatten);
 
@@ -3306,7 +3399,7 @@ exports.flatten = _flatten2['default'];
 exports.Node = _node2['default'];
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3362,7 +3455,7 @@ module.exports = function (tag, attrs, text) {
 };
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, exports) {
 
 module.exports = isNode
