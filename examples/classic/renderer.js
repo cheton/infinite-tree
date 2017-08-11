@@ -30,7 +30,6 @@ const renderer = (node, treeOptions) => {
         }, '');
     }
     if (state.expanding && !state.loading) {
-        console.log('## state:', state.expanding, state.loading);
         togglerContent = tag('i', {
             'class': classNames('glyphicon', 'glyphicon-refresh', 'rotating')
         }, '');
