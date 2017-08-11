@@ -89,7 +89,8 @@ const tree = new InfiniteTree(document.querySelector('#classic [data-id="tree"]'
         for (let i = 0; i < count; ++i) {
             nodes[i] = {
                 id: `node-${i}-${suffix}`,
-                name: `${parentNode.name} - #${i + 1}`
+                name: `${parentNode.name} - #${i + 1}`,
+                loadOnDemand: true
             };
         }
 
