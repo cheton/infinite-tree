@@ -1,4 +1,4 @@
-/*! infinite-tree v1.12.3 | (c) 2017 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
+/*! infinite-tree v1.12.4 | (c) 2017 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -17,9 +17,9 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	function __webpack_require__(moduleId) {
 /******/
 /******/ 		// Check if module is in cache
-/******/ 		if(installedModules[moduleId])
+/******/ 		if(installedModules[moduleId]) {
 /******/ 			return installedModules[moduleId].exports;
-/******/
+/******/ 		}
 /******/ 		// Create a new module (and put it into the cache)
 /******/ 		var module = installedModules[moduleId] = {
 /******/ 			i: moduleId,
@@ -43,9 +43,6 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/
 /******/ 	// expose the module cache
 /******/ 	__webpack_require__.c = installedModules;
-/******/
-/******/ 	// identity function for calling harmony imports with the correct context
-/******/ 	__webpack_require__.i = function(value) { return value; };
 /******/
 /******/ 	// define getter function for harmony exports
 /******/ 	__webpack_require__.d = function(exports, name, getter) {
@@ -74,7 +71,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 7);
+/******/ 	return __webpack_require__(__webpack_require__.s = 4);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -137,91 +134,6 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/*!
- * escape-html
- * Copyright(c) 2012-2013 TJ Holowaychuk
- * Copyright(c) 2015 Andreas Lubbe
- * Copyright(c) 2015 Tiancheng "Timothy" Gu
- * MIT Licensed
- */
-
-
-
-/**
- * Module variables.
- * @private
- */
-
-var matchHtmlRegExp = /["'&<>]/;
-
-/**
- * Module exports.
- * @public
- */
-
-module.exports = escapeHtml;
-
-/**
- * Escape special characters in the given string of html.
- *
- * @param  {string} string The string to escape for inserting into HTML
- * @return {string}
- * @public
- */
-
-function escapeHtml(string) {
-  var str = '' + string;
-  var match = matchHtmlRegExp.exec(str);
-
-  if (!match) {
-    return str;
-  }
-
-  var escape;
-  var html = '';
-  var index = 0;
-  var lastIndex = 0;
-
-  for (index = match.index; index < str.length; index++) {
-    switch (str.charCodeAt(index)) {
-      case 34: // "
-        escape = '&quot;';
-        break;
-      case 38: // &
-        escape = '&amp;';
-        break;
-      case 39: // '
-        escape = '&#39;';
-        break;
-      case 60: // <
-        escape = '&lt;';
-        break;
-      case 62: // >
-        escape = '&gt;';
-        break;
-      default:
-        continue;
-    }
-
-    if (lastIndex !== index) {
-      html += str.substring(lastIndex, index);
-    }
-
-    lastIndex = index + 1;
-    html += escape;
-  }
-
-  return lastIndex !== index
-    ? html + str.substring(lastIndex, index)
-    : html;
-}
-
-
-/***/ }),
-/* 2 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
 
 
 exports.__esModule = true;
@@ -252,7 +164,7 @@ var extend = function extend(target) {
 exports['default'] = extend;
 
 /***/ }),
-/* 3 */
+/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -260,7 +172,7 @@ exports['default'] = extend;
 
 exports.__esModule = true;
 
-var _extend = __webpack_require__(2);
+var _extend = __webpack_require__(1);
 
 var _extend2 = _interopRequireDefault(_extend);
 
@@ -393,7 +305,107 @@ var Node = function () {
 exports['default'] = Node;
 
 /***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/*!
+ * escape-html
+ * Copyright(c) 2012-2013 TJ Holowaychuk
+ * Copyright(c) 2015 Andreas Lubbe
+ * Copyright(c) 2015 Tiancheng "Timothy" Gu
+ * MIT Licensed
+ */
+
+
+
+/**
+ * Module variables.
+ * @private
+ */
+
+var matchHtmlRegExp = /["'&<>]/;
+
+/**
+ * Module exports.
+ * @public
+ */
+
+module.exports = escapeHtml;
+
+/**
+ * Escape special characters in the given string of html.
+ *
+ * @param  {string} string The string to escape for inserting into HTML
+ * @return {string}
+ * @public
+ */
+
+function escapeHtml(string) {
+  var str = '' + string;
+  var match = matchHtmlRegExp.exec(str);
+
+  if (!match) {
+    return str;
+  }
+
+  var escape;
+  var html = '';
+  var index = 0;
+  var lastIndex = 0;
+
+  for (index = match.index; index < str.length; index++) {
+    switch (str.charCodeAt(index)) {
+      case 34: // "
+        escape = '&quot;';
+        break;
+      case 38: // &
+        escape = '&amp;';
+        break;
+      case 39: // '
+        escape = '&#39;';
+        break;
+      case 60: // <
+        escape = '&lt;';
+        break;
+      case 62: // >
+        escape = '&gt;';
+        break;
+      default:
+        continue;
+    }
+
+    if (lastIndex !== index) {
+      html += str.substring(lastIndex, index);
+    }
+
+    lastIndex = index + 1;
+    html += escape;
+  }
+
+  return lastIndex !== index
+    ? html + str.substring(lastIndex, index)
+    : html;
+}
+
+
+/***/ }),
 /* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _infiniteTree = __webpack_require__(5);
+
+var _infiniteTree2 = _interopRequireDefault(_infiniteTree);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+module.exports = _infiniteTree2['default'];
+
+/***/ }),
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -405,7 +417,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-var _events = __webpack_require__(13);
+var _events = __webpack_require__(6);
 
 var _events2 = _interopRequireDefault(_events);
 
@@ -413,33 +425,33 @@ var _classnames = __webpack_require__(0);
 
 var _classnames2 = _interopRequireDefault(_classnames);
 
-var _clusterize = __webpack_require__(11);
+var _clusterize = __webpack_require__(7);
 
 var _clusterize2 = _interopRequireDefault(_clusterize);
 
-var _elementClass = __webpack_require__(12);
+var _elementClass = __webpack_require__(8);
 
 var _elementClass2 = _interopRequireDefault(_elementClass);
 
-var _isDom = __webpack_require__(17);
+var _isDom = __webpack_require__(9);
 
 var _isDom2 = _interopRequireDefault(_isDom);
 
-var _flattree = __webpack_require__(15);
+var _flattree = __webpack_require__(10);
 
-var _ensureArray = __webpack_require__(6);
+var _ensureArray = __webpack_require__(12);
 
 var _ensureArray2 = _interopRequireDefault(_ensureArray);
 
-var _utilities = __webpack_require__(10);
+var _utilities = __webpack_require__(13);
 
-var _lookupTable = __webpack_require__(8);
+var _lookupTable = __webpack_require__(14);
 
 var _lookupTable2 = _interopRequireDefault(_lookupTable);
 
-var _renderer = __webpack_require__(9);
+var _renderer = __webpack_require__(15);
 
-var _domEvents = __webpack_require__(5);
+var _domEvents = __webpack_require__(17);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -449,7 +461,6 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } /* eslint no-continue: 0 */
 /* eslint operator-assignment: 0 */
-/* eslint prefer-spread: 0 */
 
 
 var noop = function noop() {};
@@ -1492,6 +1503,8 @@ var InfiniteTree = function (_events$EventEmitter) {
             // Do a setTimeout to prevent the CPU intensive task
             setTimeout(function () {
                 _this6.options.loadNodes(node, function (err, nodes) {
+                    var done = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : noop;
+
                     nodes = (0, _ensureArray2['default'])(nodes);
 
                     if (err || nodes.length === 0) {
@@ -1501,6 +1514,10 @@ var InfiniteTree = function (_events$EventEmitter) {
                         _this6.rows[nodeIndex] = _this6.options.rowRenderer(node, _this6.options);
                         // Update list
                         _this6.update();
+
+                        if (typeof done === 'function') {
+                            done();
+                        }
                         return;
                     }
 
@@ -1518,6 +1535,10 @@ var InfiniteTree = function (_events$EventEmitter) {
                                 _this6.rows[nodeIndex] = _this6.options.rowRenderer(node, _this6.options);
                                 // Update list
                                 _this6.update();
+
+                                if (typeof done === 'function') {
+                                    done();
+                                }
                             }
                         }));
                     } else {
@@ -1527,6 +1548,10 @@ var InfiniteTree = function (_events$EventEmitter) {
                         _this6.rows[nodeIndex] = _this6.options.rowRenderer(node, _this6.options);
                         // Update list
                         _this6.update();
+
+                        if (typeof done === 'function') {
+                            done();
+                        }
                     }
                 });
             }, 0);
@@ -2170,300 +2195,315 @@ var InfiniteTree = function (_events$EventEmitter) {
 exports['default'] = InfiniteTree;
 
 /***/ }),
-/* 5 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-exports.__esModule = true;
-var preventDefault = function preventDefault(e) {
-    if (typeof e.preventDefault !== 'undefined') {
-        e.preventDefault();
-    } else {
-        e.returnValue = false;
-    }
-};
-
-var stopPropagation = function stopPropagation(e) {
-    if (typeof e.stopPropagation !== 'undefined') {
-        e.stopPropagation();
-    } else {
-        e.cancelBubble = true;
-    }
-};
-
-// https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener#Compatibility
-var addEventListener = function addEventListener(target, type, listener) {
-    if (target.addEventListener) {
-        // Standard
-        target.addEventListener(type, listener, false);
-    } else if (target.attachEvent) {
-        // IE8
-        // In Internet Explorer versions before IE 9, you have to use attachEvent rather than the standard addEventListener.
-        target.attachEvent('on' + type, listener);
-    }
-};
-
-// https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/removeEventListener
-var removeEventListener = function removeEventListener(target, type, listener) {
-    if (target.removeEventListener) {
-        // Standard
-        target.removeEventListener(type, listener, false);
-    } else if (target.detachEvent) {
-        // IE8
-        // In Internet Explorer versions before IE 9, you have to use detachEvent rather than the standard removeEventListener.
-        target.detachEvent('on' + type, listener);
-    }
-};
-
-exports.preventDefault = preventDefault;
-exports.stopPropagation = stopPropagation;
-exports.addEventListener = addEventListener;
-exports.removeEventListener = removeEventListener;
-
-/***/ }),
 /* 6 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ (function(module, exports) {
 
-"use strict";
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+function EventEmitter() {
+  this._events = this._events || {};
+  this._maxListeners = this._maxListeners || undefined;
+}
+module.exports = EventEmitter;
 
-exports.__esModule = true;
-var ensureArray = function ensureArray() {
-    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-        args[_key] = arguments[_key];
-    }
+// Backwards-compat with node 0.10.x
+EventEmitter.EventEmitter = EventEmitter;
 
-    if (args.length === 0 || args[0] === undefined || args[0] === null) {
-        return [];
-    }
-    if (args.length === 1) {
-        return [].concat(args[0]);
-    }
-    return [].concat(args);
+EventEmitter.prototype._events = undefined;
+EventEmitter.prototype._maxListeners = undefined;
+
+// By default EventEmitters will print a warning if more than 10 listeners are
+// added to it. This is a useful default which helps finding memory leaks.
+EventEmitter.defaultMaxListeners = 10;
+
+// Obviously not all Emitters should be limited to 10. This function allows
+// that to be increased. Set to zero for unlimited.
+EventEmitter.prototype.setMaxListeners = function(n) {
+  if (!isNumber(n) || n < 0 || isNaN(n))
+    throw TypeError('n must be a positive number');
+  this._maxListeners = n;
+  return this;
 };
 
-exports["default"] = ensureArray;
+EventEmitter.prototype.emit = function(type) {
+  var er, handler, len, args, i, listeners;
+
+  if (!this._events)
+    this._events = {};
+
+  // If there is no 'error' event listener then throw.
+  if (type === 'error') {
+    if (!this._events.error ||
+        (isObject(this._events.error) && !this._events.error.length)) {
+      er = arguments[1];
+      if (er instanceof Error) {
+        throw er; // Unhandled 'error' event
+      } else {
+        // At least give some kind of context to the user
+        var err = new Error('Uncaught, unspecified "error" event. (' + er + ')');
+        err.context = er;
+        throw err;
+      }
+    }
+  }
+
+  handler = this._events[type];
+
+  if (isUndefined(handler))
+    return false;
+
+  if (isFunction(handler)) {
+    switch (arguments.length) {
+      // fast cases
+      case 1:
+        handler.call(this);
+        break;
+      case 2:
+        handler.call(this, arguments[1]);
+        break;
+      case 3:
+        handler.call(this, arguments[1], arguments[2]);
+        break;
+      // slower
+      default:
+        args = Array.prototype.slice.call(arguments, 1);
+        handler.apply(this, args);
+    }
+  } else if (isObject(handler)) {
+    args = Array.prototype.slice.call(arguments, 1);
+    listeners = handler.slice();
+    len = listeners.length;
+    for (i = 0; i < len; i++)
+      listeners[i].apply(this, args);
+  }
+
+  return true;
+};
+
+EventEmitter.prototype.addListener = function(type, listener) {
+  var m;
+
+  if (!isFunction(listener))
+    throw TypeError('listener must be a function');
+
+  if (!this._events)
+    this._events = {};
+
+  // To avoid recursion in the case that type === "newListener"! Before
+  // adding it to the listeners, first emit "newListener".
+  if (this._events.newListener)
+    this.emit('newListener', type,
+              isFunction(listener.listener) ?
+              listener.listener : listener);
+
+  if (!this._events[type])
+    // Optimize the case of one listener. Don't need the extra array object.
+    this._events[type] = listener;
+  else if (isObject(this._events[type]))
+    // If we've already got an array, just append.
+    this._events[type].push(listener);
+  else
+    // Adding the second element, need to change to array.
+    this._events[type] = [this._events[type], listener];
+
+  // Check for listener leak
+  if (isObject(this._events[type]) && !this._events[type].warned) {
+    if (!isUndefined(this._maxListeners)) {
+      m = this._maxListeners;
+    } else {
+      m = EventEmitter.defaultMaxListeners;
+    }
+
+    if (m && m > 0 && this._events[type].length > m) {
+      this._events[type].warned = true;
+      console.error('(node) warning: possible EventEmitter memory ' +
+                    'leak detected. %d listeners added. ' +
+                    'Use emitter.setMaxListeners() to increase limit.',
+                    this._events[type].length);
+      if (typeof console.trace === 'function') {
+        // not supported in IE 10
+        console.trace();
+      }
+    }
+  }
+
+  return this;
+};
+
+EventEmitter.prototype.on = EventEmitter.prototype.addListener;
+
+EventEmitter.prototype.once = function(type, listener) {
+  if (!isFunction(listener))
+    throw TypeError('listener must be a function');
+
+  var fired = false;
+
+  function g() {
+    this.removeListener(type, g);
+
+    if (!fired) {
+      fired = true;
+      listener.apply(this, arguments);
+    }
+  }
+
+  g.listener = listener;
+  this.on(type, g);
+
+  return this;
+};
+
+// emits a 'removeListener' event iff the listener was removed
+EventEmitter.prototype.removeListener = function(type, listener) {
+  var list, position, length, i;
+
+  if (!isFunction(listener))
+    throw TypeError('listener must be a function');
+
+  if (!this._events || !this._events[type])
+    return this;
+
+  list = this._events[type];
+  length = list.length;
+  position = -1;
+
+  if (list === listener ||
+      (isFunction(list.listener) && list.listener === listener)) {
+    delete this._events[type];
+    if (this._events.removeListener)
+      this.emit('removeListener', type, listener);
+
+  } else if (isObject(list)) {
+    for (i = length; i-- > 0;) {
+      if (list[i] === listener ||
+          (list[i].listener && list[i].listener === listener)) {
+        position = i;
+        break;
+      }
+    }
+
+    if (position < 0)
+      return this;
+
+    if (list.length === 1) {
+      list.length = 0;
+      delete this._events[type];
+    } else {
+      list.splice(position, 1);
+    }
+
+    if (this._events.removeListener)
+      this.emit('removeListener', type, listener);
+  }
+
+  return this;
+};
+
+EventEmitter.prototype.removeAllListeners = function(type) {
+  var key, listeners;
+
+  if (!this._events)
+    return this;
+
+  // not listening for removeListener, no need to emit
+  if (!this._events.removeListener) {
+    if (arguments.length === 0)
+      this._events = {};
+    else if (this._events[type])
+      delete this._events[type];
+    return this;
+  }
+
+  // emit removeListener for all listeners on all events
+  if (arguments.length === 0) {
+    for (key in this._events) {
+      if (key === 'removeListener') continue;
+      this.removeAllListeners(key);
+    }
+    this.removeAllListeners('removeListener');
+    this._events = {};
+    return this;
+  }
+
+  listeners = this._events[type];
+
+  if (isFunction(listeners)) {
+    this.removeListener(type, listeners);
+  } else if (listeners) {
+    // LIFO order
+    while (listeners.length)
+      this.removeListener(type, listeners[listeners.length - 1]);
+  }
+  delete this._events[type];
+
+  return this;
+};
+
+EventEmitter.prototype.listeners = function(type) {
+  var ret;
+  if (!this._events || !this._events[type])
+    ret = [];
+  else if (isFunction(this._events[type]))
+    ret = [this._events[type]];
+  else
+    ret = this._events[type].slice();
+  return ret;
+};
+
+EventEmitter.prototype.listenerCount = function(type) {
+  if (this._events) {
+    var evlistener = this._events[type];
+
+    if (isFunction(evlistener))
+      return 1;
+    else if (evlistener)
+      return evlistener.length;
+  }
+  return 0;
+};
+
+EventEmitter.listenerCount = function(emitter, type) {
+  return emitter.listenerCount(type);
+};
+
+function isFunction(arg) {
+  return typeof arg === 'function';
+}
+
+function isNumber(arg) {
+  return typeof arg === 'number';
+}
+
+function isObject(arg) {
+  return typeof arg === 'object' && arg !== null;
+}
+
+function isUndefined(arg) {
+  return arg === void 0;
+}
+
 
 /***/ }),
 /* 7 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _infiniteTree = __webpack_require__(4);
-
-var _infiniteTree2 = _interopRequireDefault(_infiniteTree);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-module.exports = _infiniteTree2['default'];
-
-/***/ }),
-/* 8 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-exports.__esModule = true;
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var LookupTable = function () {
-    function LookupTable() {
-        _classCallCheck(this, LookupTable);
-
-        this.data = {};
-    }
-
-    LookupTable.prototype.clear = function clear() {
-        this.data = {};
-    };
-
-    LookupTable.prototype.get = function get(key) {
-        return this.data[key];
-    };
-
-    LookupTable.prototype.has = function has(key) {
-        return this.data[key] !== undefined;
-    };
-
-    LookupTable.prototype.set = function set(key, value) {
-        this.data[key] = value;
-        return value;
-    };
-
-    LookupTable.prototype.unset = function unset(key) {
-        if (this.data[key] !== undefined) {
-            delete this.data[key];
-        }
-    };
-
-    return LookupTable;
-}();
-
-exports["default"] = LookupTable;
-
-/***/ }),
-/* 9 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-exports.__esModule = true;
-exports.defaultRowRenderer = undefined;
-
-var _classnames = __webpack_require__(0);
-
-var _classnames2 = _interopRequireDefault(_classnames);
-
-var _escapeHtml = __webpack_require__(1);
-
-var _escapeHtml2 = _interopRequireDefault(_escapeHtml);
-
-var _html5Tag = __webpack_require__(16);
-
-var _html5Tag2 = _interopRequireDefault(_html5Tag);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var defaultRowRenderer = function defaultRowRenderer(node, treeOptions) {
-    var id = node.id,
-        name = node.name,
-        _node$loadOnDemand = node.loadOnDemand,
-        loadOnDemand = _node$loadOnDemand === undefined ? false : _node$loadOnDemand,
-        children = node.children,
-        state = node.state;
-
-    var droppable = treeOptions.droppable;
-    var depth = state.depth,
-        open = state.open,
-        path = state.path,
-        total = state.total,
-        _state$selected = state.selected,
-        selected = _state$selected === undefined ? false : _state$selected,
-        filtered = state.filtered;
-
-    var childrenLength = Object.keys(children).length;
-    var more = node.hasChildren();
-
-    if (filtered === false) {
-        return '';
-    }
-
-    var togglerContent = '';
-    if (!more && loadOnDemand) {
-        togglerContent = '►';
-    }
-    if (more && open) {
-        togglerContent = '▼';
-    }
-    if (more && !open) {
-        togglerContent = '►';
-    }
-    var toggler = (0, _html5Tag2['default'])('a', {
-        'class': function () {
-            if (!more && loadOnDemand) {
-                return (0, _classnames2['default'])(treeOptions.togglerClass, 'infinite-tree-closed');
-            }
-            if (more && open) {
-                return (0, _classnames2['default'])(treeOptions.togglerClass);
-            }
-            if (more && !open) {
-                return (0, _classnames2['default'])(treeOptions.togglerClass, 'infinite-tree-closed');
-            }
-            return '';
-        }()
-    }, togglerContent);
-    var title = (0, _html5Tag2['default'])('span', {
-        'class': (0, _classnames2['default'])('infinite-tree-title')
-    }, (0, _escapeHtml2['default'])(name));
-    var treeNode = (0, _html5Tag2['default'])('div', {
-        'class': 'infinite-tree-node',
-        'style': 'margin-left: ' + depth * 18 + 'px'
-    }, toggler + title);
-
-    return (0, _html5Tag2['default'])('div', {
-        'data-id': id,
-        'data-expanded': more && open,
-        'data-depth': depth,
-        'data-path': path,
-        'data-selected': selected,
-        'data-children': childrenLength,
-        'data-total': total,
-        'class': (0, _classnames2['default'])('infinite-tree-item', { 'infinite-tree-selected': selected }),
-        'droppable': droppable
-    }, treeNode);
-}; /* eslint import/prefer-default-export: 0 */
-exports.defaultRowRenderer = defaultRowRenderer;
-
-/***/ }),
-/* 10 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-exports.__esModule = true;
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-var trim = exports.trim = function trim(str) {
-    var chars = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : ' \f\n\r\t\v';
-
-    while (chars.indexOf(str[0]) >= 0) {
-        str = str.slice(1);
-    }
-    while (chars.indexOf(str[str.length - 1]) >= 0) {
-        str = str.slice(0, -1);
-    }
-    return str;
-};
-
-var get = exports.get = function () {
-    var re = new RegExp(/[\w\-]+|\[[^\]]*\]+/g);
-
-    return function (object, path, defaultValue) {
-        if (!object || (typeof object === 'undefined' ? 'undefined' : _typeof(object)) !== 'object') {
-            return defaultValue;
-        }
-
-        path = '' + path;
-
-        var keys = path.match(re);
-        if (!keys) {
-            return defaultValue;
-        }
-
-        for (var i = 0; i < keys.length; i++) {
-            var key = keys[i];
-            key = trim(key, ' \f\n\r\t\v');
-            if (key[0] === '[') {
-                key = trim(key.slice(1, -1), ' \f\n\r\t\v');
-            }
-            key = trim(key, '\'"');
-
-            if (object === undefined || object === null || (typeof object === 'undefined' ? 'undefined' : _typeof(object)) !== 'object') {
-                break;
-            }
-
-            object = object[key];
-
-            if (object === undefined) {
-                break;
-            }
-        }
-
-        return object !== undefined ? object : defaultValue;
-    };
-}();
-
-/***/ }),
-/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*! Clusterize.js - v0.17.6 - 2017-03-05
@@ -2797,7 +2837,7 @@ var get = exports.get = function () {
 }));
 
 /***/ }),
-/* 12 */
+/* 8 */
 /***/ (function(module, exports) {
 
 module.exports = function(opts) {
@@ -2862,315 +2902,47 @@ ElementClass.prototype.toggle = function(className) {
 
 
 /***/ }),
-/* 13 */
+/* 9 */
 /***/ (function(module, exports) {
 
-// Copyright Joyent, Inc. and other Node contributors.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the
-// "Software"), to deal in the Software without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Software, and to permit
-// persons to whom the Software is furnished to do so, subject to the
-// following conditions:
-//
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-// USE OR OTHER DEALINGS IN THE SOFTWARE.
+module.exports = isNode
 
-function EventEmitter() {
-  this._events = this._events || {};
-  this._maxListeners = this._maxListeners || undefined;
-}
-module.exports = EventEmitter;
-
-// Backwards-compat with node 0.10.x
-EventEmitter.EventEmitter = EventEmitter;
-
-EventEmitter.prototype._events = undefined;
-EventEmitter.prototype._maxListeners = undefined;
-
-// By default EventEmitters will print a warning if more than 10 listeners are
-// added to it. This is a useful default which helps finding memory leaks.
-EventEmitter.defaultMaxListeners = 10;
-
-// Obviously not all Emitters should be limited to 10. This function allows
-// that to be increased. Set to zero for unlimited.
-EventEmitter.prototype.setMaxListeners = function(n) {
-  if (!isNumber(n) || n < 0 || isNaN(n))
-    throw TypeError('n must be a positive number');
-  this._maxListeners = n;
-  return this;
-};
-
-EventEmitter.prototype.emit = function(type) {
-  var er, handler, len, args, i, listeners;
-
-  if (!this._events)
-    this._events = {};
-
-  // If there is no 'error' event listener then throw.
-  if (type === 'error') {
-    if (!this._events.error ||
-        (isObject(this._events.error) && !this._events.error.length)) {
-      er = arguments[1];
-      if (er instanceof Error) {
-        throw er; // Unhandled 'error' event
-      } else {
-        // At least give some kind of context to the user
-        var err = new Error('Uncaught, unspecified "error" event. (' + er + ')');
-        err.context = er;
-        throw err;
-      }
-    }
-  }
-
-  handler = this._events[type];
-
-  if (isUndefined(handler))
-    return false;
-
-  if (isFunction(handler)) {
-    switch (arguments.length) {
-      // fast cases
-      case 1:
-        handler.call(this);
-        break;
-      case 2:
-        handler.call(this, arguments[1]);
-        break;
-      case 3:
-        handler.call(this, arguments[1], arguments[2]);
-        break;
-      // slower
-      default:
-        args = Array.prototype.slice.call(arguments, 1);
-        handler.apply(this, args);
-    }
-  } else if (isObject(handler)) {
-    args = Array.prototype.slice.call(arguments, 1);
-    listeners = handler.slice();
-    len = listeners.length;
-    for (i = 0; i < len; i++)
-      listeners[i].apply(this, args);
-  }
-
-  return true;
-};
-
-EventEmitter.prototype.addListener = function(type, listener) {
-  var m;
-
-  if (!isFunction(listener))
-    throw TypeError('listener must be a function');
-
-  if (!this._events)
-    this._events = {};
-
-  // To avoid recursion in the case that type === "newListener"! Before
-  // adding it to the listeners, first emit "newListener".
-  if (this._events.newListener)
-    this.emit('newListener', type,
-              isFunction(listener.listener) ?
-              listener.listener : listener);
-
-  if (!this._events[type])
-    // Optimize the case of one listener. Don't need the extra array object.
-    this._events[type] = listener;
-  else if (isObject(this._events[type]))
-    // If we've already got an array, just append.
-    this._events[type].push(listener);
-  else
-    // Adding the second element, need to change to array.
-    this._events[type] = [this._events[type], listener];
-
-  // Check for listener leak
-  if (isObject(this._events[type]) && !this._events[type].warned) {
-    if (!isUndefined(this._maxListeners)) {
-      m = this._maxListeners;
-    } else {
-      m = EventEmitter.defaultMaxListeners;
-    }
-
-    if (m && m > 0 && this._events[type].length > m) {
-      this._events[type].warned = true;
-      console.error('(node) warning: possible EventEmitter memory ' +
-                    'leak detected. %d listeners added. ' +
-                    'Use emitter.setMaxListeners() to increase limit.',
-                    this._events[type].length);
-      if (typeof console.trace === 'function') {
-        // not supported in IE 10
-        console.trace();
-      }
-    }
-  }
-
-  return this;
-};
-
-EventEmitter.prototype.on = EventEmitter.prototype.addListener;
-
-EventEmitter.prototype.once = function(type, listener) {
-  if (!isFunction(listener))
-    throw TypeError('listener must be a function');
-
-  var fired = false;
-
-  function g() {
-    this.removeListener(type, g);
-
-    if (!fired) {
-      fired = true;
-      listener.apply(this, arguments);
-    }
-  }
-
-  g.listener = listener;
-  this.on(type, g);
-
-  return this;
-};
-
-// emits a 'removeListener' event iff the listener was removed
-EventEmitter.prototype.removeListener = function(type, listener) {
-  var list, position, length, i;
-
-  if (!isFunction(listener))
-    throw TypeError('listener must be a function');
-
-  if (!this._events || !this._events[type])
-    return this;
-
-  list = this._events[type];
-  length = list.length;
-  position = -1;
-
-  if (list === listener ||
-      (isFunction(list.listener) && list.listener === listener)) {
-    delete this._events[type];
-    if (this._events.removeListener)
-      this.emit('removeListener', type, listener);
-
-  } else if (isObject(list)) {
-    for (i = length; i-- > 0;) {
-      if (list[i] === listener ||
-          (list[i].listener && list[i].listener === listener)) {
-        position = i;
-        break;
-      }
-    }
-
-    if (position < 0)
-      return this;
-
-    if (list.length === 1) {
-      list.length = 0;
-      delete this._events[type];
-    } else {
-      list.splice(position, 1);
-    }
-
-    if (this._events.removeListener)
-      this.emit('removeListener', type, listener);
-  }
-
-  return this;
-};
-
-EventEmitter.prototype.removeAllListeners = function(type) {
-  var key, listeners;
-
-  if (!this._events)
-    return this;
-
-  // not listening for removeListener, no need to emit
-  if (!this._events.removeListener) {
-    if (arguments.length === 0)
-      this._events = {};
-    else if (this._events[type])
-      delete this._events[type];
-    return this;
-  }
-
-  // emit removeListener for all listeners on all events
-  if (arguments.length === 0) {
-    for (key in this._events) {
-      if (key === 'removeListener') continue;
-      this.removeAllListeners(key);
-    }
-    this.removeAllListeners('removeListener');
-    this._events = {};
-    return this;
-  }
-
-  listeners = this._events[type];
-
-  if (isFunction(listeners)) {
-    this.removeListener(type, listeners);
-  } else if (listeners) {
-    // LIFO order
-    while (listeners.length)
-      this.removeListener(type, listeners[listeners.length - 1]);
-  }
-  delete this._events[type];
-
-  return this;
-};
-
-EventEmitter.prototype.listeners = function(type) {
-  var ret;
-  if (!this._events || !this._events[type])
-    ret = [];
-  else if (isFunction(this._events[type]))
-    ret = [this._events[type]];
-  else
-    ret = this._events[type].slice();
-  return ret;
-};
-
-EventEmitter.prototype.listenerCount = function(type) {
-  if (this._events) {
-    var evlistener = this._events[type];
-
-    if (isFunction(evlistener))
-      return 1;
-    else if (evlistener)
-      return evlistener.length;
-  }
-  return 0;
-};
-
-EventEmitter.listenerCount = function(emitter, type) {
-  return emitter.listenerCount(type);
-};
-
-function isFunction(arg) {
-  return typeof arg === 'function';
-}
-
-function isNumber(arg) {
-  return typeof arg === 'number';
-}
-
-function isObject(arg) {
-  return typeof arg === 'object' && arg !== null;
-}
-
-function isUndefined(arg) {
-  return arg === void 0;
+function isNode (val) {
+  return (!val || typeof val !== 'object')
+    ? false
+    : (typeof window === 'object' && typeof window.Node === 'object')
+      ? (val instanceof window.Node)
+      : (typeof val.nodeType === 'number') &&
+        (typeof val.nodeName === 'string')
 }
 
 
 /***/ }),
-/* 14 */
+/* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+exports.Node = exports.flatten = undefined;
+
+var _flatten = __webpack_require__(11);
+
+var _flatten2 = _interopRequireDefault(_flatten);
+
+var _node = __webpack_require__(2);
+
+var _node2 = _interopRequireDefault(_node);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+// IE8 compatibility output
+exports.flatten = _flatten2['default'];
+exports.Node = _node2['default'];
+
+/***/ }),
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3178,11 +2950,11 @@ function isUndefined(arg) {
 
 exports.__esModule = true;
 
-var _extend = __webpack_require__(2);
+var _extend = __webpack_require__(1);
 
 var _extend2 = _interopRequireDefault(_extend);
 
-var _node = __webpack_require__(3);
+var _node = __webpack_require__(2);
 
 var _node2 = _interopRequireDefault(_node);
 
@@ -3375,6 +3147,137 @@ var flatten = function flatten() {
 exports['default'] = flatten;
 
 /***/ }),
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+var ensureArray = function ensureArray() {
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
+    }
+
+    if (args.length === 0 || args[0] === undefined || args[0] === null) {
+        return [];
+    }
+    if (args.length === 1) {
+        return [].concat(args[0]);
+    }
+    return [].concat(args);
+};
+
+exports["default"] = ensureArray;
+
+/***/ }),
+/* 13 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+var trim = exports.trim = function trim(str) {
+    var chars = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : ' \f\n\r\t\v';
+
+    while (chars.indexOf(str[0]) >= 0) {
+        str = str.slice(1);
+    }
+    while (chars.indexOf(str[str.length - 1]) >= 0) {
+        str = str.slice(0, -1);
+    }
+    return str;
+};
+
+var get = exports.get = function () {
+    var re = new RegExp(/[\w\-]+|\[[^\]]*\]+/g);
+
+    return function (object, path, defaultValue) {
+        if (!object || (typeof object === 'undefined' ? 'undefined' : _typeof(object)) !== 'object') {
+            return defaultValue;
+        }
+
+        path = '' + path;
+
+        var keys = path.match(re);
+        if (!keys) {
+            return defaultValue;
+        }
+
+        for (var i = 0; i < keys.length; i++) {
+            var key = keys[i];
+            key = trim(key, ' \f\n\r\t\v');
+            if (key[0] === '[') {
+                key = trim(key.slice(1, -1), ' \f\n\r\t\v');
+            }
+            key = trim(key, '\'"');
+
+            if (object === undefined || object === null || (typeof object === 'undefined' ? 'undefined' : _typeof(object)) !== 'object') {
+                break;
+            }
+
+            object = object[key];
+
+            if (object === undefined) {
+                break;
+            }
+        }
+
+        return object !== undefined ? object : defaultValue;
+    };
+}();
+
+/***/ }),
+/* 14 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var LookupTable = function () {
+    function LookupTable() {
+        _classCallCheck(this, LookupTable);
+
+        this.data = {};
+    }
+
+    LookupTable.prototype.clear = function clear() {
+        this.data = {};
+    };
+
+    LookupTable.prototype.get = function get(key) {
+        return this.data[key];
+    };
+
+    LookupTable.prototype.has = function has(key) {
+        return this.data[key] !== undefined;
+    };
+
+    LookupTable.prototype.set = function set(key, value) {
+        this.data[key] = value;
+        return value;
+    };
+
+    LookupTable.prototype.unset = function unset(key) {
+        if (this.data[key] !== undefined) {
+            delete this.data[key];
+        }
+    };
+
+    return LookupTable;
+}();
+
+exports["default"] = LookupTable;
+
+/***/ }),
 /* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -3382,21 +3285,91 @@ exports['default'] = flatten;
 
 
 exports.__esModule = true;
-exports.Node = exports.flatten = undefined;
+exports.defaultRowRenderer = undefined;
 
-var _flatten = __webpack_require__(14);
+var _classnames = __webpack_require__(0);
 
-var _flatten2 = _interopRequireDefault(_flatten);
+var _classnames2 = _interopRequireDefault(_classnames);
 
-var _node = __webpack_require__(3);
+var _escapeHtml = __webpack_require__(3);
 
-var _node2 = _interopRequireDefault(_node);
+var _escapeHtml2 = _interopRequireDefault(_escapeHtml);
+
+var _html5Tag = __webpack_require__(16);
+
+var _html5Tag2 = _interopRequireDefault(_html5Tag);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-// IE8 compatibility output
-exports.flatten = _flatten2['default'];
-exports.Node = _node2['default'];
+var defaultRowRenderer = function defaultRowRenderer(node, treeOptions) {
+    var id = node.id,
+        name = node.name,
+        _node$loadOnDemand = node.loadOnDemand,
+        loadOnDemand = _node$loadOnDemand === undefined ? false : _node$loadOnDemand,
+        children = node.children,
+        state = node.state;
+
+    var droppable = treeOptions.droppable;
+    var depth = state.depth,
+        open = state.open,
+        path = state.path,
+        total = state.total,
+        _state$selected = state.selected,
+        selected = _state$selected === undefined ? false : _state$selected,
+        filtered = state.filtered;
+
+    var childrenLength = Object.keys(children).length;
+    var more = node.hasChildren();
+
+    if (filtered === false) {
+        return '';
+    }
+
+    var togglerContent = '';
+    if (!more && loadOnDemand) {
+        togglerContent = '►';
+    }
+    if (more && open) {
+        togglerContent = '▼';
+    }
+    if (more && !open) {
+        togglerContent = '►';
+    }
+    var toggler = (0, _html5Tag2['default'])('a', {
+        'class': function () {
+            if (!more && loadOnDemand) {
+                return (0, _classnames2['default'])(treeOptions.togglerClass, 'infinite-tree-closed');
+            }
+            if (more && open) {
+                return (0, _classnames2['default'])(treeOptions.togglerClass);
+            }
+            if (more && !open) {
+                return (0, _classnames2['default'])(treeOptions.togglerClass, 'infinite-tree-closed');
+            }
+            return '';
+        }()
+    }, togglerContent);
+    var title = (0, _html5Tag2['default'])('span', {
+        'class': (0, _classnames2['default'])('infinite-tree-title')
+    }, (0, _escapeHtml2['default'])(name));
+    var treeNode = (0, _html5Tag2['default'])('div', {
+        'class': 'infinite-tree-node',
+        'style': 'margin-left: ' + depth * 18 + 'px'
+    }, toggler + title);
+
+    return (0, _html5Tag2['default'])('div', {
+        'data-id': id,
+        'data-expanded': more && open,
+        'data-depth': depth,
+        'data-path': path,
+        'data-selected': selected,
+        'data-children': childrenLength,
+        'data-total': total,
+        'class': (0, _classnames2['default'])('infinite-tree-item', { 'infinite-tree-selected': selected }),
+        'droppable': droppable
+    }, treeNode);
+}; /* eslint import/prefer-default-export: 0 */
+exports.defaultRowRenderer = defaultRowRenderer;
 
 /***/ }),
 /* 16 */
@@ -3409,7 +3382,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-var _escapeHtml = __webpack_require__(1);
+var _escapeHtml = __webpack_require__(3);
 
 var _escapeHtml2 = _interopRequireDefault(_escapeHtml);
 
@@ -3456,19 +3429,56 @@ module.exports = function (tag, attrs, text) {
 
 /***/ }),
 /* 17 */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
-module.exports = isNode
+"use strict";
 
-function isNode (val) {
-  return (!val || typeof val !== 'object')
-    ? false
-    : (typeof window === 'object' && typeof window.Node === 'object')
-      ? (val instanceof window.Node)
-      : (typeof val.nodeType === 'number') &&
-        (typeof val.nodeName === 'string')
-}
 
+exports.__esModule = true;
+var preventDefault = function preventDefault(e) {
+    if (typeof e.preventDefault !== 'undefined') {
+        e.preventDefault();
+    } else {
+        e.returnValue = false;
+    }
+};
+
+var stopPropagation = function stopPropagation(e) {
+    if (typeof e.stopPropagation !== 'undefined') {
+        e.stopPropagation();
+    } else {
+        e.cancelBubble = true;
+    }
+};
+
+// https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener#Compatibility
+var addEventListener = function addEventListener(target, type, listener) {
+    if (target.addEventListener) {
+        // Standard
+        target.addEventListener(type, listener, false);
+    } else if (target.attachEvent) {
+        // IE8
+        // In Internet Explorer versions before IE 9, you have to use attachEvent rather than the standard addEventListener.
+        target.attachEvent('on' + type, listener);
+    }
+};
+
+// https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/removeEventListener
+var removeEventListener = function removeEventListener(target, type, listener) {
+    if (target.removeEventListener) {
+        // Standard
+        target.removeEventListener(type, listener, false);
+    } else if (target.detachEvent) {
+        // IE8
+        // In Internet Explorer versions before IE 9, you have to use detachEvent rather than the standard removeEventListener.
+        target.detachEvent('on' + type, listener);
+    }
+};
+
+exports.preventDefault = preventDefault;
+exports.stopPropagation = stopPropagation;
+exports.addEventListener = addEventListener;
+exports.removeEventListener = removeEventListener;
 
 /***/ })
 /******/ ]);
