@@ -79,16 +79,17 @@ test('loadOnDemand', (t) => {
             id: '<root>',
             loadOnDemand: true
         },
-        loadNodes: (node, done) => {
+        loadNodes: (node, next) => {
             t.equal(tree.getNodeById('<root>').getChildren().length, 0);
 
-            const data = getTreeData();
-            done(null, data.children);
-
+            // Asynchronous
             setTimeout(() => {
-                t.equal(tree.getNodeById('<root>').getChildren().length, 2);
-                t.end();
-            }, 0);
+                const data = getTreeData();
+                next(null, data.children, () => {
+                    t.equal(tree.getNodeById('<root>').getChildren().length, 2);
+                    t.end();
+                });
+            }, 250);
         }
     });
 

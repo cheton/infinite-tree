@@ -1,6 +1,5 @@
 /* eslint no-continue: 0 */
 /* eslint operator-assignment: 0 */
-/* eslint prefer-spread: 0 */
 import events from 'events';
 import classNames from 'classnames';
 import Clusterize from 'clusterize.js';
@@ -985,7 +984,7 @@ class InfiniteTree extends events.EventEmitter {
 
             // Do a setTimeout to prevent the CPU intensive task
             setTimeout(() => {
-                this.options.loadNodes(node, (err, nodes) => {
+                this.options.loadNodes(node, (err, nodes, done = noop) => {
                     nodes = ensureArray(nodes);
 
                     if (err || nodes.length === 0) {
@@ -995,6 +994,10 @@ class InfiniteTree extends events.EventEmitter {
                         this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
                         // Update list
                         this.update();
+
+                        if (typeof done === 'function') {
+                            done();
+                        }
                         return;
                     }
 
@@ -1013,6 +1016,10 @@ class InfiniteTree extends events.EventEmitter {
                                 this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
                                 // Update list
                                 this.update();
+
+                                if (typeof done === 'function') {
+                                    done();
+                                }
                             }
                         });
                     } else {
@@ -1022,6 +1029,10 @@ class InfiniteTree extends events.EventEmitter {
                         this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
                         // Update list
                         this.update();
+
+                        if (typeof done === 'function') {
+                            done();
+                        }
                     }
                 });
             }, 0);

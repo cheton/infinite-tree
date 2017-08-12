@@ -76,26 +76,26 @@ const tree = new InfiniteTree(document.querySelector('#default [data-id="tree"]'
                 return;
             }
 
-            console.log('drop:', event, event.dataTransfer.getData('text'));
+            //console.log('drop:', event, event.dataTransfer.getData('text'));
             const innerHTML = 'Dropped to <b>' + escapeHTML(node.name) + '</b>';
             document.querySelector('#default [data-id="dropped-result"]').innerHTML = innerHTML;
         }
     },
-    loadNodes: (parentNode, done) => {
-        const suffix = parentNode.id.replace(/(\w)+/, '');
+    loadNodes: (parentNode, next) => {
+        // Loading...
         const nodes = [];
-        const count = 10000;
-
-        nodes.length = count;
-        for (let i = 0; i < count; ++i) {
+        nodes.length = 10000;
+        for (let i = 0; i < nodes.length; ++i) {
             nodes[i] = {
-                id: `node-${i}-${suffix}`,
-                name: `${parentNode.name} - #${i + 1}`,
+                id: `${parentNode.id}.${i}`,
+                name: `${parentNode.name}.${i}`,
                 loadOnDemand: true
             };
         }
 
-        done(null, nodes);
+        next(null, nodes, () => {
+            // Completed
+        });
     },
     rowRenderer: renderer,
     selectable: true, // Defaults to true
@@ -109,7 +109,7 @@ const tree = new InfiniteTree(document.querySelector('#default [data-id="tree"]'
 
 let selectedNodes = [];
 tree.on('click', (event) => {
-    console.log('click', event);
+    //console.log('click', event);
 
     const currentNode = tree.getNodeFromPoint(event.x, event.y);
     if (!currentNode) {
@@ -164,12 +164,12 @@ tree.on('click', (event) => {
     }
 });
 tree.on('doubleClick', (event) => {
-    console.log('doubleClick', event);
+    //console.log('doubleClick', event);
 });
 tree.on('keyDown', (event) => {
     event.preventDefault();
 
-    console.log('keyDown', event);
+    //console.log('keyDown', event);
     const node = tree.getSelectedNode();
     const nodeIndex = tree.getSelectedIndex();
 
@@ -208,34 +208,34 @@ tree.on('keyDown', (event) => {
     }
 });
 tree.on('keyUp', (event) => {
-    console.log('keyUp', event);
+    //console.log('keyUp', event);
 });
 tree.on('contentWillUpdate', () => {
-    console.log('contentWillUpdate');
+    //console.log('contentWillUpdate');
 });
 tree.on('contentDidUpdate', () => {
-    console.log('contentDidUpdate');
+    //console.log('contentDidUpdate');
     const node = tree.getSelectedNode();
     updatePreview(node);
 });
 tree.on('openNode', (node) => {
-    console.log('openNode', node);
+    //console.log('openNode', node);
 });
 tree.on('closeNode', (node) => {
-    console.log('closeNode', node);
+    //console.log('closeNode', node);
 });
 tree.on('selectNode', (node) => {
-    console.log('selectNode', node);
+    //console.log('selectNode', node);
     updatePreview(node);
 });
 tree.on('willOpenNode', (node) => {
-    console.log('willOpenNode:', node);
+    //console.log('willOpenNode:', node);
 });
 tree.on('willCloseNode', (node) => {
-    console.log('willCloseNode:', node);
+    //console.log('willCloseNode:', node);
 });
 tree.on('willSelectNode', (node) => {
-    console.log('willSelectNode:', node);
+    //console.log('willSelectNode:', node);
 });
 tree.on('clusterDidChange', () => {
     // No overlay on filtered mode

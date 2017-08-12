@@ -34,12 +34,12 @@ npm install --save infinite-tree
 
 ## Usage
 ```js
-var InfiniteTree = require('infinite-tree');
+const InfiniteTree = require('infinite-tree');
 
 // when using webpack and browserify
 require('infinite-tree/dist/infinite-tree.css');
 
-var data = {
+const data = {
     id: 'fruit',
     name: 'Fruit',
     children: [{
@@ -56,7 +56,7 @@ var data = {
     }]
 };
 
-var tree = new InfiniteTree({
+const tree = new InfiniteTree({
     el: document.querySelector('#tree'),
     data: data,
     autoOpen: true, // Defaults to false
@@ -68,11 +68,21 @@ var tree = new InfiniteTree({
         drop: function(event, options) {
         }
     },
-    loadNodes: function(parentNode, done) { // Load node on demand
-        var nodes = [];
-        setTimeout(function() { // Loading...
-            done(null, nodes);
-        }, 1000);
+    loadNodes: function(parentNode, next) { // Load node on demand
+        // Loading...
+        const nodes = [];
+        nodes.length = 1000;
+        for (let i = 0; i < nodes.length; ++i) {
+            nodes[i] = {
+                id: `${parentNode.id}.${i}`,
+                name: `${parentNode.name}.${i}`,
+                loadOnDemand: true
+            };
+        }
+
+        next(null, nodes, function() {
+            // Completed
+        });
     },
     nodeIdAttr: 'data-id', // the node id attribute
     rowRenderer: function(node, treeOptions) { // Customizable renderer
@@ -90,7 +100,7 @@ var tree = new InfiniteTree({
 #### Functions Usage
 Learn more: [Tree](https://github.com/cheton/infinite-tree/wiki/Functions:-Tree) /  [Node](https://github.com/cheton/infinite-tree/wiki/Functions:-Node)
 ```js
-var node = tree.getNodeById('fruit');
+const node = tree.getNodeById('fruit');
 // → Node { id: 'fruit', ... }
 tree.selectNode(node);
 // → true
@@ -161,12 +171,12 @@ const checkbox = tag('input', {
 Use <b>event delegation</b> <sup>[[1](http://javascript.info/tutorial/event-delegation), [2](http://davidwalsh.name/event-delegate)]</sup>
 
 ```js
-var el = document.querySelector('#tree');
-var tree = new InfiniteTree(el, { /* options */ });
+const el = document.querySelector('#tree');
+const tree = new InfiniteTree(el, { /* options */ });
 
 tree.on('click', function(event) {
-    var target = event.target || event.srcElement; // IE8
-    var nodeTarget = target;
+    const target = event.target || event.srcElement; // IE8
+    let nodeTarget = target;
 
     while (nodeTarget && nodeTarget.parentElement !== tree.contentElement) {
         nodeTarget = nodeTarget.parentElement;
@@ -177,7 +187,7 @@ tree.on('click', function(event) {
     event.stopPropagation(); // [optional]
     
     // Matches the specified group of selectors.
-    var selectors = '.dropdown .btn';
+    const selectors = '.dropdown .btn';
     if (nodeTarget.querySelector(selectors) !== target) {
         return;
     }
@@ -185,13 +195,12 @@ tree.on('click', function(event) {
     // do stuff with the target element.
     console.log(target);
 };
-
 ```
 
 Event delegation with jQuery:
 ```js
-var el = document.querySelector('#tree');
-var tree = new InfiniteTree(el, { /* options */ });
+const el = document.querySelector('#tree');
+const tree = new InfiniteTree(el, { /* options */ });
 
 // jQuery
 $(tree.contentElement).on('click', '.dropdown .btn', function(event) {
