@@ -7,6 +7,7 @@ import elementClass from 'element-class';
 import isDOM from 'is-dom';
 import { flatten, Node } from 'flattree';
 import ensureArray from './ensure-array';
+import extend from './extend';
 import { get } from './utilities';
 import LookupTable from './lookup-table';
 import { defaultRowRenderer } from './renderer';
@@ -48,7 +49,7 @@ const ensureNodeInstance = (node) => {
 };
 
 const createRootNode = (rootNode) => {
-    return Object.assign(rootNode || new Node(), {
+    return extend(rootNode || new Node(), {
         parent: null,
         children: [],
         state: {
@@ -1594,7 +1595,7 @@ class InfiniteTree extends events.EventEmitter {
         delete data.parent;
         delete data.state;
 
-        node = Object.assign(node, data);
+        node = extend(node, data);
 
         // Retrieve node index
         const nodeIndex = this.nodes.indexOf(node);
