@@ -1,4 +1,4 @@
-/*! infinite-tree v1.12.4 | (c) 2017 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
+/*! infinite-tree v1.12.5 | (c) 2017 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -443,15 +443,19 @@ var _ensureArray = __webpack_require__(12);
 
 var _ensureArray2 = _interopRequireDefault(_ensureArray);
 
-var _utilities = __webpack_require__(13);
+var _extend = __webpack_require__(13);
 
-var _lookupTable = __webpack_require__(14);
+var _extend2 = _interopRequireDefault(_extend);
+
+var _utilities = __webpack_require__(14);
+
+var _lookupTable = __webpack_require__(15);
 
 var _lookupTable2 = _interopRequireDefault(_lookupTable);
 
-var _renderer = __webpack_require__(15);
+var _renderer = __webpack_require__(16);
 
-var _domEvents = __webpack_require__(17);
+var _domEvents = __webpack_require__(18);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -500,7 +504,7 @@ var ensureNodeInstance = function ensureNodeInstance(node) {
 };
 
 var createRootNode = function createRootNode(rootNode) {
-    return Object.assign(rootNode || new _flattree.Node(), {
+    return (0, _extend2['default'])(rootNode || new _flattree.Node(), {
         parent: null,
         children: [],
         state: {
@@ -2161,7 +2165,7 @@ var InfiniteTree = function (_events$EventEmitter) {
         delete data.parent;
         delete data.state;
 
-        node = Object.assign(node, data);
+        node = (0, _extend2['default'])(node, data);
 
         // Retrieve node index
         var nodeIndex = this.nodes.indexOf(node);
@@ -3177,6 +3181,39 @@ exports["default"] = ensureArray;
 "use strict";
 
 
+/* eslint no-restricted-syntax: 0 */
+var extend = function extend(target) {
+    for (var _len = arguments.length, sources = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+        sources[_key - 1] = arguments[_key];
+    }
+
+    if (target === undefined || target === null) {
+        throw new TypeError('Cannot convert undefined or null to object');
+    }
+
+    var output = Object(target);
+    for (var index = 0; index < sources.length; index++) {
+        var source = sources[index];
+        if (source !== undefined && source !== null) {
+            for (var key in source) {
+                if (Object.prototype.hasOwnProperty.call(source, key)) {
+                    output[key] = source[key];
+                }
+            }
+        }
+    }
+    return output;
+};
+
+module.exports = extend;
+
+/***/ }),
+/* 14 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
 exports.__esModule = true;
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -3232,7 +3269,7 @@ var get = exports.get = function () {
 }();
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3278,7 +3315,7 @@ var LookupTable = function () {
 exports["default"] = LookupTable;
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3295,7 +3332,7 @@ var _escapeHtml = __webpack_require__(3);
 
 var _escapeHtml2 = _interopRequireDefault(_escapeHtml);
 
-var _html5Tag = __webpack_require__(16);
+var _html5Tag = __webpack_require__(17);
 
 var _html5Tag2 = _interopRequireDefault(_html5Tag);
 
@@ -3372,7 +3409,7 @@ var defaultRowRenderer = function defaultRowRenderer(node, treeOptions) {
 exports.defaultRowRenderer = defaultRowRenderer;
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3428,7 +3465,7 @@ module.exports = function (tag, attrs, text) {
 };
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
