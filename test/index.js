@@ -1,18 +1,18 @@
 import { test } from 'tap';
 import fs from 'fs';
 import path from 'path';
-import jsdom from 'jsdom';
+import { JSDOM, VirtualConsole } from 'jsdom';
 import { Node } from 'flattree';
 import map from 'lodash/map';
 
-const document = jsdom.jsdom(undefined, {
-    virtualConsole: jsdom.createVirtualConsole().sendTo(console)
-});
-const window = document.defaultView;
+const virtualConsole = new VirtualConsole();
+virtualConsole.sendTo(console);
 
-global.document = document;
-global.window = window;
-global.navigator = window.navigator;
+const dom = new JSDOM(``, { virtualConsole });
+
+global.window = dom.window;
+global.document = dom.window.document;
+global.navigator = dom.window.navigator;
 
 const getTreeData = () => {
     const json = fs.readFileSync(path.resolve('test/fixtures/tree.json'), 'utf8');
@@ -63,7 +63,7 @@ test('It should generate expected output for empty result', (t) => {
         noDataText: 'My no data text'
     };
     const tree = new InfiniteTree(el, options);
-    const innerHTML = `<div id="tree"><div class="infinite-tree infinite-tree-scroll"><div class="infinite-tree infinite-tree-content" tabindex="0"><div class="${options.noDataClass}">${options.noDataText}</div></div></div></div>`;
+    const innerHTML = `<div id="tree"><div class="infinite-tree infinite-tree-scroll"><div class="infinite-tree infinite-tree-content" tabindex="0" style="counter-increment: clusterize-counter -1;"><div class="${options.noDataClass}">${options.noDataText}</div></div></div></div>`;
 
     t.strictSame(window.document.body.innerHTML, innerHTML);
     t.strictSame(tree.nodes.length, 0);
