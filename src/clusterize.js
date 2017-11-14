@@ -1,4 +1,3 @@
-/* eslint camelcase: 0 */
 import { EventEmitter } from 'events';
 import ensureArray from './ensure-array';
 import { getIEVersion } from './browser';
@@ -273,7 +272,7 @@ class Clusterize extends EventEmitter {
             bottomOffset = Math.max((this.rows.length - visibleEnd) * this.state.itemHeight, 0);
 
             // Returns a shallow copy of the rows selected from `visibleStart` to `visibleEnd` (`visibleEnd` not included).
-            rows = this.rows.slice(visibleStart, visibleEnd); // Up to but not including visible end
+            rows = this.rows.slice(visibleStart, visibleEnd);
         }
 
         const content = rows.join('');
@@ -286,7 +285,7 @@ class Clusterize extends EventEmitter {
 
             if (topOffset > 0) {
                 if (this.options.keepParity) {
-                   layout.push(this.renderExtraTag('keep-parity'));
+                    layout.push(this.renderExtraTag('keep-parity'));
                 }
                 layout.push(this.renderExtraTag('top-space', topOffset));
             }

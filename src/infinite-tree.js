@@ -2,10 +2,10 @@
 /* eslint operator-assignment: 0 */
 import events from 'events';
 import classNames from 'classnames';
-import Clusterize from './clusterize';
 import elementClass from 'element-class';
 import isDOM from 'is-dom';
 import { flatten, Node } from 'flattree';
+import Clusterize from './clusterize';
 import ensureArray from './ensure-array';
 import extend from './extend';
 import { get } from './utilities';
