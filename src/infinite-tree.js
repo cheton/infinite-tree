@@ -2,7 +2,7 @@
 /* eslint operator-assignment: 0 */
 import events from 'events';
 import classNames from 'classnames';
-import Clusterize from 'clusterize.js';
+import Clusterize from './clusterize';
 import elementClass from 'element-class';
 import isDOM from 'is-dom';
 import { flatten, Node } from 'flattree';
@@ -15,7 +15,7 @@ import {
     preventDefault,
     addEventListener,
     removeEventListener
-} from './dom-events';
+} from './dom';
 
 const noop = () => {};
 
@@ -364,18 +364,17 @@ class InfiniteTree extends events.EventEmitter {
         this.clusterize = new Clusterize({
             tag: tag,
             rows: [],
-            scrollElem: this.scrollElement,
-            contentElem: this.contentElement,
-            no_data_text: this.options.noDataText,
-            no_data_class: this.options.noDataClass,
-            callbacks: {
-                clusterWillChange: () => {
-                    this.emit('clusterWillChange');
-                },
-                clusterChanged: () => {
-                    this.emit('clusterDidChange');
-                }
-            }
+            scrollElement: this.scrollElement,
+            contentElement: this.contentElement,
+            emptyText: this.options.noDataText,
+            emptyClass: this.options.noDataClass
+        });
+
+        this.clusterize.on('clusterWillChange', () => {
+            this.emit('clusterWillChange');
+        });
+        this.clusterize.on('clusterDidChange', () => {
+            this.emit('clusterDidChange');
         });
 
         addEventListener(this.contentElement, 'click', this.contentListener.click);

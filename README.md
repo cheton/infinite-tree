@@ -3,8 +3,6 @@
 
 A browser-ready tree library that can efficiently display a large tree with smooth scrolling.
 
-Powered by [FlatTree](https://github.com/cheton/flattree) and [Clusterize.js](https://github.com/NeXTs/Clusterize.js).
-
 Demo: http://cheton.github.io/infinite-tree
 
 [![infinite-tree](https://raw.githubusercontent.com/cheton/infinite-tree/master/media/infinite-tree.gif)](http://cheton.github.io/infinite-tree)

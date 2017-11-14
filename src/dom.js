@@ -1,3 +1,7 @@
+const getElementStyle = (el, prop) => {
+    return window.getComputedStyle ? window.getComputedStyle(el)[prop] : el.currentStyle[prop];
+};
+
 const preventDefault = (e) => {
     if (typeof e.preventDefault !== 'undefined') {
         e.preventDefault();
@@ -35,6 +39,7 @@ const removeEventListener = (target, type, listener) => {
 };
 
 export {
+    getElementStyle,
     preventDefault,
     stopPropagation,
     addEventListener,

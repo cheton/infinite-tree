@@ -5,7 +5,7 @@ import InfiniteTree from '../../src';
 import renderer from './renderer';
 import './index.styl';
 import './animation.styl';
-import { addEventListener, preventDefault, stopPropagation } from '../../src/dom-events';
+import { addEventListener, preventDefault, stopPropagation } from '../../src/dom';
 import data from '../data.json';
 
 const updatePreview = (node) => {
