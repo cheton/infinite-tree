@@ -4,8 +4,7 @@ var webpack = require('webpack');
 var nib = require('nib');
 var stylusLoader = require('stylus-loader');
 
-module.exports = {
-    devtool: 'source-map',
+const webpackConfig = {
     entry: {
         navbar: path.resolve(__dirname, 'navbar.js'),
         examples: path.resolve(__dirname, 'examples.js')
@@ -66,16 +65,11 @@ module.exports = {
                 import: ['~nib/lib/nib/index.styl']
             }
         }),
-        new webpack.optimize.CommonsChunkPlugin('../docs/common'),
-        new webpack.optimize.UglifyJsPlugin({
-            compress: {
-                warnings: false
-            },
-            mangle: false
-        })
+        new webpack.optimize.CommonsChunkPlugin('../docs/common')
     ],
     // https://webpack.github.io/docs/webpack-dev-server.html#additional-configuration-options
     devServer: {
+        disableHostCheck: true,
         noInfo: false,
         lazy: false,
         // https://webpack.github.io/docs/node.js-api.html#compiler
@@ -84,3 +78,19 @@ module.exports = {
         }
     }
 };
+
+if (process.env.NODE_ENV === 'development') {
+    webpackConfig.devtool = 'eval';
+} else {
+    webpackConfig.devtool = 'source-map';
+    webpackConfig.plugins.push(
+        new webpack.optimize.UglifyJsPlugin({
+            compress: {
+                warnings: false
+            },
+            mangle: false
+        })
+    );
+}
+
+module.exports = webpackConfig;
