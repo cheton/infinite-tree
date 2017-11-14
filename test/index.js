@@ -63,7 +63,7 @@ test('It should generate expected output for empty result', (t) => {
         noDataText: 'My no data text'
     };
     const tree = new InfiniteTree(el, options);
-    const innerHTML = `<div id="tree"><div class="infinite-tree infinite-tree-scroll"><div class="infinite-tree infinite-tree-content" tabindex="0" style="counter-increment: clusterize-counter -1;"><div class="${options.noDataClass}">${options.noDataText}</div></div></div></div>`;
+    const innerHTML = `<div id="tree"><div class="infinite-tree infinite-tree-scroll"><div class="infinite-tree infinite-tree-content" tabindex="0"><div class="${options.noDataClass}">${options.noDataText}</div></div></div></div>`;
 
     t.strictSame(window.document.body.innerHTML, innerHTML);
     t.strictSame(tree.nodes.length, 0);
