@@ -1,4 +1,4 @@
-/*! infinite-tree v1.12.5 | (c) 2017 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
+/*! infinite-tree v1.13.0 | (c) 2017 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -71,11 +71,319 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 4);
+/******/ 	return __webpack_require__(__webpack_require__.s = 7);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
+/***/ (function(module, exports) {
+
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+function EventEmitter() {
+  this._events = this._events || {};
+  this._maxListeners = this._maxListeners || undefined;
+}
+module.exports = EventEmitter;
+
+// Backwards-compat with node 0.10.x
+EventEmitter.EventEmitter = EventEmitter;
+
+EventEmitter.prototype._events = undefined;
+EventEmitter.prototype._maxListeners = undefined;
+
+// By default EventEmitters will print a warning if more than 10 listeners are
+// added to it. This is a useful default which helps finding memory leaks.
+EventEmitter.defaultMaxListeners = 10;
+
+// Obviously not all Emitters should be limited to 10. This function allows
+// that to be increased. Set to zero for unlimited.
+EventEmitter.prototype.setMaxListeners = function(n) {
+  if (!isNumber(n) || n < 0 || isNaN(n))
+    throw TypeError('n must be a positive number');
+  this._maxListeners = n;
+  return this;
+};
+
+EventEmitter.prototype.emit = function(type) {
+  var er, handler, len, args, i, listeners;
+
+  if (!this._events)
+    this._events = {};
+
+  // If there is no 'error' event listener then throw.
+  if (type === 'error') {
+    if (!this._events.error ||
+        (isObject(this._events.error) && !this._events.error.length)) {
+      er = arguments[1];
+      if (er instanceof Error) {
+        throw er; // Unhandled 'error' event
+      } else {
+        // At least give some kind of context to the user
+        var err = new Error('Uncaught, unspecified "error" event. (' + er + ')');
+        err.context = er;
+        throw err;
+      }
+    }
+  }
+
+  handler = this._events[type];
+
+  if (isUndefined(handler))
+    return false;
+
+  if (isFunction(handler)) {
+    switch (arguments.length) {
+      // fast cases
+      case 1:
+        handler.call(this);
+        break;
+      case 2:
+        handler.call(this, arguments[1]);
+        break;
+      case 3:
+        handler.call(this, arguments[1], arguments[2]);
+        break;
+      // slower
+      default:
+        args = Array.prototype.slice.call(arguments, 1);
+        handler.apply(this, args);
+    }
+  } else if (isObject(handler)) {
+    args = Array.prototype.slice.call(arguments, 1);
+    listeners = handler.slice();
+    len = listeners.length;
+    for (i = 0; i < len; i++)
+      listeners[i].apply(this, args);
+  }
+
+  return true;
+};
+
+EventEmitter.prototype.addListener = function(type, listener) {
+  var m;
+
+  if (!isFunction(listener))
+    throw TypeError('listener must be a function');
+
+  if (!this._events)
+    this._events = {};
+
+  // To avoid recursion in the case that type === "newListener"! Before
+  // adding it to the listeners, first emit "newListener".
+  if (this._events.newListener)
+    this.emit('newListener', type,
+              isFunction(listener.listener) ?
+              listener.listener : listener);
+
+  if (!this._events[type])
+    // Optimize the case of one listener. Don't need the extra array object.
+    this._events[type] = listener;
+  else if (isObject(this._events[type]))
+    // If we've already got an array, just append.
+    this._events[type].push(listener);
+  else
+    // Adding the second element, need to change to array.
+    this._events[type] = [this._events[type], listener];
+
+  // Check for listener leak
+  if (isObject(this._events[type]) && !this._events[type].warned) {
+    if (!isUndefined(this._maxListeners)) {
+      m = this._maxListeners;
+    } else {
+      m = EventEmitter.defaultMaxListeners;
+    }
+
+    if (m && m > 0 && this._events[type].length > m) {
+      this._events[type].warned = true;
+      console.error('(node) warning: possible EventEmitter memory ' +
+                    'leak detected. %d listeners added. ' +
+                    'Use emitter.setMaxListeners() to increase limit.',
+                    this._events[type].length);
+      if (typeof console.trace === 'function') {
+        // not supported in IE 10
+        console.trace();
+      }
+    }
+  }
+
+  return this;
+};
+
+EventEmitter.prototype.on = EventEmitter.prototype.addListener;
+
+EventEmitter.prototype.once = function(type, listener) {
+  if (!isFunction(listener))
+    throw TypeError('listener must be a function');
+
+  var fired = false;
+
+  function g() {
+    this.removeListener(type, g);
+
+    if (!fired) {
+      fired = true;
+      listener.apply(this, arguments);
+    }
+  }
+
+  g.listener = listener;
+  this.on(type, g);
+
+  return this;
+};
+
+// emits a 'removeListener' event iff the listener was removed
+EventEmitter.prototype.removeListener = function(type, listener) {
+  var list, position, length, i;
+
+  if (!isFunction(listener))
+    throw TypeError('listener must be a function');
+
+  if (!this._events || !this._events[type])
+    return this;
+
+  list = this._events[type];
+  length = list.length;
+  position = -1;
+
+  if (list === listener ||
+      (isFunction(list.listener) && list.listener === listener)) {
+    delete this._events[type];
+    if (this._events.removeListener)
+      this.emit('removeListener', type, listener);
+
+  } else if (isObject(list)) {
+    for (i = length; i-- > 0;) {
+      if (list[i] === listener ||
+          (list[i].listener && list[i].listener === listener)) {
+        position = i;
+        break;
+      }
+    }
+
+    if (position < 0)
+      return this;
+
+    if (list.length === 1) {
+      list.length = 0;
+      delete this._events[type];
+    } else {
+      list.splice(position, 1);
+    }
+
+    if (this._events.removeListener)
+      this.emit('removeListener', type, listener);
+  }
+
+  return this;
+};
+
+EventEmitter.prototype.removeAllListeners = function(type) {
+  var key, listeners;
+
+  if (!this._events)
+    return this;
+
+  // not listening for removeListener, no need to emit
+  if (!this._events.removeListener) {
+    if (arguments.length === 0)
+      this._events = {};
+    else if (this._events[type])
+      delete this._events[type];
+    return this;
+  }
+
+  // emit removeListener for all listeners on all events
+  if (arguments.length === 0) {
+    for (key in this._events) {
+      if (key === 'removeListener') continue;
+      this.removeAllListeners(key);
+    }
+    this.removeAllListeners('removeListener');
+    this._events = {};
+    return this;
+  }
+
+  listeners = this._events[type];
+
+  if (isFunction(listeners)) {
+    this.removeListener(type, listeners);
+  } else if (listeners) {
+    // LIFO order
+    while (listeners.length)
+      this.removeListener(type, listeners[listeners.length - 1]);
+  }
+  delete this._events[type];
+
+  return this;
+};
+
+EventEmitter.prototype.listeners = function(type) {
+  var ret;
+  if (!this._events || !this._events[type])
+    ret = [];
+  else if (isFunction(this._events[type]))
+    ret = [this._events[type]];
+  else
+    ret = this._events[type].slice();
+  return ret;
+};
+
+EventEmitter.prototype.listenerCount = function(type) {
+  if (this._events) {
+    var evlistener = this._events[type];
+
+    if (isFunction(evlistener))
+      return 1;
+    else if (evlistener)
+      return evlistener.length;
+  }
+  return 0;
+};
+
+EventEmitter.listenerCount = function(emitter, type) {
+  return emitter.listenerCount(type);
+};
+
+function isFunction(arg) {
+  return typeof arg === 'function';
+}
+
+function isNumber(arg) {
+  return typeof arg === 'number';
+}
+
+function isObject(arg) {
+  return typeof arg === 'object' && arg !== null;
+}
+
+function isUndefined(arg) {
+  return arg === void 0;
+}
+
+
+/***/ }),
+/* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -130,7 +438,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
 
 
 /***/ }),
-/* 1 */
+/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -164,7 +472,7 @@ var extend = function extend(target) {
 exports['default'] = extend;
 
 /***/ }),
-/* 2 */
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -172,7 +480,7 @@ exports['default'] = extend;
 
 exports.__esModule = true;
 
-var _extend = __webpack_require__(1);
+var _extend = __webpack_require__(2);
 
 var _extend2 = _interopRequireDefault(_extend);
 
@@ -305,7 +613,89 @@ var Node = function () {
 exports['default'] = Node;
 
 /***/ }),
-/* 3 */
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+var ensureArray = function ensureArray() {
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
+    }
+
+    if (args.length === 0 || args[0] === undefined || args[0] === null) {
+        return [];
+    }
+    if (args.length === 1) {
+        return [].concat(args[0]);
+    }
+    return [].concat(args);
+};
+
+exports["default"] = ensureArray;
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+var getElementStyle = function getElementStyle(el, prop) {
+    return window.getComputedStyle ? window.getComputedStyle(el)[prop] : el.currentStyle[prop];
+};
+
+var preventDefault = function preventDefault(e) {
+    if (typeof e.preventDefault !== 'undefined') {
+        e.preventDefault();
+    } else {
+        e.returnValue = false;
+    }
+};
+
+var stopPropagation = function stopPropagation(e) {
+    if (typeof e.stopPropagation !== 'undefined') {
+        e.stopPropagation();
+    } else {
+        e.cancelBubble = true;
+    }
+};
+
+// https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener#Compatibility
+var addEventListener = function addEventListener(target, type, listener) {
+    if (target.addEventListener) {
+        // Standard
+        target.addEventListener(type, listener, false);
+    } else if (target.attachEvent) {
+        // IE8
+        // In Internet Explorer versions before IE 9, you have to use attachEvent rather than the standard addEventListener.
+        target.attachEvent('on' + type, listener);
+    }
+};
+
+// https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/removeEventListener
+var removeEventListener = function removeEventListener(target, type, listener) {
+    if (target.removeEventListener) {
+        // Standard
+        target.removeEventListener(type, listener, false);
+    } else if (target.detachEvent) {
+        // IE8
+        // In Internet Explorer versions before IE 9, you have to use detachEvent rather than the standard removeEventListener.
+        target.detachEvent('on' + type, listener);
+    }
+};
+
+exports.getElementStyle = getElementStyle;
+exports.preventDefault = preventDefault;
+exports.stopPropagation = stopPropagation;
+exports.addEventListener = addEventListener;
+exports.removeEventListener = removeEventListener;
+
+/***/ }),
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -390,13 +780,13 @@ function escapeHtml(string) {
 
 
 /***/ }),
-/* 4 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var _infiniteTree = __webpack_require__(5);
+var _infiniteTree = __webpack_require__(8);
 
 var _infiniteTree2 = _interopRequireDefault(_infiniteTree);
 
@@ -405,7 +795,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 module.exports = _infiniteTree2['default'];
 
 /***/ }),
-/* 5 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -417,45 +807,45 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-var _events = __webpack_require__(6);
+var _events = __webpack_require__(0);
 
 var _events2 = _interopRequireDefault(_events);
 
-var _classnames = __webpack_require__(0);
+var _classnames = __webpack_require__(1);
 
 var _classnames2 = _interopRequireDefault(_classnames);
 
-var _clusterize = __webpack_require__(7);
-
-var _clusterize2 = _interopRequireDefault(_clusterize);
-
-var _elementClass = __webpack_require__(8);
+var _elementClass = __webpack_require__(9);
 
 var _elementClass2 = _interopRequireDefault(_elementClass);
 
-var _isDom = __webpack_require__(9);
+var _isDom = __webpack_require__(10);
 
 var _isDom2 = _interopRequireDefault(_isDom);
 
-var _flattree = __webpack_require__(10);
+var _flattree = __webpack_require__(11);
 
-var _ensureArray = __webpack_require__(12);
+var _clusterize = __webpack_require__(13);
+
+var _clusterize2 = _interopRequireDefault(_clusterize);
+
+var _ensureArray = __webpack_require__(4);
 
 var _ensureArray2 = _interopRequireDefault(_ensureArray);
 
-var _extend = __webpack_require__(13);
+var _extend = __webpack_require__(15);
 
 var _extend2 = _interopRequireDefault(_extend);
 
-var _utilities = __webpack_require__(14);
+var _utilities = __webpack_require__(16);
 
-var _lookupTable = __webpack_require__(15);
+var _lookupTable = __webpack_require__(17);
 
 var _lookupTable2 = _interopRequireDefault(_lookupTable);
 
-var _renderer = __webpack_require__(16);
+var _renderer = __webpack_require__(18);
 
-var _domEvents = __webpack_require__(18);
+var _dom = __webpack_require__(5);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -719,7 +1109,7 @@ var InfiniteTree = function (_events$EventEmitter) {
             'dragover': function dragover(event) {
                 event = event || window.event;
 
-                (0, _domEvents.preventDefault)(event);
+                (0, _dom.preventDefault)(event);
             },
             // https://developer.mozilla.org/en-US/docs/Web/Events/drop
             // The drop event is fired when an element or text selection is dropped on a valid drop target.
@@ -727,7 +1117,7 @@ var InfiniteTree = function (_events$EventEmitter) {
                 event = event || window.event;
 
                 // prevent default action (open as link for some elements)
-                (0, _domEvents.preventDefault)(event);
+                (0, _dom.preventDefault)(event);
 
                 if (!(_this.draggableTarget && _this.droppableTarget)) {
                     return;
@@ -828,48 +1218,47 @@ var InfiniteTree = function (_events$EventEmitter) {
         this.clusterize = new _clusterize2['default']({
             tag: tag,
             rows: [],
-            scrollElem: this.scrollElement,
-            contentElem: this.contentElement,
-            no_data_text: this.options.noDataText,
-            no_data_class: this.options.noDataClass,
-            callbacks: {
-                clusterWillChange: function clusterWillChange() {
-                    _this2.emit('clusterWillChange');
-                },
-                clusterChanged: function clusterChanged() {
-                    _this2.emit('clusterDidChange');
-                }
-            }
+            scrollElement: this.scrollElement,
+            contentElement: this.contentElement,
+            emptyText: this.options.noDataText,
+            emptyClass: this.options.noDataClass
         });
 
-        (0, _domEvents.addEventListener)(this.contentElement, 'click', this.contentListener.click);
-        (0, _domEvents.addEventListener)(this.contentElement, 'dblclick', this.contentListener.dblclick);
-        (0, _domEvents.addEventListener)(this.contentElement, 'keydown', this.contentListener.keydown);
-        (0, _domEvents.addEventListener)(this.contentElement, 'keyup', this.contentListener.keyup);
+        this.clusterize.on('clusterWillChange', function () {
+            _this2.emit('clusterWillChange');
+        });
+        this.clusterize.on('clusterDidChange', function () {
+            _this2.emit('clusterDidChange');
+        });
+
+        (0, _dom.addEventListener)(this.contentElement, 'click', this.contentListener.click);
+        (0, _dom.addEventListener)(this.contentElement, 'dblclick', this.contentListener.dblclick);
+        (0, _dom.addEventListener)(this.contentElement, 'keydown', this.contentListener.keydown);
+        (0, _dom.addEventListener)(this.contentElement, 'keyup', this.contentListener.keyup);
 
         if (this.options.droppable) {
-            (0, _domEvents.addEventListener)(document, 'dragstart', this.contentListener.dragstart);
-            (0, _domEvents.addEventListener)(document, 'dragend', this.contentListener.dragend);
-            (0, _domEvents.addEventListener)(this.contentElement, 'dragenter', this.contentListener.dragenter);
-            (0, _domEvents.addEventListener)(this.contentElement, 'dragleave', this.contentListener.dragleave);
-            (0, _domEvents.addEventListener)(this.contentElement, 'dragover', this.contentListener.dragover);
-            (0, _domEvents.addEventListener)(this.contentElement, 'drop', this.contentListener.drop);
+            (0, _dom.addEventListener)(document, 'dragstart', this.contentListener.dragstart);
+            (0, _dom.addEventListener)(document, 'dragend', this.contentListener.dragend);
+            (0, _dom.addEventListener)(this.contentElement, 'dragenter', this.contentListener.dragenter);
+            (0, _dom.addEventListener)(this.contentElement, 'dragleave', this.contentListener.dragleave);
+            (0, _dom.addEventListener)(this.contentElement, 'dragover', this.contentListener.dragover);
+            (0, _dom.addEventListener)(this.contentElement, 'drop', this.contentListener.drop);
         }
     };
 
     InfiniteTree.prototype.destroy = function destroy() {
-        (0, _domEvents.removeEventListener)(this.contentElement, 'click', this.contentListener.click);
-        (0, _domEvents.removeEventListener)(this.contentElement, 'dblclick', this.contentListener.dblclick);
-        (0, _domEvents.removeEventListener)(this.contentElement, 'keydown', this.contentListener.keydown);
-        (0, _domEvents.removeEventListener)(this.contentElement, 'keyup', this.contentListener.keyup);
+        (0, _dom.removeEventListener)(this.contentElement, 'click', this.contentListener.click);
+        (0, _dom.removeEventListener)(this.contentElement, 'dblclick', this.contentListener.dblclick);
+        (0, _dom.removeEventListener)(this.contentElement, 'keydown', this.contentListener.keydown);
+        (0, _dom.removeEventListener)(this.contentElement, 'keyup', this.contentListener.keyup);
 
         if (this.options.droppable) {
-            (0, _domEvents.removeEventListener)(document, 'dragstart', this.contentListener.dragstart);
-            (0, _domEvents.removeEventListener)(document, 'dragend', this.contentListener.dragend);
-            (0, _domEvents.removeEventListener)(this.contentElement, 'dragenter', this.contentListener.dragenter);
-            (0, _domEvents.removeEventListener)(this.contentElement, 'dragleave', this.contentListener.dragleave);
-            (0, _domEvents.removeEventListener)(this.contentElement, 'dragover', this.contentListener.dragover);
-            (0, _domEvents.removeEventListener)(this.contentElement, 'drop', this.contentListener.drop);
+            (0, _dom.removeEventListener)(document, 'dragstart', this.contentListener.dragstart);
+            (0, _dom.removeEventListener)(document, 'dragend', this.contentListener.dragend);
+            (0, _dom.removeEventListener)(this.contentElement, 'dragenter', this.contentListener.dragenter);
+            (0, _dom.removeEventListener)(this.contentElement, 'dragleave', this.contentListener.dragleave);
+            (0, _dom.removeEventListener)(this.contentElement, 'dragover', this.contentListener.dragover);
+            (0, _dom.removeEventListener)(this.contentElement, 'drop', this.contentListener.drop);
         }
 
         this.clear();
@@ -2199,649 +2588,7 @@ var InfiniteTree = function (_events$EventEmitter) {
 exports['default'] = InfiniteTree;
 
 /***/ }),
-/* 6 */
-/***/ (function(module, exports) {
-
-// Copyright Joyent, Inc. and other Node contributors.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the
-// "Software"), to deal in the Software without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Software, and to permit
-// persons to whom the Software is furnished to do so, subject to the
-// following conditions:
-//
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-// USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-function EventEmitter() {
-  this._events = this._events || {};
-  this._maxListeners = this._maxListeners || undefined;
-}
-module.exports = EventEmitter;
-
-// Backwards-compat with node 0.10.x
-EventEmitter.EventEmitter = EventEmitter;
-
-EventEmitter.prototype._events = undefined;
-EventEmitter.prototype._maxListeners = undefined;
-
-// By default EventEmitters will print a warning if more than 10 listeners are
-// added to it. This is a useful default which helps finding memory leaks.
-EventEmitter.defaultMaxListeners = 10;
-
-// Obviously not all Emitters should be limited to 10. This function allows
-// that to be increased. Set to zero for unlimited.
-EventEmitter.prototype.setMaxListeners = function(n) {
-  if (!isNumber(n) || n < 0 || isNaN(n))
-    throw TypeError('n must be a positive number');
-  this._maxListeners = n;
-  return this;
-};
-
-EventEmitter.prototype.emit = function(type) {
-  var er, handler, len, args, i, listeners;
-
-  if (!this._events)
-    this._events = {};
-
-  // If there is no 'error' event listener then throw.
-  if (type === 'error') {
-    if (!this._events.error ||
-        (isObject(this._events.error) && !this._events.error.length)) {
-      er = arguments[1];
-      if (er instanceof Error) {
-        throw er; // Unhandled 'error' event
-      } else {
-        // At least give some kind of context to the user
-        var err = new Error('Uncaught, unspecified "error" event. (' + er + ')');
-        err.context = er;
-        throw err;
-      }
-    }
-  }
-
-  handler = this._events[type];
-
-  if (isUndefined(handler))
-    return false;
-
-  if (isFunction(handler)) {
-    switch (arguments.length) {
-      // fast cases
-      case 1:
-        handler.call(this);
-        break;
-      case 2:
-        handler.call(this, arguments[1]);
-        break;
-      case 3:
-        handler.call(this, arguments[1], arguments[2]);
-        break;
-      // slower
-      default:
-        args = Array.prototype.slice.call(arguments, 1);
-        handler.apply(this, args);
-    }
-  } else if (isObject(handler)) {
-    args = Array.prototype.slice.call(arguments, 1);
-    listeners = handler.slice();
-    len = listeners.length;
-    for (i = 0; i < len; i++)
-      listeners[i].apply(this, args);
-  }
-
-  return true;
-};
-
-EventEmitter.prototype.addListener = function(type, listener) {
-  var m;
-
-  if (!isFunction(listener))
-    throw TypeError('listener must be a function');
-
-  if (!this._events)
-    this._events = {};
-
-  // To avoid recursion in the case that type === "newListener"! Before
-  // adding it to the listeners, first emit "newListener".
-  if (this._events.newListener)
-    this.emit('newListener', type,
-              isFunction(listener.listener) ?
-              listener.listener : listener);
-
-  if (!this._events[type])
-    // Optimize the case of one listener. Don't need the extra array object.
-    this._events[type] = listener;
-  else if (isObject(this._events[type]))
-    // If we've already got an array, just append.
-    this._events[type].push(listener);
-  else
-    // Adding the second element, need to change to array.
-    this._events[type] = [this._events[type], listener];
-
-  // Check for listener leak
-  if (isObject(this._events[type]) && !this._events[type].warned) {
-    if (!isUndefined(this._maxListeners)) {
-      m = this._maxListeners;
-    } else {
-      m = EventEmitter.defaultMaxListeners;
-    }
-
-    if (m && m > 0 && this._events[type].length > m) {
-      this._events[type].warned = true;
-      console.error('(node) warning: possible EventEmitter memory ' +
-                    'leak detected. %d listeners added. ' +
-                    'Use emitter.setMaxListeners() to increase limit.',
-                    this._events[type].length);
-      if (typeof console.trace === 'function') {
-        // not supported in IE 10
-        console.trace();
-      }
-    }
-  }
-
-  return this;
-};
-
-EventEmitter.prototype.on = EventEmitter.prototype.addListener;
-
-EventEmitter.prototype.once = function(type, listener) {
-  if (!isFunction(listener))
-    throw TypeError('listener must be a function');
-
-  var fired = false;
-
-  function g() {
-    this.removeListener(type, g);
-
-    if (!fired) {
-      fired = true;
-      listener.apply(this, arguments);
-    }
-  }
-
-  g.listener = listener;
-  this.on(type, g);
-
-  return this;
-};
-
-// emits a 'removeListener' event iff the listener was removed
-EventEmitter.prototype.removeListener = function(type, listener) {
-  var list, position, length, i;
-
-  if (!isFunction(listener))
-    throw TypeError('listener must be a function');
-
-  if (!this._events || !this._events[type])
-    return this;
-
-  list = this._events[type];
-  length = list.length;
-  position = -1;
-
-  if (list === listener ||
-      (isFunction(list.listener) && list.listener === listener)) {
-    delete this._events[type];
-    if (this._events.removeListener)
-      this.emit('removeListener', type, listener);
-
-  } else if (isObject(list)) {
-    for (i = length; i-- > 0;) {
-      if (list[i] === listener ||
-          (list[i].listener && list[i].listener === listener)) {
-        position = i;
-        break;
-      }
-    }
-
-    if (position < 0)
-      return this;
-
-    if (list.length === 1) {
-      list.length = 0;
-      delete this._events[type];
-    } else {
-      list.splice(position, 1);
-    }
-
-    if (this._events.removeListener)
-      this.emit('removeListener', type, listener);
-  }
-
-  return this;
-};
-
-EventEmitter.prototype.removeAllListeners = function(type) {
-  var key, listeners;
-
-  if (!this._events)
-    return this;
-
-  // not listening for removeListener, no need to emit
-  if (!this._events.removeListener) {
-    if (arguments.length === 0)
-      this._events = {};
-    else if (this._events[type])
-      delete this._events[type];
-    return this;
-  }
-
-  // emit removeListener for all listeners on all events
-  if (arguments.length === 0) {
-    for (key in this._events) {
-      if (key === 'removeListener') continue;
-      this.removeAllListeners(key);
-    }
-    this.removeAllListeners('removeListener');
-    this._events = {};
-    return this;
-  }
-
-  listeners = this._events[type];
-
-  if (isFunction(listeners)) {
-    this.removeListener(type, listeners);
-  } else if (listeners) {
-    // LIFO order
-    while (listeners.length)
-      this.removeListener(type, listeners[listeners.length - 1]);
-  }
-  delete this._events[type];
-
-  return this;
-};
-
-EventEmitter.prototype.listeners = function(type) {
-  var ret;
-  if (!this._events || !this._events[type])
-    ret = [];
-  else if (isFunction(this._events[type]))
-    ret = [this._events[type]];
-  else
-    ret = this._events[type].slice();
-  return ret;
-};
-
-EventEmitter.prototype.listenerCount = function(type) {
-  if (this._events) {
-    var evlistener = this._events[type];
-
-    if (isFunction(evlistener))
-      return 1;
-    else if (evlistener)
-      return evlistener.length;
-  }
-  return 0;
-};
-
-EventEmitter.listenerCount = function(emitter, type) {
-  return emitter.listenerCount(type);
-};
-
-function isFunction(arg) {
-  return typeof arg === 'function';
-}
-
-function isNumber(arg) {
-  return typeof arg === 'number';
-}
-
-function isObject(arg) {
-  return typeof arg === 'object' && arg !== null;
-}
-
-function isUndefined(arg) {
-  return arg === void 0;
-}
-
-
-/***/ }),
-/* 7 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/*! Clusterize.js - v0.17.6 - 2017-03-05
-* http://NeXTs.github.com/Clusterize.js/
-* Copyright (c) 2015 Denis Lukov; Licensed GPLv3 */
-
-;(function(name, definition) {
-    if (true) module.exports = definition();
-    else if (typeof define == 'function' && typeof define.amd == 'object') define(definition);
-    else this[name] = definition();
-}('Clusterize', function() {
-  "use strict"
-
-  // detect ie9 and lower
-  // https://gist.github.com/padolsey/527683#comment-786682
-  var ie = (function(){
-    for( var v = 3,
-             el = document.createElement('b'),
-             all = el.all || [];
-         el.innerHTML = '<!--[if gt IE ' + (++v) + ']><i><![endif]-->',
-         all[0];
-       ){}
-    return v > 4 ? v : document.documentMode;
-  }()),
-  is_mac = navigator.platform.toLowerCase().indexOf('mac') + 1;
-  var Clusterize = function(data) {
-    if( ! (this instanceof Clusterize))
-      return new Clusterize(data);
-    var self = this;
-
-    var defaults = {
-      rows_in_block: 50,
-      blocks_in_cluster: 4,
-      tag: null,
-      show_no_data_row: true,
-      no_data_class: 'clusterize-no-data',
-      no_data_text: 'No data',
-      keep_parity: true,
-      callbacks: {}
-    }
-
-    // public parameters
-    self.options = {};
-    var options = ['rows_in_block', 'blocks_in_cluster', 'show_no_data_row', 'no_data_class', 'no_data_text', 'keep_parity', 'tag', 'callbacks'];
-    for(var i = 0, option; option = options[i]; i++) {
-      self.options[option] = typeof data[option] != 'undefined' && data[option] != null
-        ? data[option]
-        : defaults[option];
-    }
-
-    var elems = ['scroll', 'content'];
-    for(var i = 0, elem; elem = elems[i]; i++) {
-      self[elem + '_elem'] = data[elem + 'Id']
-        ? document.getElementById(data[elem + 'Id'])
-        : data[elem + 'Elem'];
-      if( ! self[elem + '_elem'])
-        throw new Error("Error! Could not find " + elem + " element");
-    }
-
-    // tabindex forces the browser to keep focus on the scrolling list, fixes #11
-    if( ! self.content_elem.hasAttribute('tabindex'))
-      self.content_elem.setAttribute('tabindex', 0);
-
-    // private parameters
-    var rows = isArray(data.rows)
-        ? data.rows
-        : self.fetchMarkup(),
-      cache = {},
-      scroll_top = self.scroll_elem.scrollTop;
-
-    // append initial data
-    self.insertToDOM(rows, cache);
-
-    // restore the scroll position
-    self.scroll_elem.scrollTop = scroll_top;
-
-    // adding scroll handler
-    var last_cluster = false,
-    scroll_debounce = 0,
-    pointer_events_set = false,
-    scrollEv = function() {
-      // fixes scrolling issue on Mac #3
-      if (is_mac) {
-          if( ! pointer_events_set) self.content_elem.style.pointerEvents = 'none';
-          pointer_events_set = true;
-          clearTimeout(scroll_debounce);
-          scroll_debounce = setTimeout(function () {
-              self.content_elem.style.pointerEvents = 'auto';
-              pointer_events_set = false;
-          }, 50);
-      }
-      if (last_cluster != (last_cluster = self.getClusterNum()))
-        self.insertToDOM(rows, cache);
-      if (self.options.callbacks.scrollingProgress)
-        self.options.callbacks.scrollingProgress(self.getScrollProgress());
-    },
-    resize_debounce = 0,
-    resizeEv = function() {
-      clearTimeout(resize_debounce);
-      resize_debounce = setTimeout(self.refresh, 100);
-    }
-    on('scroll', self.scroll_elem, scrollEv);
-    on('resize', window, resizeEv);
-
-    // public methods
-    self.destroy = function(clean) {
-      off('scroll', self.scroll_elem, scrollEv);
-      off('resize', window, resizeEv);
-      self.html((clean ? self.generateEmptyRow() : rows).join(''));
-    }
-    self.refresh = function(force) {
-      if(self.getRowsHeight(rows) || force) self.update(rows);
-    }
-    self.update = function(new_rows) {
-      rows = isArray(new_rows)
-        ? new_rows
-        : [];
-      var scroll_top = self.scroll_elem.scrollTop;
-      // fixes #39
-      if(rows.length * self.options.item_height < scroll_top) {
-        self.scroll_elem.scrollTop = 0;
-        last_cluster = 0;
-      }
-      self.insertToDOM(rows, cache);
-      self.scroll_elem.scrollTop = scroll_top;
-    }
-    self.clear = function() {
-      self.update([]);
-    }
-    self.getRowsAmount = function() {
-      return rows.length;
-    }
-    self.getScrollProgress = function() {
-      return this.options.scroll_top / (rows.length * this.options.item_height) * 100 || 0;
-    }
-
-    var add = function(where, _new_rows) {
-      var new_rows = isArray(_new_rows)
-        ? _new_rows
-        : [];
-      if( ! new_rows.length) return;
-      rows = where == 'append'
-        ? rows.concat(new_rows)
-        : new_rows.concat(rows);
-      self.insertToDOM(rows, cache);
-    }
-    self.append = function(rows) {
-      add('append', rows);
-    }
-    self.prepend = function(rows) {
-      add('prepend', rows);
-    }
-  }
-
-  Clusterize.prototype = {
-    constructor: Clusterize,
-    // fetch existing markup
-    fetchMarkup: function() {
-      var rows = [], rows_nodes = this.getChildNodes(this.content_elem);
-      while (rows_nodes.length) {
-        rows.push(rows_nodes.shift().outerHTML);
-      }
-      return rows;
-    },
-    // get tag name, content tag name, tag height, calc cluster height
-    exploreEnvironment: function(rows, cache) {
-      var opts = this.options;
-      opts.content_tag = this.content_elem.tagName.toLowerCase();
-      if( ! rows.length) return;
-      if(ie && ie <= 9 && ! opts.tag) opts.tag = rows[0].match(/<([^>\s/]*)/)[1].toLowerCase();
-      if(this.content_elem.children.length <= 1) cache.data = this.html(rows[0] + rows[0] + rows[0]);
-      if( ! opts.tag) opts.tag = this.content_elem.children[0].tagName.toLowerCase();
-      this.getRowsHeight(rows);
-    },
-    getRowsHeight: function(rows) {
-      var opts = this.options,
-        prev_item_height = opts.item_height;
-      opts.cluster_height = 0;
-      if( ! rows.length) return;
-      var nodes = this.content_elem.children;
-      var node = nodes[Math.floor(nodes.length / 2)];
-      opts.item_height = node.offsetHeight;
-      // consider table's border-spacing
-      if(opts.tag == 'tr' && getStyle('borderCollapse', this.content_elem) != 'collapse')
-        opts.item_height += parseInt(getStyle('borderSpacing', this.content_elem), 10) || 0;
-      // consider margins (and margins collapsing)
-      if(opts.tag != 'tr') {
-        var marginTop = parseInt(getStyle('marginTop', node), 10) || 0;
-        var marginBottom = parseInt(getStyle('marginBottom', node), 10) || 0;
-        opts.item_height += Math.max(marginTop, marginBottom);
-      }
-      opts.block_height = opts.item_height * opts.rows_in_block;
-      opts.rows_in_cluster = opts.blocks_in_cluster * opts.rows_in_block;
-      opts.cluster_height = opts.blocks_in_cluster * opts.block_height;
-      return prev_item_height != opts.item_height;
-    },
-    // get current cluster number
-    getClusterNum: function () {
-      this.options.scroll_top = this.scroll_elem.scrollTop;
-      return Math.floor(this.options.scroll_top / (this.options.cluster_height - this.options.block_height)) || 0;
-    },
-    // generate empty row if no data provided
-    generateEmptyRow: function() {
-      var opts = this.options;
-      if( ! opts.tag || ! opts.show_no_data_row) return [];
-      var empty_row = document.createElement(opts.tag),
-        no_data_content = document.createTextNode(opts.no_data_text), td;
-      empty_row.className = opts.no_data_class;
-      if(opts.tag == 'tr') {
-        td = document.createElement('td');
-        // fixes #53
-        td.colSpan = 100;
-        td.appendChild(no_data_content);
-      }
-      empty_row.appendChild(td || no_data_content);
-      return [empty_row.outerHTML];
-    },
-    // generate cluster for current scroll position
-    generate: function (rows, cluster_num) {
-      var opts = this.options,
-        rows_len = rows.length;
-      if (rows_len < opts.rows_in_block) {
-        return {
-          top_offset: 0,
-          bottom_offset: 0,
-          rows_above: 0,
-          rows: rows_len ? rows : this.generateEmptyRow()
-        }
-      }
-      var items_start = Math.max((opts.rows_in_cluster - opts.rows_in_block) * cluster_num, 0),
-        items_end = items_start + opts.rows_in_cluster,
-        top_offset = Math.max(items_start * opts.item_height, 0),
-        bottom_offset = Math.max((rows_len - items_end) * opts.item_height, 0),
-        this_cluster_rows = [],
-        rows_above = items_start;
-      if(top_offset < 1) {
-        rows_above++;
-      }
-      for (var i = items_start; i < items_end; i++) {
-        rows[i] && this_cluster_rows.push(rows[i]);
-      }
-      return {
-        top_offset: top_offset,
-        bottom_offset: bottom_offset,
-        rows_above: rows_above,
-        rows: this_cluster_rows
-      }
-    },
-    renderExtraTag: function(class_name, height) {
-      var tag = document.createElement(this.options.tag),
-        clusterize_prefix = 'clusterize-';
-      tag.className = [clusterize_prefix + 'extra-row', clusterize_prefix + class_name].join(' ');
-      height && (tag.style.height = height + 'px');
-      return tag.outerHTML;
-    },
-    // if necessary verify data changed and insert to DOM
-    insertToDOM: function(rows, cache) {
-      // explore row's height
-      if( ! this.options.cluster_height) {
-        this.exploreEnvironment(rows, cache);
-      }
-      var data = this.generate(rows, this.getClusterNum()),
-        this_cluster_rows = data.rows.join(''),
-        this_cluster_content_changed = this.checkChanges('data', this_cluster_rows, cache),
-        top_offset_changed = this.checkChanges('top', data.top_offset, cache),
-        only_bottom_offset_changed = this.checkChanges('bottom', data.bottom_offset, cache),
-        callbacks = this.options.callbacks,
-        layout = [];
-
-      if(this_cluster_content_changed || top_offset_changed) {
-        if(data.top_offset) {
-          this.options.keep_parity && layout.push(this.renderExtraTag('keep-parity'));
-          layout.push(this.renderExtraTag('top-space', data.top_offset));
-        }
-        layout.push(this_cluster_rows);
-        data.bottom_offset && layout.push(this.renderExtraTag('bottom-space', data.bottom_offset));
-        callbacks.clusterWillChange && callbacks.clusterWillChange();
-        this.html(layout.join(''));
-        this.options.content_tag == 'ol' && this.content_elem.setAttribute('start', data.rows_above);
-        callbacks.clusterChanged && callbacks.clusterChanged();
-      } else if(only_bottom_offset_changed) {
-        this.content_elem.lastChild.style.height = data.bottom_offset + 'px';
-      }
-    },
-    // unfortunately ie <= 9 does not allow to use innerHTML for table elements, so make a workaround
-    html: function(data) {
-      var content_elem = this.content_elem;
-      if(ie && ie <= 9 && this.options.tag == 'tr') {
-        var div = document.createElement('div'), last;
-        div.innerHTML = '<table><tbody>' + data + '</tbody></table>';
-        while((last = content_elem.lastChild)) {
-          content_elem.removeChild(last);
-        }
-        var rows_nodes = this.getChildNodes(div.firstChild.firstChild);
-        while (rows_nodes.length) {
-          content_elem.appendChild(rows_nodes.shift());
-        }
-      } else {
-        content_elem.innerHTML = data;
-      }
-    },
-    getChildNodes: function(tag) {
-        var child_nodes = tag.children, nodes = [];
-        for (var i = 0, ii = child_nodes.length; i < ii; i++) {
-            nodes.push(child_nodes[i]);
-        }
-        return nodes;
-    },
-    checkChanges: function(type, value, cache) {
-      var changed = value != cache[type];
-      cache[type] = value;
-      return changed;
-    }
-  }
-
-  // support functions
-  function on(evt, element, fnc) {
-    return element.addEventListener ? element.addEventListener(evt, fnc, false) : element.attachEvent("on" + evt, fnc);
-  }
-  function off(evt, element, fnc) {
-    return element.removeEventListener ? element.removeEventListener(evt, fnc, false) : element.detachEvent("on" + evt, fnc);
-  }
-  function isArray(arr) {
-    return Object.prototype.toString.call(arr) === '[object Array]';
-  }
-  function getStyle(prop, elem) {
-    return window.getComputedStyle ? window.getComputedStyle(elem)[prop] : elem.currentStyle[prop];
-  }
-
-  return Clusterize;
-}));
-
-/***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports) {
 
 module.exports = function(opts) {
@@ -2906,7 +2653,7 @@ ElementClass.prototype.toggle = function(className) {
 
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports) {
 
 module.exports = isNode
@@ -2922,7 +2669,7 @@ function isNode (val) {
 
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2931,11 +2678,11 @@ function isNode (val) {
 exports.__esModule = true;
 exports.Node = exports.flatten = undefined;
 
-var _flatten = __webpack_require__(11);
+var _flatten = __webpack_require__(12);
 
 var _flatten2 = _interopRequireDefault(_flatten);
 
-var _node = __webpack_require__(2);
+var _node = __webpack_require__(3);
 
 var _node2 = _interopRequireDefault(_node);
 
@@ -2946,7 +2693,7 @@ exports.flatten = _flatten2['default'];
 exports.Node = _node2['default'];
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2954,11 +2701,11 @@ exports.Node = _node2['default'];
 
 exports.__esModule = true;
 
-var _extend = __webpack_require__(1);
+var _extend = __webpack_require__(2);
 
 var _extend2 = _interopRequireDefault(_extend);
 
-var _node = __webpack_require__(2);
+var _node = __webpack_require__(3);
 
 var _node2 = _interopRequireDefault(_node);
 
@@ -3151,31 +2898,417 @@ var flatten = function flatten() {
 exports['default'] = flatten;
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 exports.__esModule = true;
-var ensureArray = function ensureArray() {
-    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-        args[_key] = arguments[_key];
+
+var _events = __webpack_require__(0);
+
+var _ensureArray = __webpack_require__(4);
+
+var _ensureArray2 = _interopRequireDefault(_ensureArray);
+
+var _browser = __webpack_require__(14);
+
+var _dom = __webpack_require__(5);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var ie = (0, _browser.getIEVersion)();
+
+var Clusterize = function (_EventEmitter) {
+    _inherits(Clusterize, _EventEmitter);
+
+    function Clusterize(options) {
+        _classCallCheck(this, Clusterize);
+
+        var _this = _possibleConstructorReturn(this, _EventEmitter.call(this));
+
+        _this.options = {
+            rowsInBlock: 50,
+            blocksInCluster: 4,
+            tag: null,
+            emptyClass: '',
+            emptyText: '',
+            keepParity: true
+        };
+        _this.state = {
+            lastClusterIndex: -1,
+            itemHeight: 0,
+            blockHeight: 0,
+            clusterHeight: 0
+        };
+        _this.scrollElement = null;
+        _this.contentElement = null;
+        _this.rows = [];
+        _this.cache = {};
+
+        _this.scrollEventListener = function () {
+            var debounce = null;
+
+            return function () {
+                var isMac = navigator.platform.toLowerCase().indexOf('mac') >= 0;
+                if (isMac) {
+                    if (_this.contentElement.style.pointerEvents !== 'none') {
+                        _this.contentElement.style.pointerEvents = 'none';
+                    }
+
+                    if (debounce) {
+                        clearTimeout(debounce);
+                        debounce = null;
+                    }
+
+                    debounce = setTimeout(function () {
+                        debounce = null;
+                        _this.contentElement.style.pointerEvents = 'auto';
+                    }, 50);
+                }
+
+                var clusterIndex = _this.getCurrentClusterIndex();
+                if (_this.state.lastClusterIndex !== clusterIndex) {
+                    _this.changeDOM();
+                }
+                _this.state.lastClusterIndex = clusterIndex;
+            };
+        }();
+
+        _this.resizeEventListener = function () {
+            var debounce = null;
+
+            return function () {
+                if (debounce) {
+                    clearTimeout(debounce);
+                    debounce = null;
+                }
+                debounce = setTimeout(function () {
+                    var prevItemHeight = _this.state.itemHeight;
+
+                    _this.computeHeight();
+
+                    if (prevItemHeight !== _this.state.itemHeight) {
+                        _this.update();
+                    }
+                }, 100);
+            };
+        }();
+
+        if (!(_this instanceof Clusterize)) {
+            var _ret;
+
+            return _ret = new Clusterize(options), _possibleConstructorReturn(_this, _ret);
+        }
+
+        _this.options = Object.keys(_this.options).reduce(function (acc, key) {
+            if (options[key] !== undefined) {
+                acc[key] = options[key];
+            } else {
+                acc[key] = _this.options[key];
+            }
+            return acc;
+        }, {});
+
+        _this.scrollElement = options.scrollElement;
+        _this.contentElement = options.contentElement;
+
+        // Keep focus on the scrolling content
+        if (!_this.contentElement.hasAttribute('tabindex')) {
+            _this.contentElement.setAttribute('tabindex', 0);
+        }
+
+        if (Array.isArray(options.rows)) {
+            _this.rows = options.rows;
+        } else {
+            _this.rows = [];
+
+            var nodes = _this.contentElement.children;
+            var length = nodes.length;
+            for (var i = 0; i < length; ++i) {
+                var node = nodes[i];
+                _this.rows.push(node.outerHTML || '');
+            }
+        }
+
+        // Remember scroll position
+        var scrollTop = _this.scrollElement.scrollTop;
+
+        _this.changeDOM();
+
+        // Restore scroll position
+        _this.scrollElement.scrollTop = scrollTop;
+
+        (0, _dom.addEventListener)(_this.scrollElement, 'scroll', _this.scrollEventListener);
+        (0, _dom.addEventListener)(window, 'resize', _this.resizeEventListener);
+        return _this;
     }
 
-    if (args.length === 0 || args[0] === undefined || args[0] === null) {
-        return [];
-    }
-    if (args.length === 1) {
-        return [].concat(args[0]);
-    }
-    return [].concat(args);
-};
+    Clusterize.prototype.destroy = function destroy(clean) {
+        (0, _dom.removeEventListener)(this.scrollElement, 'scroll', this.scrollEventListener);
+        (0, _dom.removeEventListener)(window, 'resize', this.resizeEventListener);
 
-exports["default"] = ensureArray;
+        var rows = clean ? this.generateEmptyRow() : this.rows();
+        this.setContent(rows.join(''));
+    };
+
+    Clusterize.prototype.update = function update(rows) {
+        this.rows = (0, _ensureArray2['default'])(rows);
+
+        // Remember scroll position
+        var scrollTop = this.scrollElement.scrollTop;
+
+        if (this.rows.length * this.state.itemHeight < scrollTop) {
+            this.scrollElement.scrollTop = 0;
+            this.state.lastClusterIndex = 0;
+        }
+        this.changeDOM();
+
+        // Restore scroll position
+        this.scrollElement.scrollTop = scrollTop;
+    };
+
+    Clusterize.prototype.clear = function clear() {
+        this.rows = [];
+        this.update();
+    };
+
+    Clusterize.prototype.append = function append(rows) {
+        rows = (0, _ensureArray2['default'])(rows);
+        if (!rows.length) {
+            return;
+        }
+        this.rows = this.rows.concat(rows);
+        this.changeDOM();
+    };
+
+    Clusterize.prototype.prepend = function prepend(rows) {
+        rows = (0, _ensureArray2['default'])(rows);
+        if (!rows.length) {
+            return;
+        }
+        this.rows = rows.concat(this.rows);
+        this.changeDOM();
+    };
+
+    Clusterize.prototype.computeHeight = function computeHeight() {
+        this.state.clusterHeight = 0;
+
+        if (!this.rows.length) {
+            return;
+        }
+
+        var nodes = this.contentElement.children;
+        var node = nodes[Math.floor(nodes.length / 2)];
+
+        var itemHeight = node.offsetHeight;
+
+        if (this.options.tag === 'tr' && (0, _dom.getElementStyle)(this.contentElement, 'borderCollapse') !== 'collapse') {
+            itemHeight += parseInt((0, _dom.getElementStyle)(this.contentElement, 'borderSpacing'), 10) || 0;
+        }
+
+        if (this.options.tag !== 'tr') {
+            var marginTop = parseInt((0, _dom.getElementStyle)(node, 'marginTop'), 10) || 0;
+            var marginBottom = parseInt((0, _dom.getElementStyle)(node, 'marginBottom'), 10) || 0;
+            itemHeight += Math.max(marginTop, marginBottom);
+        }
+
+        this.state.itemHeight = itemHeight;
+        this.state.blockHeight = this.state.itemHeight * this.options.rowsInBlock;
+        this.state.clusterHeight = this.state.blockHeight * this.options.blocksInCluster;
+    };
+
+    Clusterize.prototype.getCurrentClusterIndex = function getCurrentClusterIndex() {
+        var _state = this.state,
+            blockHeight = _state.blockHeight,
+            clusterHeight = _state.clusterHeight;
+
+        if (!blockHeight || !clusterHeight) {
+            return 0;
+        }
+        return Math.floor(this.scrollElement.scrollTop / (clusterHeight - blockHeight)) || 0;
+    };
+
+    Clusterize.prototype.generateEmptyRow = function generateEmptyRow() {
+        var _options = this.options,
+            tag = _options.tag,
+            emptyText = _options.emptyText,
+            emptyClass = _options.emptyClass;
+
+
+        if (!tag || !emptyText) {
+            return [];
+        }
+
+        var emptyRow = document.createElement(tag);
+        emptyRow.className = emptyClass;
+
+        if (tag === 'tr') {
+            var td = document.createElement('td');
+            td.colSpan = 100;
+            td.appendChild(document.createTextNode(emptyText));
+            emptyRow.appendChild(td);
+        } else {
+            emptyRow.appendChild(document.createTextNode(emptyText));
+        }
+
+        return [emptyRow.outerHTML];
+    };
+
+    Clusterize.prototype.renderExtraTag = function renderExtraTag(className, height) {
+        var tag = document.createElement(this.options.tag);
+        var prefix = 'infinite-tree-';
+
+        tag.className = [prefix + 'extra-row', prefix + className].join(' ');
+
+        if (height) {
+            tag.style.height = height + 'px';
+        }
+
+        return tag.outerHTML;
+    };
+
+    Clusterize.prototype.changeDOM = function changeDOM() {
+        if (!this.state.clusterHeight && this.rows.length > 0) {
+            if (ie && ie <= 9 && !this.options.tag) {
+                this.options.tag = this.rows[0].match(/<([^>\s/]*)/)[1].toLowerCase();
+            }
+
+            if (this.contentElement.children.length <= 1) {
+                this.cache.content = this.setContent(this.rows[0] + this.rows[0] + this.rows[0]);
+            }
+
+            if (!this.options.tag) {
+                this.options.tag = this.contentElement.children[0].tagName.toLowerCase();
+            }
+
+            this.computeHeight();
+        }
+
+        var topOffset = 0;
+        var bottomOffset = 0;
+        var rows = [];
+
+        if (this.rows.length < this.options.rowsInBlock) {
+            rows = this.rows.length > 0 ? this.rows : this.generateEmptyRow();
+        } else {
+            var rowsInCluster = this.options.rowsInBlock * this.options.blocksInCluster;
+            var clusterIndex = this.getCurrentClusterIndex();
+            var visibleStart = Math.max((rowsInCluster - this.options.rowsInBlock) * clusterIndex, 0);
+            var visibleEnd = visibleStart + rowsInCluster;
+
+            topOffset = Math.max(visibleStart * this.state.itemHeight, 0);
+            bottomOffset = Math.max((this.rows.length - visibleEnd) * this.state.itemHeight, 0);
+
+            // Returns a shallow copy of the rows selected from `visibleStart` to `visibleEnd` (`visibleEnd` not included).
+            rows = this.rows.slice(visibleStart, visibleEnd);
+        }
+
+        var content = rows.join('');
+        var contentChanged = this.checkChanges('content', content);
+        var topOffsetChanged = this.checkChanges('top', topOffset);
+        var bottomOffsetChanged = this.checkChanges('bottom', bottomOffset);
+
+        if (contentChanged || topOffsetChanged) {
+            var layout = [];
+
+            if (topOffset > 0) {
+                if (this.options.keepParity) {
+                    layout.push(this.renderExtraTag('keep-parity'));
+                }
+                layout.push(this.renderExtraTag('top-space', topOffset));
+            }
+
+            layout.push(content);
+
+            if (bottomOffset > 0) {
+                layout.push(this.renderExtraTag('bottom-space', bottomOffset));
+            }
+
+            this.emit('clusterWillChange');
+
+            this.setContent(layout.join(''));
+
+            this.emit('clusterDidChange');
+        } else if (bottomOffsetChanged) {
+            this.contentElement.lastChild.style.height = bottomOffset + 'px';
+        }
+    };
+
+    Clusterize.prototype.setContent = function setContent(content) {
+        // For IE 9 and older versions
+        if (ie && ie <= 9 && this.options.tag === 'tr') {
+            var div = document.createElement('div');
+            div.innerHTML = '<table><tbody>' + content + '</tbody></table>';
+
+            var lastChild = this.contentElement.lastChild;
+            while (lastChild) {
+                this.contentElement.removeChild(lastChild);
+                lastChild = this.contentElement.lastChild;
+            }
+
+            var rowsNodes = this.getChildNodes(div.firstChild.firstChild);
+            while (rowsNodes.length) {
+                this.contentElement.appendChild(rowsNodes.shift());
+            }
+        } else {
+            this.contentElement.innerHTML = content;
+        }
+    };
+
+    Clusterize.prototype.getChildNodes = function getChildNodes(tag) {
+        var childNodes = tag.children;
+        var nodes = [];
+        var length = childNodes.length;
+
+        for (var i = 0; i < length; i++) {
+            nodes.push(childNodes[i]);
+        }
+
+        return nodes;
+    };
+
+    Clusterize.prototype.checkChanges = function checkChanges(type, value) {
+        var changed = value !== this.cache[type];
+        this.cache[type] = value;
+        return changed;
+    };
+
+    return Clusterize;
+}(_events.EventEmitter);
+
+exports['default'] = Clusterize;
 
 /***/ }),
-/* 13 */
+/* 14 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+exports.__esModule = true;
+// https://gist.github.com/padolsey/527683#comment-786682
+var getIEVersion = exports.getIEVersion = function getIEVersion() {
+    var div = document.createElement('div');
+    var all = div.getElementsByTagName('i') || [];
+
+    var v = 3;
+    do {
+        div.innerHTML = '<!--[if gt IE ' + ++v + ']><i></i><![endif]-->';
+    } while (all[0]);
+
+    return v > 4 ? v : document.documentMode;
+};
+
+/***/ }),
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3208,7 +3341,7 @@ var extend = function extend(target) {
 module.exports = extend;
 
 /***/ }),
-/* 14 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3269,7 +3402,7 @@ var get = exports.get = function () {
 }();
 
 /***/ }),
-/* 15 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3315,7 +3448,7 @@ var LookupTable = function () {
 exports["default"] = LookupTable;
 
 /***/ }),
-/* 16 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3324,15 +3457,15 @@ exports["default"] = LookupTable;
 exports.__esModule = true;
 exports.defaultRowRenderer = undefined;
 
-var _classnames = __webpack_require__(0);
+var _classnames = __webpack_require__(1);
 
 var _classnames2 = _interopRequireDefault(_classnames);
 
-var _escapeHtml = __webpack_require__(3);
+var _escapeHtml = __webpack_require__(6);
 
 var _escapeHtml2 = _interopRequireDefault(_escapeHtml);
 
-var _html5Tag = __webpack_require__(17);
+var _html5Tag = __webpack_require__(19);
 
 var _html5Tag2 = _interopRequireDefault(_html5Tag);
 
@@ -3409,7 +3542,7 @@ var defaultRowRenderer = function defaultRowRenderer(node, treeOptions) {
 exports.defaultRowRenderer = defaultRowRenderer;
 
 /***/ }),
-/* 17 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3419,7 +3552,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-var _escapeHtml = __webpack_require__(3);
+var _escapeHtml = __webpack_require__(6);
 
 var _escapeHtml2 = _interopRequireDefault(_escapeHtml);
 
@@ -3463,59 +3596,6 @@ module.exports = function (tag, attrs, text) {
 
     return html;
 };
-
-/***/ }),
-/* 18 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-exports.__esModule = true;
-var preventDefault = function preventDefault(e) {
-    if (typeof e.preventDefault !== 'undefined') {
-        e.preventDefault();
-    } else {
-        e.returnValue = false;
-    }
-};
-
-var stopPropagation = function stopPropagation(e) {
-    if (typeof e.stopPropagation !== 'undefined') {
-        e.stopPropagation();
-    } else {
-        e.cancelBubble = true;
-    }
-};
-
-// https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener#Compatibility
-var addEventListener = function addEventListener(target, type, listener) {
-    if (target.addEventListener) {
-        // Standard
-        target.addEventListener(type, listener, false);
-    } else if (target.attachEvent) {
-        // IE8
-        // In Internet Explorer versions before IE 9, you have to use attachEvent rather than the standard addEventListener.
-        target.attachEvent('on' + type, listener);
-    }
-};
-
-// https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/removeEventListener
-var removeEventListener = function removeEventListener(target, type, listener) {
-    if (target.removeEventListener) {
-        // Standard
-        target.removeEventListener(type, listener, false);
-    } else if (target.detachEvent) {
-        // IE8
-        // In Internet Explorer versions before IE 9, you have to use detachEvent rather than the standard removeEventListener.
-        target.detachEvent('on' + type, listener);
-    }
-};
-
-exports.preventDefault = preventDefault;
-exports.stopPropagation = stopPropagation;
-exports.addEventListener = addEventListener;
-exports.removeEventListener = removeEventListener;
 
 /***/ })
 /******/ ]);
