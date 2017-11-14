@@ -136,7 +136,7 @@ class Clusterize extends EventEmitter {
         this.setContent(rows.join(''));
     }
     update(rows) {
-        this.rows = rows;
+        this.rows = ensureArray(rows);
 
         // Remember scroll position
         const scrollTop = this.scrollElement.scrollTop;
