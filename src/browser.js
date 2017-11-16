@@ -5,7 +5,8 @@ export const getIEVersion = () => {
 
     let v = 3;
     do {
-        div.innerHTML = '<!--[if gt IE ' + (++v) + ']><i></i><![endif]-->';
+        ++v;
+        div.innerHTML = '<!--[if gt IE ' + v + ']><i></i><![endif]-->';
     } while (all[0]);
 
     return v > 4 ? v : document.documentMode;

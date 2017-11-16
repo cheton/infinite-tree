@@ -1,4 +1,4 @@
-/*! infinite-tree v1.13.1 | (c) 2017 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
+/*! infinite-tree v1.13.2 | (c) 2017 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -3301,7 +3301,8 @@ var getIEVersion = exports.getIEVersion = function getIEVersion() {
 
     var v = 3;
     do {
-        div.innerHTML = '<!--[if gt IE ' + ++v + ']><i></i><![endif]-->';
+        ++v;
+        div.innerHTML = '<!--[if gt IE ' + v + ']><i></i><![endif]-->';
     } while (all[0]);
 
     return v > 4 ? v : document.documentMode;
