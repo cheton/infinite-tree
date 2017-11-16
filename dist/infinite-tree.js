@@ -1,4 +1,4 @@
-/*! infinite-tree v1.13.2 | (c) 2017 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
+/*! infinite-tree v1.14.0 | (c) 2017 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
