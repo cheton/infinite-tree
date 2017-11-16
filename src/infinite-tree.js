@@ -66,15 +66,19 @@ class InfiniteTree extends events.EventEmitter {
     options = {
         autoOpen: false,
         droppable: false,
-        el: null,
-        layout: 'div',
         loadNodes: null,
-        noDataClass: 'infinite-tree-no-data',
-        noDataText: 'No data',
-        nodeIdAttr: 'data-id',
         rowRenderer: defaultRowRenderer,
         selectable: true,
         shouldSelectNode: null,
+
+        // When el is not specified, the tree will run in the stealth mode
+        el: null,
+
+        // The following options will have no effect in the stealth mode
+        layout: 'div',
+        noDataClass: 'infinite-tree-no-data',
+        noDataText: 'No data',
+        nodeIdAttr: 'data-id',
         togglerClass: 'infinite-tree-toggler'
     };
     state = {
@@ -87,6 +91,8 @@ class InfiniteTree extends events.EventEmitter {
     nodes = [];
     rows = [];
     filtered = false;
+
+    // The following elements will have no effect in the stealth mode
     scrollElement = null;
     contentElement = null;
     draggableTarget = null;
@@ -297,7 +303,7 @@ class InfiniteTree extends events.EventEmitter {
 
         if (isDOM(el)) {
             options = { ...options, el };
-        } else {
+        } else if (el && typeof el === 'object') {
             options = el;
         }
 
@@ -307,127 +313,122 @@ class InfiniteTree extends events.EventEmitter {
             ...options
         };
 
-        if (!this.options.el) {
-            error('Failed to initialize infinite-tree: el is not specified.', options);
-            return;
-        }
-
         this.create();
 
         // Load tree data if it's provided
-        if (options.data) {
-            this.loadData(options.data);
+        if (this.options.data) {
+            this.loadData(this.options.data);
         }
     }
     create() {
-        if (!this.options.el) {
-            error('The element option is not specified.');
-        }
+        if (this.options.el) {
+            let tag = null;
 
-        let tag = null;
+            this.scrollElement = document.createElement('div');
 
-        this.scrollElement = document.createElement('div');
+            if (this.options.layout === 'table') {
+                const tableElement = document.createElement('table');
+                tableElement.className = classNames(
+                    'infinite-tree',
+                    'infinite-tree-table'
+                );
+                const contentElement = document.createElement('tbody');
+                tableElement.appendChild(contentElement);
+                this.scrollElement.appendChild(tableElement);
+                this.contentElement = contentElement;
 
-        if (this.options.layout === 'table') {
-            const tableElement = document.createElement('table');
-            tableElement.className = classNames(
+                // The tag name for supporting elements
+                tag = 'tr';
+            } else {
+                const contentElement = document.createElement('div');
+                this.scrollElement.appendChild(contentElement);
+                this.contentElement = contentElement;
+
+                // The tag name for supporting elements
+                tag = 'div';
+            }
+
+            this.scrollElement.className = classNames(
                 'infinite-tree',
-                'infinite-tree-table'
+                'infinite-tree-scroll'
             );
-            const contentElement = document.createElement('tbody');
-            tableElement.appendChild(contentElement);
-            this.scrollElement.appendChild(tableElement);
-            this.contentElement = contentElement;
+            this.contentElement.className = classNames(
+                'infinite-tree',
+                'infinite-tree-content'
+            );
 
-            // The tag name for supporting elements
-            tag = 'tr';
-        } else {
-            const contentElement = document.createElement('div');
-            this.scrollElement.appendChild(contentElement);
-            this.contentElement = contentElement;
+            this.options.el.appendChild(this.scrollElement);
 
-            // The tag name for supporting elements
-            tag = 'div';
-        }
+            this.clusterize = new Clusterize({
+                tag: tag,
+                rows: [],
+                scrollElement: this.scrollElement,
+                contentElement: this.contentElement,
+                emptyText: this.options.noDataText,
+                emptyClass: this.options.noDataClass
+            });
 
-        this.scrollElement.className = classNames(
-            'infinite-tree',
-            'infinite-tree-scroll'
-        );
-        this.contentElement.className = classNames(
-            'infinite-tree',
-            'infinite-tree-content'
-        );
+            this.clusterize.on('clusterWillChange', () => {
+                this.emit('clusterWillChange');
+            });
+            this.clusterize.on('clusterDidChange', () => {
+                this.emit('clusterDidChange');
+            });
 
-        this.options.el.appendChild(this.scrollElement);
+            addEventListener(this.contentElement, 'click', this.contentListener.click);
+            addEventListener(this.contentElement, 'dblclick', this.contentListener.dblclick);
+            addEventListener(this.contentElement, 'keydown', this.contentListener.keydown);
+            addEventListener(this.contentElement, 'keyup', this.contentListener.keyup);
 
-        this.clusterize = new Clusterize({
-            tag: tag,
-            rows: [],
-            scrollElement: this.scrollElement,
-            contentElement: this.contentElement,
-            emptyText: this.options.noDataText,
-            emptyClass: this.options.noDataClass
-        });
-
-        this.clusterize.on('clusterWillChange', () => {
-            this.emit('clusterWillChange');
-        });
-        this.clusterize.on('clusterDidChange', () => {
-            this.emit('clusterDidChange');
-        });
-
-        addEventListener(this.contentElement, 'click', this.contentListener.click);
-        addEventListener(this.contentElement, 'dblclick', this.contentListener.dblclick);
-        addEventListener(this.contentElement, 'keydown', this.contentListener.keydown);
-        addEventListener(this.contentElement, 'keyup', this.contentListener.keyup);
-
-        if (this.options.droppable) {
-            addEventListener(document, 'dragstart', this.contentListener.dragstart);
-            addEventListener(document, 'dragend', this.contentListener.dragend);
-            addEventListener(this.contentElement, 'dragenter', this.contentListener.dragenter);
-            addEventListener(this.contentElement, 'dragleave', this.contentListener.dragleave);
-            addEventListener(this.contentElement, 'dragover', this.contentListener.dragover);
-            addEventListener(this.contentElement, 'drop', this.contentListener.drop);
+            if (this.options.droppable) {
+                addEventListener(document, 'dragstart', this.contentListener.dragstart);
+                addEventListener(document, 'dragend', this.contentListener.dragend);
+                addEventListener(this.contentElement, 'dragenter', this.contentListener.dragenter);
+                addEventListener(this.contentElement, 'dragleave', this.contentListener.dragleave);
+                addEventListener(this.contentElement, 'dragover', this.contentListener.dragover);
+                addEventListener(this.contentElement, 'drop', this.contentListener.drop);
+            }
         }
     }
     destroy() {
-        removeEventListener(this.contentElement, 'click', this.contentListener.click);
-        removeEventListener(this.contentElement, 'dblclick', this.contentListener.dblclick);
-        removeEventListener(this.contentElement, 'keydown', this.contentListener.keydown);
-        removeEventListener(this.contentElement, 'keyup', this.contentListener.keyup);
-
-        if (this.options.droppable) {
-            removeEventListener(document, 'dragstart', this.contentListener.dragstart);
-            removeEventListener(document, 'dragend', this.contentListener.dragend);
-            removeEventListener(this.contentElement, 'dragenter', this.contentListener.dragenter);
-            removeEventListener(this.contentElement, 'dragleave', this.contentListener.dragleave);
-            removeEventListener(this.contentElement, 'dragover', this.contentListener.dragover);
-            removeEventListener(this.contentElement, 'drop', this.contentListener.drop);
-        }
-
         this.clear();
 
-        if (this.clusterize) {
-            this.clusterize.destroy(true); // True to remove all data from the list
-            this.clusterize = null;
-        }
-
-        // Remove all child nodes
-        while (this.contentElement.firstChild) {
-            this.contentElement.removeChild(this.contentElement.firstChild);
-        }
-        while (this.scrollElement.firstChild) {
-            this.scrollElement.removeChild(this.scrollElement.firstChild);
-        }
         if (this.options.el) {
+            removeEventListener(this.contentElement, 'click', this.contentListener.click);
+            removeEventListener(this.contentElement, 'dblclick', this.contentListener.dblclick);
+            removeEventListener(this.contentElement, 'keydown', this.contentListener.keydown);
+            removeEventListener(this.contentElement, 'keyup', this.contentListener.keyup);
+
+            if (this.options.droppable) {
+                removeEventListener(document, 'dragstart', this.contentListener.dragstart);
+                removeEventListener(document, 'dragend', this.contentListener.dragend);
+                removeEventListener(this.contentElement, 'dragenter', this.contentListener.dragenter);
+                removeEventListener(this.contentElement, 'dragleave', this.contentListener.dragleave);
+                removeEventListener(this.contentElement, 'dragover', this.contentListener.dragover);
+                removeEventListener(this.contentElement, 'drop', this.contentListener.drop);
+            }
+
+            if (this.clusterize) {
+                this.clusterize.destroy(true); // True to remove all data from the list
+                this.clusterize = null;
+            }
+
+            // Remove all child nodes
+            while (this.contentElement.firstChild) {
+                this.contentElement.removeChild(this.contentElement.firstChild);
+            }
+            while (this.scrollElement.firstChild) {
+                this.scrollElement.removeChild(this.scrollElement.firstChild);
+            }
+
             const containerElement = this.options.el;
             while (containerElement.firstChild) {
                 containerElement.removeChild(containerElement.firstChild);
             }
+
+            this.contentElement = null;
+            this.scrollElement = null;
         }
-        this.contentElement = null;
-        this.scrollElement = null;
     }
     // Adds an array of new child nodes to a parent node at the specified index.
     // * If the parent is null or undefined, inserts new childs at the specified index in the top-level.
@@ -530,7 +531,9 @@ class InfiniteTree extends events.EventEmitter {
     }
     // Clears the tree.
     clear() {
-        this.clusterize.clear();
+        if (this.clusterize) {
+            this.clusterize.clear();
+        }
         this.nodeTable.clear();
         this.nodes = [];
         this.rows = [];
@@ -1401,7 +1404,7 @@ class InfiniteTree extends events.EventEmitter {
                 this.emit('selectNode', node);
             }
 
-            if (autoScroll) {
+            if (autoScroll && this.scrollElement && this.contentElement) {
                 const nodeSelector = `[${this.options.nodeIdAttr}="${node.id}"]`;
                 const nodeEl = this.contentElement.querySelector(nodeSelector);
                 if (nodeEl) {
@@ -1562,9 +1565,11 @@ class InfiniteTree extends events.EventEmitter {
         // Emit a "contentWillUpdate" event
         this.emit('contentWillUpdate');
 
-        // Update list
-        const rows = this.rows.filter(row => !!row);
-        this.clusterize.update(rows);
+        if (this.clusterize) {
+            // Update list
+            const rows = this.rows.filter(row => !!row);
+            this.clusterize.update(rows);
+        }
 
         // Emit a "contentWillUpdate" event
         this.emit('contentDidUpdate');

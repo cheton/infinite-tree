@@ -919,15 +919,19 @@ var InfiniteTree = function (_events$EventEmitter) {
         _this.options = {
             autoOpen: false,
             droppable: false,
-            el: null,
-            layout: 'div',
             loadNodes: null,
-            noDataClass: 'infinite-tree-no-data',
-            noDataText: 'No data',
-            nodeIdAttr: 'data-id',
             rowRenderer: _renderer.defaultRowRenderer,
             selectable: true,
             shouldSelectNode: null,
+
+            // When el is not specified, the tree will run in the stealth mode
+            el: null,
+
+            // The following options will have no effect in the stealth mode
+            layout: 'div',
+            noDataClass: 'infinite-tree-no-data',
+            noDataText: 'No data',
+            nodeIdAttr: 'data-id',
             togglerClass: 'infinite-tree-toggler'
         };
         _this.state = {
@@ -1159,130 +1163,128 @@ var InfiniteTree = function (_events$EventEmitter) {
 
         if ((0, _isDom2['default'])(el)) {
             options = _extends({}, options, { el: el });
-        } else {
+        } else if (el && (typeof el === 'undefined' ? 'undefined' : _typeof(el)) === 'object') {
             options = el;
         }
 
         // Assign options
         _this.options = _extends({}, _this.options, options);
 
-        if (!_this.options.el) {
-            error('Failed to initialize infinite-tree: el is not specified.', options);
-            return _possibleConstructorReturn(_this);
-        }
-
         _this.create();
 
         // Load tree data if it's provided
-        if (options.data) {
-            _this.loadData(options.data);
+        if (_this.options.data) {
+            _this.loadData(_this.options.data);
         }
         return _this;
     }
 
+    // The following elements will have no effect in the stealth mode
+
+
     InfiniteTree.prototype.create = function create() {
         var _this2 = this;
 
-        if (!this.options.el) {
-            error('The element option is not specified.');
-        }
+        if (this.options.el) {
+            var tag = null;
 
-        var tag = null;
+            this.scrollElement = document.createElement('div');
 
-        this.scrollElement = document.createElement('div');
+            if (this.options.layout === 'table') {
+                var tableElement = document.createElement('table');
+                tableElement.className = (0, _classnames2['default'])('infinite-tree', 'infinite-tree-table');
+                var contentElement = document.createElement('tbody');
+                tableElement.appendChild(contentElement);
+                this.scrollElement.appendChild(tableElement);
+                this.contentElement = contentElement;
 
-        if (this.options.layout === 'table') {
-            var tableElement = document.createElement('table');
-            tableElement.className = (0, _classnames2['default'])('infinite-tree', 'infinite-tree-table');
-            var contentElement = document.createElement('tbody');
-            tableElement.appendChild(contentElement);
-            this.scrollElement.appendChild(tableElement);
-            this.contentElement = contentElement;
+                // The tag name for supporting elements
+                tag = 'tr';
+            } else {
+                var _contentElement = document.createElement('div');
+                this.scrollElement.appendChild(_contentElement);
+                this.contentElement = _contentElement;
 
-            // The tag name for supporting elements
-            tag = 'tr';
-        } else {
-            var _contentElement = document.createElement('div');
-            this.scrollElement.appendChild(_contentElement);
-            this.contentElement = _contentElement;
+                // The tag name for supporting elements
+                tag = 'div';
+            }
 
-            // The tag name for supporting elements
-            tag = 'div';
-        }
+            this.scrollElement.className = (0, _classnames2['default'])('infinite-tree', 'infinite-tree-scroll');
+            this.contentElement.className = (0, _classnames2['default'])('infinite-tree', 'infinite-tree-content');
 
-        this.scrollElement.className = (0, _classnames2['default'])('infinite-tree', 'infinite-tree-scroll');
-        this.contentElement.className = (0, _classnames2['default'])('infinite-tree', 'infinite-tree-content');
+            this.options.el.appendChild(this.scrollElement);
 
-        this.options.el.appendChild(this.scrollElement);
+            this.clusterize = new _clusterize2['default']({
+                tag: tag,
+                rows: [],
+                scrollElement: this.scrollElement,
+                contentElement: this.contentElement,
+                emptyText: this.options.noDataText,
+                emptyClass: this.options.noDataClass
+            });
 
-        this.clusterize = new _clusterize2['default']({
-            tag: tag,
-            rows: [],
-            scrollElement: this.scrollElement,
-            contentElement: this.contentElement,
-            emptyText: this.options.noDataText,
-            emptyClass: this.options.noDataClass
-        });
+            this.clusterize.on('clusterWillChange', function () {
+                _this2.emit('clusterWillChange');
+            });
+            this.clusterize.on('clusterDidChange', function () {
+                _this2.emit('clusterDidChange');
+            });
 
-        this.clusterize.on('clusterWillChange', function () {
-            _this2.emit('clusterWillChange');
-        });
-        this.clusterize.on('clusterDidChange', function () {
-            _this2.emit('clusterDidChange');
-        });
+            (0, _dom.addEventListener)(this.contentElement, 'click', this.contentListener.click);
+            (0, _dom.addEventListener)(this.contentElement, 'dblclick', this.contentListener.dblclick);
+            (0, _dom.addEventListener)(this.contentElement, 'keydown', this.contentListener.keydown);
+            (0, _dom.addEventListener)(this.contentElement, 'keyup', this.contentListener.keyup);
 
-        (0, _dom.addEventListener)(this.contentElement, 'click', this.contentListener.click);
-        (0, _dom.addEventListener)(this.contentElement, 'dblclick', this.contentListener.dblclick);
-        (0, _dom.addEventListener)(this.contentElement, 'keydown', this.contentListener.keydown);
-        (0, _dom.addEventListener)(this.contentElement, 'keyup', this.contentListener.keyup);
-
-        if (this.options.droppable) {
-            (0, _dom.addEventListener)(document, 'dragstart', this.contentListener.dragstart);
-            (0, _dom.addEventListener)(document, 'dragend', this.contentListener.dragend);
-            (0, _dom.addEventListener)(this.contentElement, 'dragenter', this.contentListener.dragenter);
-            (0, _dom.addEventListener)(this.contentElement, 'dragleave', this.contentListener.dragleave);
-            (0, _dom.addEventListener)(this.contentElement, 'dragover', this.contentListener.dragover);
-            (0, _dom.addEventListener)(this.contentElement, 'drop', this.contentListener.drop);
+            if (this.options.droppable) {
+                (0, _dom.addEventListener)(document, 'dragstart', this.contentListener.dragstart);
+                (0, _dom.addEventListener)(document, 'dragend', this.contentListener.dragend);
+                (0, _dom.addEventListener)(this.contentElement, 'dragenter', this.contentListener.dragenter);
+                (0, _dom.addEventListener)(this.contentElement, 'dragleave', this.contentListener.dragleave);
+                (0, _dom.addEventListener)(this.contentElement, 'dragover', this.contentListener.dragover);
+                (0, _dom.addEventListener)(this.contentElement, 'drop', this.contentListener.drop);
+            }
         }
     };
 
     InfiniteTree.prototype.destroy = function destroy() {
-        (0, _dom.removeEventListener)(this.contentElement, 'click', this.contentListener.click);
-        (0, _dom.removeEventListener)(this.contentElement, 'dblclick', this.contentListener.dblclick);
-        (0, _dom.removeEventListener)(this.contentElement, 'keydown', this.contentListener.keydown);
-        (0, _dom.removeEventListener)(this.contentElement, 'keyup', this.contentListener.keyup);
-
-        if (this.options.droppable) {
-            (0, _dom.removeEventListener)(document, 'dragstart', this.contentListener.dragstart);
-            (0, _dom.removeEventListener)(document, 'dragend', this.contentListener.dragend);
-            (0, _dom.removeEventListener)(this.contentElement, 'dragenter', this.contentListener.dragenter);
-            (0, _dom.removeEventListener)(this.contentElement, 'dragleave', this.contentListener.dragleave);
-            (0, _dom.removeEventListener)(this.contentElement, 'dragover', this.contentListener.dragover);
-            (0, _dom.removeEventListener)(this.contentElement, 'drop', this.contentListener.drop);
-        }
-
         this.clear();
 
-        if (this.clusterize) {
-            this.clusterize.destroy(true); // True to remove all data from the list
-            this.clusterize = null;
-        }
-
-        // Remove all child nodes
-        while (this.contentElement.firstChild) {
-            this.contentElement.removeChild(this.contentElement.firstChild);
-        }
-        while (this.scrollElement.firstChild) {
-            this.scrollElement.removeChild(this.scrollElement.firstChild);
-        }
         if (this.options.el) {
+            (0, _dom.removeEventListener)(this.contentElement, 'click', this.contentListener.click);
+            (0, _dom.removeEventListener)(this.contentElement, 'dblclick', this.contentListener.dblclick);
+            (0, _dom.removeEventListener)(this.contentElement, 'keydown', this.contentListener.keydown);
+            (0, _dom.removeEventListener)(this.contentElement, 'keyup', this.contentListener.keyup);
+
+            if (this.options.droppable) {
+                (0, _dom.removeEventListener)(document, 'dragstart', this.contentListener.dragstart);
+                (0, _dom.removeEventListener)(document, 'dragend', this.contentListener.dragend);
+                (0, _dom.removeEventListener)(this.contentElement, 'dragenter', this.contentListener.dragenter);
+                (0, _dom.removeEventListener)(this.contentElement, 'dragleave', this.contentListener.dragleave);
+                (0, _dom.removeEventListener)(this.contentElement, 'dragover', this.contentListener.dragover);
+                (0, _dom.removeEventListener)(this.contentElement, 'drop', this.contentListener.drop);
+            }
+
+            if (this.clusterize) {
+                this.clusterize.destroy(true); // True to remove all data from the list
+                this.clusterize = null;
+            }
+
+            // Remove all child nodes
+            while (this.contentElement.firstChild) {
+                this.contentElement.removeChild(this.contentElement.firstChild);
+            }
+            while (this.scrollElement.firstChild) {
+                this.scrollElement.removeChild(this.scrollElement.firstChild);
+            }
+
             var containerElement = this.options.el;
             while (containerElement.firstChild) {
                 containerElement.removeChild(containerElement.firstChild);
             }
+
+            this.contentElement = null;
+            this.scrollElement = null;
         }
-        this.contentElement = null;
-        this.scrollElement = null;
     };
     // Adds an array of new child nodes to a parent node at the specified index.
     // * If the parent is null or undefined, inserts new childs at the specified index in the top-level.
@@ -1394,7 +1396,9 @@ var InfiniteTree = function (_events$EventEmitter) {
 
 
     InfiniteTree.prototype.clear = function clear() {
-        this.clusterize.clear();
+        if (this.clusterize) {
+            this.clusterize.clear();
+        }
         this.nodeTable.clear();
         this.nodes = [];
         this.rows = [];
@@ -2338,7 +2342,7 @@ var InfiniteTree = function (_events$EventEmitter) {
                 this.emit('selectNode', node);
             }
 
-            if (autoScroll) {
+            if (autoScroll && this.scrollElement && this.contentElement) {
                 var nodeSelector = '[' + this.options.nodeIdAttr + '="' + node.id + '"]';
                 var nodeEl = this.contentElement.querySelector(nodeSelector);
                 if (nodeEl) {
@@ -2518,11 +2522,13 @@ var InfiniteTree = function (_events$EventEmitter) {
         // Emit a "contentWillUpdate" event
         this.emit('contentWillUpdate');
 
-        // Update list
-        var rows = this.rows.filter(function (row) {
-            return !!row;
-        });
-        this.clusterize.update(rows);
+        if (this.clusterize) {
+            // Update list
+            var rows = this.rows.filter(function (row) {
+                return !!row;
+            });
+            this.clusterize.update(rows);
+        }
 
         // Emit a "contentWillUpdate" event
         this.emit('contentDidUpdate');

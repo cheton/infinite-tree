@@ -32,6 +32,64 @@ const getTreeElement = () => {
     return el;
 };
 
+test('Stealth mode', (t) => {
+    { // #1
+        const tree = new InfiniteTree(null, {
+            autoOpen: true,
+            data: getTreeData()
+        });
+
+        t.equal(tree.clusterize, null);
+        t.equal(tree.contentElement, null);
+        t.equal(tree.scrollElement, null);
+        t.equal(tree.draggableTarget, null);
+        t.equal(tree.droppableTarget, null);
+
+        t.equal(tree.nodes.length, 12);
+        t.equal(tree.rows.length, 12);
+
+        tree.destroy();
+
+        t.equal(tree.clusterize, null);
+        t.equal(tree.contentElement, null);
+        t.equal(tree.scrollElement, null);
+        t.equal(tree.draggableTarget, null);
+        t.equal(tree.droppableTarget, null);
+
+        t.equal(tree.nodes.length, 0);
+        t.equal(tree.rows.length, 0);
+    }
+
+    { // #2
+        const tree = new InfiniteTree({
+            autoOpen: true,
+            data: getTreeData()
+        });
+
+        t.equal(tree.clusterize, null);
+        t.equal(tree.contentElement, null);
+        t.equal(tree.scrollElement, null);
+        t.equal(tree.draggableTarget, null);
+        t.equal(tree.droppableTarget, null);
+
+        t.equal(tree.nodes.length, 12);
+        t.equal(tree.rows.length, 12);
+
+        tree.destroy();
+
+        t.equal(tree.clusterize, null);
+        t.equal(tree.contentElement, null);
+        t.equal(tree.scrollElement, null);
+        t.equal(tree.draggableTarget, null);
+        t.equal(tree.droppableTarget, null);
+
+        t.equal(tree.nodes.length, 0);
+        t.equal(tree.rows.length, 0);
+    }
+
+    t.end();
+});
+
 test('Close all nodes on tree initialization', (t) => {
     const el = getTreeElement();
     const tree = new InfiniteTree(el, {
