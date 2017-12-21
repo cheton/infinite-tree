@@ -692,6 +692,12 @@ class InfiniteTree extends events.EventEmitter {
             } else if (typeof predicate === 'string') {
                 // string
                 let filterText = get(node, options.filterPath, '');
+                if (Number.isFinite(filterText)) {
+                    filterText = String(filterText);
+                }
+                if (typeof filterText !== 'string') {
+                    filterText = '';
+                }
                 let keyword = predicate;
                 if (!options.caseSensitive) {
                     filterText = filterText.toLowerCase();

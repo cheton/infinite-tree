@@ -340,6 +340,20 @@ test('tree.filter', (t) => {
             },
             wanted: []
         },
+        { // Invalid filterPath
+            predicate: 'charlie',
+            options: {
+                filterPath: 'children'
+            },
+            wanted: []
+        },
+        { // Invalid filterPath
+            predicate: 'charlie',
+            options: {
+                filterPath: 'state.open'
+            },
+            wanted: []
+        },
         { // Case sensitive
             predicate: 'charlie',
             options: {
