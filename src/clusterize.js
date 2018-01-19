@@ -73,7 +73,7 @@ class Clusterize extends EventEmitter {
 
                 this.computeHeight();
 
-                if (prevItemHeight !== this.state.itemHeight) {
+                if (this.state.itemHeight > 0 && prevItemHeight !== this.state.itemHeight) {
                     this.update();
                 }
             }, 100);
