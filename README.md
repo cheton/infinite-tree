@@ -383,6 +383,4 @@ tree.on('click', (event) => {
 
 ## License
 
-Copyright (c) 2016-2017 Cheton Wu
-
-Licensed under the [MIT License](LICENSE).
+MIT
