@@ -1,4 +1,4 @@
-/*! infinite-tree v1.14.2 | (c) 2018 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
+/*! infinite-tree v1.14.3 | (c) 2018 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -2918,6 +2918,8 @@ exports['default'] = flatten;
 
 exports.__esModule = true;
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _events = __webpack_require__(0);
 
 var _ensureArray = __webpack_require__(4);
@@ -3004,11 +3006,11 @@ var Clusterize = function (_EventEmitter) {
                 }
                 debounce = setTimeout(function () {
                     var prevItemHeight = _this.state.itemHeight;
+                    var current = _this.computeHeight();
 
-                    _this.computeHeight();
-
-                    if (_this.state.itemHeight > 0 && prevItemHeight !== _this.state.itemHeight) {
-                        _this.update();
+                    if (current.itemHeight > 0 && prevItemHeight !== current.itemHeight) {
+                        _this.state = _extends({}, _this.state, current);
+                        _this.update(_this.rows);
                     }
                 }, 100);
             };
@@ -3111,30 +3113,34 @@ var Clusterize = function (_EventEmitter) {
     };
 
     Clusterize.prototype.computeHeight = function computeHeight() {
-        this.state.clusterHeight = 0;
-
         if (!this.rows.length) {
-            return;
+            return {
+                clusterHeight: 0,
+                blockHeight: this.state.blockHeight,
+                itemHeight: this.state.itemHeight
+            };
+        } else {
+            var nodes = this.contentElement.children;
+            var node = nodes[Math.floor(nodes.length / 2)];
+
+            var itemHeight = node.offsetHeight;
+
+            if (this.options.tag === 'tr' && (0, _dom.getElementStyle)(this.contentElement, 'borderCollapse') !== 'collapse') {
+                itemHeight += parseInt((0, _dom.getElementStyle)(this.contentElement, 'borderSpacing'), 10) || 0;
+            }
+
+            if (this.options.tag !== 'tr') {
+                var marginTop = parseInt((0, _dom.getElementStyle)(node, 'marginTop'), 10) || 0;
+                var marginBottom = parseInt((0, _dom.getElementStyle)(node, 'marginBottom'), 10) || 0;
+                itemHeight += Math.max(marginTop, marginBottom);
+            }
+
+            return {
+                blockHeight: this.state.itemHeight * this.options.rowsInBlock,
+                clusterHeight: this.state.blockHeight * this.options.blocksInCluster,
+                itemHeight: itemHeight
+            };
         }
-
-        var nodes = this.contentElement.children;
-        var node = nodes[Math.floor(nodes.length / 2)];
-
-        var itemHeight = node.offsetHeight;
-
-        if (this.options.tag === 'tr' && (0, _dom.getElementStyle)(this.contentElement, 'borderCollapse') !== 'collapse') {
-            itemHeight += parseInt((0, _dom.getElementStyle)(this.contentElement, 'borderSpacing'), 10) || 0;
-        }
-
-        if (this.options.tag !== 'tr') {
-            var marginTop = parseInt((0, _dom.getElementStyle)(node, 'marginTop'), 10) || 0;
-            var marginBottom = parseInt((0, _dom.getElementStyle)(node, 'marginBottom'), 10) || 0;
-            itemHeight += Math.max(marginTop, marginBottom);
-        }
-
-        this.state.itemHeight = itemHeight;
-        this.state.blockHeight = this.state.itemHeight * this.options.rowsInBlock;
-        this.state.clusterHeight = this.state.blockHeight * this.options.blocksInCluster;
     };
 
     Clusterize.prototype.getCurrentClusterIndex = function getCurrentClusterIndex() {
@@ -3201,7 +3207,7 @@ var Clusterize = function (_EventEmitter) {
                 this.options.tag = this.contentElement.children[0].tagName.toLowerCase();
             }
 
-            this.computeHeight();
+            this.state = _extends({}, this.state, this.computeHeight());
         }
 
         var topOffset = 0;
