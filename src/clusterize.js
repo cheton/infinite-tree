@@ -70,11 +70,11 @@ class Clusterize extends EventEmitter {
             }
             debounce = setTimeout(() => {
                 const prevItemHeight = this.state.itemHeight;
-                const current = this.computeHeight();
 
-                if ((current.itemHeight > 0) && (prevItemHeight !== current.itemHeight)) {
-                    this.state = { ...this.state, ...current };
-                    this.update(this.rows);
+                this.computeHeight();
+
+                if ((this.state.itemHeight > 0) && (prevItemHeight !== this.state.itemHeight)) {
+                    this.update();
                 }
             }, 100);
         };
@@ -171,34 +171,30 @@ class Clusterize extends EventEmitter {
         this.changeDOM();
     }
     computeHeight() {
+        this.state.clusterHeight = 0;
+
         if (!this.rows.length) {
-            return {
-                clusterHeight: 0,
-                blockHeight: this.state.blockHeight,
-                itemHeight: this.state.itemHeight
-            };
-        } else {
-            const nodes = this.contentElement.children;
-            const node = nodes[Math.floor(nodes.length / 2)];
-
-            let itemHeight = node.offsetHeight;
-
-            if (this.options.tag === 'tr' && getElementStyle(this.contentElement, 'borderCollapse') !== 'collapse') {
-                itemHeight += parseInt(getElementStyle(this.contentElement, 'borderSpacing'), 10) || 0;
-            }
-
-            if (this.options.tag !== 'tr') {
-                const marginTop = parseInt(getElementStyle(node, 'marginTop'), 10) || 0;
-                const marginBottom = parseInt(getElementStyle(node, 'marginBottom'), 10) || 0;
-                itemHeight += Math.max(marginTop, marginBottom);
-            }
-
-            return {
-                blockHeight: this.state.itemHeight * this.options.rowsInBlock,
-                clusterHeight: this.state.blockHeight * this.options.blocksInCluster,
-                itemHeight
-            };
+            return;
         }
+
+        const nodes = this.contentElement.children;
+        const node = nodes[Math.floor(nodes.length / 2)];
+
+        let itemHeight = node.offsetHeight;
+
+        if (this.options.tag === 'tr' && getElementStyle(this.contentElement, 'borderCollapse') !== 'collapse') {
+            itemHeight += parseInt(getElementStyle(this.contentElement, 'borderSpacing'), 10) || 0;
+        }
+
+        if (this.options.tag !== 'tr') {
+            const marginTop = parseInt(getElementStyle(node, 'marginTop'), 10) || 0;
+            const marginBottom = parseInt(getElementStyle(node, 'marginBottom'), 10) || 0;
+            itemHeight += Math.max(marginTop, marginBottom);
+        }
+
+        this.state.itemHeight = itemHeight;
+        this.state.blockHeight = this.state.itemHeight * this.options.rowsInBlock;
+        this.state.clusterHeight = this.state.blockHeight * this.options.blocksInCluster;
     }
     getCurrentClusterIndex() {
         const { blockHeight, clusterHeight } = this.state;
@@ -257,7 +253,7 @@ class Clusterize extends EventEmitter {
                 this.options.tag = this.contentElement.children[0].tagName.toLowerCase();
             }
 
-            this.state = { ...this.state, ...this.computeHeight() };
+            this.computeHeight();
         }
 
         let topOffset = 0;
