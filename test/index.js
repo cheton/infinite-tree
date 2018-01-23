@@ -748,7 +748,6 @@ test('tree.openNode', (t) => {
     t.strictSame(tree.nodes[0], tree.getNodeById('<root>'));
 
     // Should open not visible but loaded new nodes at initial
-
     t.equal(tree.state.openNodes.length, 1);
 
     // Pass `{ silent: true }` to prevent event from being triggered
