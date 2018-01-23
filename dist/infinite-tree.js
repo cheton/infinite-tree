@@ -1874,10 +1874,61 @@ var InfiniteTree = function (_events$EventEmitter) {
 
         this.emit('willOpenNode', node);
 
+        var fn = function fn() {
+            node.state.open = true; // Set node.state.open to true
+            var openNodes = [node].concat(_this6.state.openNodes); // the most recently used items first
+            _this6.state.openNodes = openNodes;
+
+            var nodes = (0, _flattree.flatten)(node.children, { openNodes: _this6.state.openNodes });
+            var rows = [];
+            // Update rows
+            rows.length = nodes.length;
+            for (var i = 0; i < nodes.length; ++i) {
+                var _node = nodes[i];
+                rows[i] = _this6.options.rowRenderer(_node, _this6.options);
+            }
+
+            // Update nodes & rows
+            _this6.nodes.splice.apply(_this6.nodes, [nodeIndex + 1, 0].concat(nodes));
+            _this6.rows.splice.apply(_this6.rows, [nodeIndex + 1, 0].concat(rows));
+
+            // Update the row corresponding to the node
+            _this6.rows[nodeIndex] = _this6.options.rowRenderer(node, _this6.options);
+
+            // Add all child nodes to the lookup table if the first child does not exist in the lookup table
+            if (nodes.length > 0 && !_this6.nodeTable.get(nodes[0])) {
+                nodes.forEach(function (node) {
+                    if (node.id !== undefined) {
+                        _this6.nodeTable.set(node.id, node);
+                    }
+                });
+            }
+
+            // Toggle the expanding state
+            node.state.expanding = false;
+            // Update the row corresponding to the node
+            _this6.rows[nodeIndex] = _this6.options.rowRenderer(node, _this6.options);
+            // Update list
+            _this6.update();
+
+            if (!silent) {
+                // Emit a "openNode" event
+                _this6.emit('openNode', node);
+            }
+
+            if (typeof asyncCallback === 'function') {
+                asyncCallback();
+            }
+        };
+
         // Retrieve node index
         var nodeIndex = this.nodes.indexOf(node);
         if (nodeIndex < 0) {
-            error('Invalid node index');
+            if (async) {
+                setTimeout(fn, 0);
+            } else {
+                fn();
+            }
             return false;
         }
 
@@ -1968,53 +2019,6 @@ var InfiniteTree = function (_events$EventEmitter) {
         this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
         // Update list
         this.update();
-
-        var fn = function fn() {
-            node.state.open = true; // Set node.state.open to true
-            var openNodes = [node].concat(_this6.state.openNodes); // the most recently used items first
-            _this6.state.openNodes = openNodes;
-
-            var nodes = (0, _flattree.flatten)(node.children, { openNodes: _this6.state.openNodes });
-            var rows = [];
-            // Update rows
-            rows.length = nodes.length;
-            for (var i = 0; i < nodes.length; ++i) {
-                var _node = nodes[i];
-                rows[i] = _this6.options.rowRenderer(_node, _this6.options);
-            }
-
-            // Update nodes & rows
-            _this6.nodes.splice.apply(_this6.nodes, [nodeIndex + 1, 0].concat(nodes));
-            _this6.rows.splice.apply(_this6.rows, [nodeIndex + 1, 0].concat(rows));
-
-            // Update the row corresponding to the node
-            _this6.rows[nodeIndex] = _this6.options.rowRenderer(node, _this6.options);
-
-            // Add all child nodes to the lookup table if the first child does not exist in the lookup table
-            if (nodes.length > 0 && !_this6.nodeTable.get(nodes[0])) {
-                nodes.forEach(function (node) {
-                    if (node.id !== undefined) {
-                        _this6.nodeTable.set(node.id, node);
-                    }
-                });
-            }
-
-            // Toggle the expanding state
-            node.state.expanding = false;
-            // Update the row corresponding to the node
-            _this6.rows[nodeIndex] = _this6.options.rowRenderer(node, _this6.options);
-            // Update list
-            _this6.update();
-
-            if (!silent) {
-                // Emit a "openNode" event
-                _this6.emit('openNode', node);
-            }
-
-            if (typeof asyncCallback === 'function') {
-                asyncCallback();
-            }
-        };
 
         if (async) {
             setTimeout(fn, 0);

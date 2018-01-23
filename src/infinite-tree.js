@@ -962,10 +962,61 @@ class InfiniteTree extends events.EventEmitter {
 
         this.emit('willOpenNode', node);
 
+        const fn = () => {
+            node.state.open = true; // Set node.state.open to true
+            const openNodes = [node].concat(this.state.openNodes); // the most recently used items first
+            this.state.openNodes = openNodes;
+
+            const nodes = flatten(node.children, { openNodes: this.state.openNodes });
+            const rows = [];
+            // Update rows
+            rows.length = nodes.length;
+            for (let i = 0; i < nodes.length; ++i) {
+                const node = nodes[i];
+                rows[i] = this.options.rowRenderer(node, this.options);
+            }
+
+            // Update nodes & rows
+            this.nodes.splice.apply(this.nodes, [nodeIndex + 1, 0].concat(nodes));
+            this.rows.splice.apply(this.rows, [nodeIndex + 1, 0].concat(rows));
+
+            // Update the row corresponding to the node
+            this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
+
+            // Add all child nodes to the lookup table if the first child does not exist in the lookup table
+            if ((nodes.length > 0) && !(this.nodeTable.get(nodes[0]))) {
+                nodes.forEach((node) => {
+                    if (node.id !== undefined) {
+                        this.nodeTable.set(node.id, node);
+                    }
+                });
+            }
+
+            // Toggle the expanding state
+            node.state.expanding = false;
+            // Update the row corresponding to the node
+            this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
+            // Update list
+            this.update();
+
+            if (!silent) {
+                // Emit a "openNode" event
+                this.emit('openNode', node);
+            }
+
+            if (typeof asyncCallback === 'function') {
+                asyncCallback();
+            }
+        };
+
         // Retrieve node index
         const nodeIndex = this.nodes.indexOf(node);
         if (nodeIndex < 0) {
-            error('Invalid node index');
+            if (async) {
+                setTimeout(fn, 0);
+            } else {
+                fn();
+            }
             return false;
         }
 
@@ -1055,53 +1106,6 @@ class InfiniteTree extends events.EventEmitter {
         this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
         // Update list
         this.update();
-
-        const fn = () => {
-            node.state.open = true; // Set node.state.open to true
-            const openNodes = [node].concat(this.state.openNodes); // the most recently used items first
-            this.state.openNodes = openNodes;
-
-            const nodes = flatten(node.children, { openNodes: this.state.openNodes });
-            const rows = [];
-            // Update rows
-            rows.length = nodes.length;
-            for (let i = 0; i < nodes.length; ++i) {
-                const node = nodes[i];
-                rows[i] = this.options.rowRenderer(node, this.options);
-            }
-
-            // Update nodes & rows
-            this.nodes.splice.apply(this.nodes, [nodeIndex + 1, 0].concat(nodes));
-            this.rows.splice.apply(this.rows, [nodeIndex + 1, 0].concat(rows));
-
-            // Update the row corresponding to the node
-            this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
-
-            // Add all child nodes to the lookup table if the first child does not exist in the lookup table
-            if ((nodes.length > 0) && !(this.nodeTable.get(nodes[0]))) {
-                nodes.forEach((node) => {
-                    if (node.id !== undefined) {
-                        this.nodeTable.set(node.id, node);
-                    }
-                });
-            }
-
-            // Toggle the expanding state
-            node.state.expanding = false;
-            // Update the row corresponding to the node
-            this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
-            // Update list
-            this.update();
-
-            if (!silent) {
-                // Emit a "openNode" event
-                this.emit('openNode', node);
-            }
-
-            if (typeof asyncCallback === 'function') {
-                asyncCallback();
-            }
-        };
 
         if (async) {
             setTimeout(fn, 0);

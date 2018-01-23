@@ -3,7 +3,6 @@ import fs from 'fs';
 import path from 'path';
 import { JSDOM, VirtualConsole } from 'jsdom';
 import { Node } from 'flattree';
-import map from 'lodash/map';
 
 const virtualConsole = new VirtualConsole();
 virtualConsole.sendTo(console);
@@ -748,38 +747,39 @@ test('tree.openNode', (t) => {
     // The first node is `Node { id: "<root>" }`
     t.strictSame(tree.nodes[0], tree.getNodeById('<root>'));
 
-    // Should be no open nodes at initial
-    t.equal(tree.state.openNodes.length, 0);
+    // Should open not visible but loaded new nodes at initial
+
+    t.equal(tree.state.openNodes.length, 1);
 
     // Pass `{ silent: true }` to prevent event from being triggered
     t.ok(tree.openNode(tree.getNodeById('<root>'), { silent: true }));
     t.equal(tree.nodes.length, 3);
-    t.equal(tree.state.openNodes.length, 1);
+    t.equal(tree.state.openNodes.length, 2);
 
     t.equal(tree.openNode(tree.getNodeById('<root>')), false, 'it should return false when trying to re-open a node');
 
     t.ok(tree.openNode(tree.getNodeById('bravo')));
     t.equal(tree.nodes.length, 6);
-    t.equal(tree.state.openNodes.length, 2);
+    t.equal(tree.state.openNodes.length, 3);
 
     t.ok(tree.openNode(tree.getNodeById('charlie')));
     t.equal(tree.nodes.length, 8);
-    t.equal(tree.state.openNodes.length, 3);
+    t.equal(tree.state.openNodes.length, 4);
 
     t.ok(tree.openNode(tree.getNodeById('hotel')));
     t.equal(tree.nodes.length, 9);
-    t.equal(tree.state.openNodes.length, 4);
+    t.equal(tree.state.openNodes.length, 5);
 
     t.ok(tree.openNode(tree.getNodeById('delta')));
     t.equal(tree.nodes.length, 11);
-    t.equal(tree.state.openNodes.length, 5);
+    t.equal(tree.state.openNodes.length, 6);
 
     t.ok(tree.openNode(tree.getNodeById('india')));
     t.equal(tree.nodes.length, 12);
-    t.equal(tree.state.openNodes.length, 6);
+    t.equal(tree.state.openNodes.length, 7);
 
     // Check event fired count
-    t.equal(eventFiredCount, 5);
+    t.equal(eventFiredCount, 6);
 
     t.end();
 });
