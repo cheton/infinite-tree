@@ -1876,8 +1876,8 @@ var InfiniteTree = function (_events$EventEmitter) {
 
         var fn = function fn() {
             node.state.open = true; // Set node.state.open to true
-            var openNodes = [node].concat(_this6.state.openNodes); // the most recently used items first
-            _this6.state.openNodes = openNodes;
+            // the most recently used items first
+            _this6.state.openNodes = [node].concat(_this6.state.openNodes);
 
             var nodes = (0, _flattree.flatten)(node.children, { openNodes: _this6.state.openNodes });
             var rows = [];

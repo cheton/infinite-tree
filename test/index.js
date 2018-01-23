@@ -1,13 +1,13 @@
-import { test } from 'tap';
+import {test} from 'tap';
 import fs from 'fs';
 import path from 'path';
-import { JSDOM, VirtualConsole } from 'jsdom';
-import { Node } from 'flattree';
+import {JSDOM, VirtualConsole} from 'jsdom';
+import {Node} from 'flattree';
 
 const virtualConsole = new VirtualConsole();
 virtualConsole.sendTo(console);
 
-const dom = new JSDOM(``, { virtualConsole });
+const dom = new JSDOM(``, {virtualConsole});
 
 global.window = dom.window;
 global.document = dom.window.document;
@@ -187,7 +187,7 @@ test('tree.addChildNodes', (t) => {
     const nodesLength = tree.nodes.length;
 
     { // #1: Add a child node to the root node without specifying index
-        tree.addChildNodes({ id: 'new-node#1' });
+        tree.addChildNodes({id: 'new-node#1'});
         t.equal(tree.nodes.length, nodesLength + 1);
         t.notEqual(tree.getNodeById('new-node#1'), null);
         t.strictSame(tree.getNodeById('new-node#1').getPreviousSibling(), tree.getNodeById('<root>'));
@@ -195,7 +195,7 @@ test('tree.addChildNodes', (t) => {
     }
 
     { // #2: Add a child node to the root node at the specified index
-        tree.addChildNodes({ id: 'new-node#2' }, 1);
+        tree.addChildNodes({id: 'new-node#2'}, 1);
         t.equal(tree.nodes.length, nodesLength + 2);
         t.notEqual(tree.getNodeById('new-node#2'), null);
         t.strictSame(tree.getNodeById('new-node#2').getPreviousSibling(), tree.getNodeById('<root>'));
@@ -215,7 +215,7 @@ test('tree.appendChildNode', (t) => {
     const nodesLength = tree.nodes.length;
 
     { // #1: Append a child node to the root node
-        tree.appendChildNode({ id: 'new-node#1' });
+        tree.appendChildNode({id: 'new-node#1'});
         t.equal(tree.nodes.length, nodesLength + 1);
         t.notEqual(tree.getNodeById('new-node#1'), null);
         t.strictSame(tree.getNodeById('new-node#1').getPreviousSibling(), tree.getNodeById('<root>'));
@@ -265,7 +265,7 @@ test('tree.closeNode', (t) => {
     t.equal(tree.nodes.length, 6);
     tree.closeNode(tree.getNodeById('bravo'));
     t.equal(tree.nodes.length, 3);
-    tree.closeNode(tree.getNodeById('<root>'), { silent: true }); // Prevent event from being triggered
+    tree.closeNode(tree.getNodeById('<root>'), {silent: true}); // Prevent event from being triggered
     t.equal(tree.nodes.length, 1);
 
     // Check event fired count
@@ -434,7 +434,7 @@ test('tree.filter', (t) => {
             wanted: ['Charlie']
         },
         { // Function
-            predicate: function(node) {
+            predicate: function (node) {
                 return node.label === 'Charlie';
             },
             options: {
@@ -444,7 +444,7 @@ test('tree.filter', (t) => {
             wanted: ['Charlie']
         },
         { // Function
-            predicate: function(node) {
+            predicate: function (node) {
                 return node.label === 'Charlie';
             },
             options: {
@@ -454,7 +454,7 @@ test('tree.filter', (t) => {
             wanted: ['<root>', 'Bravo', 'Charlie']
         },
         { // Function
-            predicate: function(node) {
+            predicate: function (node) {
                 return node.label === 'Charlie';
             },
             options: {
@@ -464,7 +464,7 @@ test('tree.filter', (t) => {
             wanted: ['Charlie', 'Delta', 'Echo', 'Foxtrot', 'Golf']
         },
         { // Function
-            predicate: function(node) {
+            predicate: function (node) {
                 return node.label === 'Charlie';
             },
             options: {
@@ -477,7 +477,7 @@ test('tree.filter', (t) => {
 
     for (let i = 0; i < testCases.length; ++i) {
         const testCase = testCases[i];
-        const { predicate, options } = testCase;
+        const {predicate, options} = testCase;
         if (typeof predicate === 'string') {
             options.filterPath = options.filterPath || 'label';
         }
@@ -643,7 +643,7 @@ test('tree.getOpenNodes', (t) => {
     const tree = new InfiniteTree(el, {
         autoOpen: true,
         data: getTreeData()
-    })
+    });
 
     const found = tree.getOpenNodes().map(node => node.id);
     const wanted = ['<root>', 'bravo', 'charlie', 'delta', 'hotel', 'india'];
@@ -700,10 +700,10 @@ test('tree.insertNodeAfter', (t) => {
     });
 
     const notNode = {};
-    tree.insertNodeAfter({ id: 'new-node' }, notNode);
+    tree.insertNodeAfter({id: 'new-node'}, notNode);
     t.equal(tree.getNodeById('new-node'), null);
 
-    tree.insertNodeAfter({ id: 'new-node' }, tree.getNodeById('<root>'));
+    tree.insertNodeAfter({id: 'new-node'}, tree.getNodeById('<root>'));
     t.strictSame(tree.getNodeById('new-node'), tree.getNodeById('<root>').getNextSibling());
 
     t.end();
@@ -716,10 +716,10 @@ test('tree.insertNodeBefore', (t) => {
     });
 
     const notNode = {};
-    tree.insertNodeBefore({ id: 'new-node' }, notNode);
+    tree.insertNodeBefore({id: 'new-node'}, notNode);
     t.equal(tree.getNodeById('new-node'), null);
 
-    tree.insertNodeBefore({ id: 'new-node' }, tree.getNodeById('<root>'));
+    tree.insertNodeBefore({id: 'new-node'}, tree.getNodeById('<root>'));
     t.strictSame(tree.getNodeById('new-node'), tree.getNodeById('<root>').getPreviousSibling());
 
     t.end();
@@ -744,6 +744,9 @@ test('tree.openNode', (t) => {
     // Not an existing Node object
     t.notOk(tree.openNode(new Node()));
 
+    // Not an existing Node object opened asynchronously, so it shouldn't affect opened nodes in this event cycle
+    t.notOk(tree.openNode(new Node(), {async: true}));
+
     // The first node is `Node { id: "<root>" }`
     t.strictSame(tree.nodes[0], tree.getNodeById('<root>'));
 
@@ -751,7 +754,7 @@ test('tree.openNode', (t) => {
     t.equal(tree.state.openNodes.length, 1);
 
     // Pass `{ silent: true }` to prevent event from being triggered
-    t.ok(tree.openNode(tree.getNodeById('<root>'), { silent: true }));
+    t.ok(tree.openNode(tree.getNodeById('<root>'), {silent: true}));
     t.equal(tree.nodes.length, 3);
     t.equal(tree.state.openNodes.length, 2);
 
@@ -980,7 +983,7 @@ test('tree.selectNode', (t) => {
     // Select Node
     t.notOk(tree.selectNode());
     t.strictSame(tree.getSelectedNode(), null);
-    tree.selectNode(tree.getNodeById('<root>'), { silent: true }); // Prevent event from being triggered
+    tree.selectNode(tree.getNodeById('<root>'), {silent: true}); // Prevent event from being triggered
     t.strictSame(tree.getSelectedNode(), tree.getNodeById('<root>'));
     tree.selectNode(tree.getNodeById('bravo'));
     t.strictSame(tree.getSelectedNode(), tree.getNodeById('bravo'));
@@ -1005,7 +1008,7 @@ test('tree.selectNode', (t) => {
     t.strictSame(tree.getSelectedNode(), tree.getNodeById('hotel'));
     tree.closeNode(tree.getNodeById('bravo'));
     t.strictSame(tree.getSelectedNode(), tree.getNodeById('bravo'));
-    tree.closeNode(tree.getNodeById('<root>'), { silent: true });
+    tree.closeNode(tree.getNodeById('<root>'), {silent: true});
     t.strictSame(tree.getSelectedNode(), tree.getNodeById('<root>'));
 
     // Check event fired count
@@ -1080,7 +1083,7 @@ test('tree.toggleNode', (t) => {
     // Toggle Node
     t.notOk(tree.toggleNode());
     t.equal(tree.nodes.length, 1);
-    tree.toggleNode(tree.getNodeById('<root>'), { silent: true }); // Prevent event from being triggered
+    tree.toggleNode(tree.getNodeById('<root>'), {silent: true}); // Prevent event from being triggered
     t.equal(tree.nodes.length, 3);
     tree.toggleNode(tree.getNodeById('bravo'));
     t.equal(tree.nodes.length, 6);
@@ -1092,7 +1095,7 @@ test('tree.toggleNode', (t) => {
     t.equal(tree.nodes.length, 11);
     tree.toggleNode(tree.getNodeById('india'));
     t.equal(tree.nodes.length, 12);
-    tree.toggleNode(tree.getNodeById('<root>'), { silent: true }); // Prevent event from being triggered
+    tree.toggleNode(tree.getNodeById('<root>'), {silent: true}); // Prevent event from being triggered
     t.equal(tree.nodes.length, 1);
 
     // Check event fired count
@@ -1210,7 +1213,7 @@ test('tree.updateNode', (t) => {
         t.equal(tree.nodeTable.get('<root>'), node);
         t.equal(tree.nodeTable.get('<root.0>'), undefined);
 
-        tree.updateNode(node, { id: '<root.0>' });
+        tree.updateNode(node, {id: '<root.0>'});
         t.equal(node.id, '<root.0>');
 
         t.equal(tree.nodeTable.get('<root>'), undefined);
@@ -1218,16 +1221,16 @@ test('tree.updateNode', (t) => {
         t.equal(tree.getNodeById('<root>'), null);
         t.equal(tree.getNodeById('<root.0>'), node);
 
-        tree.updateNode(node, { id: '<root>' });
+        tree.updateNode(node, {id: '<root>'});
         t.equal(node.id, '<root>');
         t.equal(tree.nodeTable.get('<root>'), node);
         t.equal(tree.nodeTable.get('<root.0>'), undefined);
         t.equal(tree.getNodeById('<root>'), node);
         t.equal(tree.getNodeById('<root.0>'), null);
 
-        tree.updateNode(node, { id: undefined });
+        tree.updateNode(node, {id: undefined});
         t.equal(node.id, '<root>');
-        tree.updateNode(node, { id: null });
+        tree.updateNode(node, {id: null});
         t.equal(node.id, '<root>');
     }
 

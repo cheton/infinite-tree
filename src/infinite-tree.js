@@ -964,8 +964,8 @@ class InfiniteTree extends events.EventEmitter {
 
         const fn = () => {
             node.state.open = true; // Set node.state.open to true
-            const openNodes = [node].concat(this.state.openNodes); // the most recently used items first
-            this.state.openNodes = openNodes;
+            // the most recently used items first
+            this.state.openNodes = [node].concat(this.state.openNodes);
 
             const nodes = flatten(node.children, { openNodes: this.state.openNodes });
             const rows = [];
