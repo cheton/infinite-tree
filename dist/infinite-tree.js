@@ -1934,7 +1934,7 @@ var InfiniteTree = function (_events$EventEmitter) {
             } else {
                 fn();
             }
-            return false;
+            return true;
         }
 
         // Check if the openNode action can be performed

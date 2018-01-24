@@ -777,8 +777,21 @@ test('tree.openNode', (t) => {
     t.equal(tree.nodes.length, 12);
     t.equal(tree.state.openNodes.length, 6);
 
+    tree.closeNode(tree.getNodeById('hotel'));
+    t.equal(tree.nodes.length, 10);
+    t.equal(tree.state.openNodes.length, 5);
+
     // Check event fired count
     t.equal(eventFiredCount, 5);
+
+    // Should be able to open existed hidden node (happening async loaded children appended to a
+    // node, which was collapsed till data was fully loaded).
+    t.ok(tree.openNode(tree.getNodeById('india')));
+    t.equal(tree.nodes.length, 10);
+    t.equal(tree.state.openNodes.length, 6);
+
+    // Check event fired count
+    t.equal(eventFiredCount, 6);
 
     t.end();
 });
