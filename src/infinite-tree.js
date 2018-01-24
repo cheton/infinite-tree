@@ -1006,8 +1006,8 @@ class InfiniteTree extends events.EventEmitter {
                 rows[i] = this.options.rowRenderer(node, this.options);
             }
 
-            const updateVisibleNodes = () => {
-                // Update nodes & rows
+            // Update visible nodes & rows
+            if (nodeIndex >= 0) {
                 this.nodes.splice.apply(this.nodes, [nodeIndex + 1, 0].concat(nodes));
                 this.rows.splice.apply(this.rows, [nodeIndex + 1, 0].concat(rows));
 
@@ -1016,10 +1016,6 @@ class InfiniteTree extends events.EventEmitter {
 
                 // Update the row corresponding to the node
                 this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
-            };
-
-            if (nodeIndex >= 0) {
-                updateVisibleNodes();
             }
 
             // Add all child nodes to the lookup table if the first child does not exist in the lookup table
