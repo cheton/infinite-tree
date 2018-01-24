@@ -1,4 +1,4 @@
-/*! infinite-tree v1.14.3 | (c) 2018 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
+/*! infinite-tree v1.14.4 | (c) 2018 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -1428,12 +1428,8 @@ var InfiniteTree = function (_events$EventEmitter) {
             return false;
         }
 
-        this.emit('willCloseNode', node);
-
-        // Retrieve node index
-        var nodeIndex = this.nodes.indexOf(node);
-        if (nodeIndex < 0) {
-            error('Invalid node index');
+        if (!this.nodeTable.has(node.id)) {
+            error('Cannot close node with the given node id:', node.id);
             return false;
         }
 
@@ -1442,16 +1438,24 @@ var InfiniteTree = function (_events$EventEmitter) {
             return false;
         }
 
+        this.emit('willCloseNode', node);
+
+        // Retrieve node index
+        var nodeIndex = this.nodes.indexOf(node);
+
         // Toggle the collapsing state
         node.state.collapsing = true;
-        // Update the row corresponding to the node
-        this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
-        // Update list
-        this.update();
+
+        if (nodeIndex >= 0) {
+            // Update the row corresponding to the node
+            this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
+            // Update list
+            this.update();
+        }
 
         var fn = function fn() {
             // Keep selected node unchanged if "node" is equal to "this.state.selectedNode"
-            if (_this4.state.selectedNode && _this4.state.selectedNode !== node) {
+            if (_this4.state.selectedNode && _this4.state.selectedNode !== node && nodeIndex >= 0) {
                 // row #0 - node.0         => parent node (total=4)
                 // row #1   - node.0.0     => close this node; next selected node (total=2)
                 // row #2       node.0.0.0 => selected node (total=0)
@@ -1479,16 +1483,20 @@ var InfiniteTree = function (_events$EventEmitter) {
                 p.state.total = p.state.total - total;
             }
 
-            // Update nodes & rows
-            _this4.nodes.splice(nodeIndex + 1, total);
-            _this4.rows.splice(nodeIndex + 1, total);
-
             // Toggle the collapsing state
             node.state.collapsing = false;
-            // Update the row corresponding to the node
-            _this4.rows[nodeIndex] = _this4.options.rowRenderer(node, _this4.options);
-            // Update list
-            _this4.update();
+
+            if (nodeIndex >= 0) {
+                // Update nodes & rows
+                _this4.nodes.splice(nodeIndex + 1, total);
+                _this4.rows.splice(nodeIndex + 1, total);
+
+                // Update the row corresponding to the node
+                _this4.rows[nodeIndex] = _this4.options.rowRenderer(node, _this4.options);
+
+                // Update list
+                _this4.update();
+            }
 
             if (!silent) {
                 // Emit a "closeNode" event
@@ -1872,8 +1880,13 @@ var InfiniteTree = function (_events$EventEmitter) {
             return false;
         }
 
-        if (this.nodeTable.get(node.id) === undefined) {
-            error('Invalid node index');
+        if (!this.nodeTable.has(node.id)) {
+            error('Cannot open node with the given node id:', node.id);
+            return false;
+        }
+
+        // Check if the openNode action can be performed
+        if (this.state.openNodes.indexOf(node) >= 0) {
             return false;
         }
 
@@ -1884,34 +1897,13 @@ var InfiniteTree = function (_events$EventEmitter) {
 
         var fn = function fn() {
             node.state.open = true; // Set node.state.open to true
-            // the most recently used items first
-            _this6.state.openNodes = [node].concat(_this6.state.openNodes);
 
-            var nodes = (0, _flattree.flatten)(node.children, { openNodes: _this6.state.openNodes });
-            var rows = [];
-            // Update rows
-            rows.length = nodes.length;
-            for (var i = 0; i < nodes.length; ++i) {
-                var _node = nodes[i];
-                rows[i] = _this6.options.rowRenderer(_node, _this6.options);
+            if (_this6.state.openNodes.indexOf(node) < 0) {
+                // the most recently used items first
+                _this6.state.openNodes = [node].concat(_this6.state.openNodes);
             }
 
-            var updateVisibleNodes = function updateVisibleNodes() {
-                // Update nodes & rows
-                _this6.nodes.splice.apply(_this6.nodes, [nodeIndex + 1, 0].concat(nodes));
-                _this6.rows.splice.apply(_this6.rows, [nodeIndex + 1, 0].concat(rows));
-
-                // Update the row corresponding to the node
-                _this6.rows[nodeIndex] = _this6.options.rowRenderer(node, _this6.options);
-
-                // Update the row corresponding to the node
-                _this6.rows[nodeIndex] = _this6.options.rowRenderer(node, _this6.options);
-            };
-
-            console.log('nodeIndex', nodeIndex);
-            // if (nodeIndex >= 0) {
-            updateVisibleNodes();
-            // }
+            var nodes = (0, _flattree.flatten)(node.children, { openNodes: _this6.state.openNodes });
 
             // Add all child nodes to the lookup table if the first child does not exist in the lookup table
             if (nodes.length > 0 && !_this6.nodeTable.get(nodes[0])) {
@@ -1925,8 +1917,25 @@ var InfiniteTree = function (_events$EventEmitter) {
             // Toggle the expanding state
             node.state.expanding = false;
 
-            // Update list
-            _this6.update();
+            if (nodeIndex >= 0) {
+                var rows = [];
+                // Update rows
+                rows.length = nodes.length;
+                for (var i = 0; i < nodes.length; ++i) {
+                    var _node = nodes[i];
+                    rows[i] = _this6.options.rowRenderer(_node, _this6.options);
+                }
+
+                // Update nodes & rows
+                _this6.nodes.splice.apply(_this6.nodes, [nodeIndex + 1, 0].concat(nodes));
+                _this6.rows.splice.apply(_this6.rows, [nodeIndex + 1, 0].concat(rows));
+
+                // Update the row corresponding to the node
+                _this6.rows[nodeIndex] = _this6.options.rowRenderer(node, _this6.options);
+
+                // Update list
+                _this6.update();
+            }
 
             if (!silent) {
                 // Emit a "openNode" event
@@ -1939,17 +1948,16 @@ var InfiniteTree = function (_events$EventEmitter) {
         };
 
         if (nodeIndex < 0) {
+            // Toggle the expanding state
+            node.state.expanding = true;
+
             if (async) {
                 setTimeout(fn, 0);
             } else {
                 fn();
             }
-            return true;
-        }
 
-        // Check if the openNode action can be performed
-        if (this.state.openNodes.indexOf(node) >= 0) {
-            return false;
+            return true;
         }
 
         if (!node.hasChildren() && node.loadOnDemand) {
@@ -2030,6 +2038,7 @@ var InfiniteTree = function (_events$EventEmitter) {
 
         // Toggle the expanding state
         node.state.expanding = true;
+
         // Update the row corresponding to the node
         this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
         // Update list
@@ -2339,7 +2348,6 @@ var InfiniteTree = function (_events$EventEmitter) {
         // Retrieve node index
         var nodeIndex = this.nodes.indexOf(node);
         if (nodeIndex < 0) {
-            error('Invalid node index');
             return false;
         }
 
