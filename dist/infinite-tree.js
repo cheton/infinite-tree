@@ -1872,6 +1872,11 @@ var InfiniteTree = function (_events$EventEmitter) {
             return false;
         }
 
+        if (this.nodeTable.get(node.id) === undefined) {
+            error('Invalid node index');
+            return false;
+        }
+
         this.emit('willOpenNode', node);
 
         var fn = function fn() {

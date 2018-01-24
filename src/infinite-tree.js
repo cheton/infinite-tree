@@ -960,6 +960,11 @@ class InfiniteTree extends events.EventEmitter {
             return false;
         }
 
+        if (this.nodeTable.get(node.id) === undefined) {
+            error('Invalid node index');
+            return false;
+        }
+
         this.emit('willOpenNode', node);
 
         const fn = () => {
