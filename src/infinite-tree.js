@@ -967,6 +967,9 @@ class InfiniteTree extends events.EventEmitter {
 
         this.emit('willOpenNode', node);
 
+        // Retrieve node index
+        const nodeIndex = this.nodes.indexOf(node);
+
         const fn = () => {
             node.state.open = true; // Set node.state.open to true
             // the most recently used items first
@@ -981,12 +984,22 @@ class InfiniteTree extends events.EventEmitter {
                 rows[i] = this.options.rowRenderer(node, this.options);
             }
 
-            // Update nodes & rows
-            this.nodes.splice.apply(this.nodes, [nodeIndex + 1, 0].concat(nodes));
-            this.rows.splice.apply(this.rows, [nodeIndex + 1, 0].concat(rows));
+            const updateVisibleNodes = () => {
+                // Update nodes & rows
+                this.nodes.splice.apply(this.nodes, [nodeIndex + 1, 0].concat(nodes));
+                this.rows.splice.apply(this.rows, [nodeIndex + 1, 0].concat(rows));
 
-            // Update the row corresponding to the node
-            this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
+                // Update the row corresponding to the node
+                this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
+
+                // Update the row corresponding to the node
+                this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
+            };
+
+            console.log('nodeIndex', nodeIndex);
+            // if (nodeIndex >= 0) {
+            updateVisibleNodes();
+            // }
 
             // Add all child nodes to the lookup table if the first child does not exist in the lookup table
             if ((nodes.length > 0) && !(this.nodeTable.get(nodes[0]))) {
@@ -999,8 +1012,7 @@ class InfiniteTree extends events.EventEmitter {
 
             // Toggle the expanding state
             node.state.expanding = false;
-            // Update the row corresponding to the node
-            this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
+
             // Update list
             this.update();
 
@@ -1014,8 +1026,6 @@ class InfiniteTree extends events.EventEmitter {
             }
         };
 
-        // Retrieve node index
-        const nodeIndex = this.nodes.indexOf(node);
         if (nodeIndex < 0) {
             if (async) {
                 setTimeout(fn, 0);

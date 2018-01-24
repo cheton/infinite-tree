@@ -1879,6 +1879,9 @@ var InfiniteTree = function (_events$EventEmitter) {
 
         this.emit('willOpenNode', node);
 
+        // Retrieve node index
+        var nodeIndex = this.nodes.indexOf(node);
+
         var fn = function fn() {
             node.state.open = true; // Set node.state.open to true
             // the most recently used items first
@@ -1893,12 +1896,22 @@ var InfiniteTree = function (_events$EventEmitter) {
                 rows[i] = _this6.options.rowRenderer(_node, _this6.options);
             }
 
-            // Update nodes & rows
-            _this6.nodes.splice.apply(_this6.nodes, [nodeIndex + 1, 0].concat(nodes));
-            _this6.rows.splice.apply(_this6.rows, [nodeIndex + 1, 0].concat(rows));
+            var updateVisibleNodes = function updateVisibleNodes() {
+                // Update nodes & rows
+                _this6.nodes.splice.apply(_this6.nodes, [nodeIndex + 1, 0].concat(nodes));
+                _this6.rows.splice.apply(_this6.rows, [nodeIndex + 1, 0].concat(rows));
 
-            // Update the row corresponding to the node
-            _this6.rows[nodeIndex] = _this6.options.rowRenderer(node, _this6.options);
+                // Update the row corresponding to the node
+                _this6.rows[nodeIndex] = _this6.options.rowRenderer(node, _this6.options);
+
+                // Update the row corresponding to the node
+                _this6.rows[nodeIndex] = _this6.options.rowRenderer(node, _this6.options);
+            };
+
+            console.log('nodeIndex', nodeIndex);
+            // if (nodeIndex >= 0) {
+            updateVisibleNodes();
+            // }
 
             // Add all child nodes to the lookup table if the first child does not exist in the lookup table
             if (nodes.length > 0 && !_this6.nodeTable.get(nodes[0])) {
@@ -1911,8 +1924,7 @@ var InfiniteTree = function (_events$EventEmitter) {
 
             // Toggle the expanding state
             node.state.expanding = false;
-            // Update the row corresponding to the node
-            _this6.rows[nodeIndex] = _this6.options.rowRenderer(node, _this6.options);
+
             // Update list
             _this6.update();
 
@@ -1926,8 +1938,6 @@ var InfiniteTree = function (_events$EventEmitter) {
             }
         };
 
-        // Retrieve node index
-        var nodeIndex = this.nodes.indexOf(node);
         if (nodeIndex < 0) {
             if (async) {
                 setTimeout(fn, 0);
