@@ -557,12 +557,8 @@ class InfiniteTree extends events.EventEmitter {
             return false;
         }
 
-        this.emit('willCloseNode', node);
-
-        // Retrieve node index
-        const nodeIndex = this.nodes.indexOf(node);
-        if (nodeIndex < 0) {
-            error('Invalid node index');
+        if (!this.nodeTable.has(node.id)) {
+            error('Cannot close node with the given node id:', node.id);
             return false;
         }
 
@@ -571,16 +567,24 @@ class InfiniteTree extends events.EventEmitter {
             return false;
         }
 
+        this.emit('willCloseNode', node);
+
+        // Retrieve node index
+        const nodeIndex = this.nodes.indexOf(node);
+
         // Toggle the collapsing state
         node.state.collapsing = true;
-        // Update the row corresponding to the node
-        this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
-        // Update list
-        this.update();
+
+        if (nodeIndex >= 0) {
+            // Update the row corresponding to the node
+            this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
+            // Update list
+            this.update();
+        }
 
         const fn = () => {
             // Keep selected node unchanged if "node" is equal to "this.state.selectedNode"
-            if (this.state.selectedNode && (this.state.selectedNode !== node)) {
+            if (this.state.selectedNode && (this.state.selectedNode !== node) && (nodeIndex >= 0)) {
                 // row #0 - node.0         => parent node (total=4)
                 // row #1   - node.0.0     => close this node; next selected node (total=2)
                 // row #2       node.0.0.0 => selected node (total=0)
@@ -608,16 +612,20 @@ class InfiniteTree extends events.EventEmitter {
                 p.state.total = p.state.total - total;
             }
 
-            // Update nodes & rows
-            this.nodes.splice(nodeIndex + 1, total);
-            this.rows.splice(nodeIndex + 1, total);
-
             // Toggle the collapsing state
             node.state.collapsing = false;
-            // Update the row corresponding to the node
-            this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
-            // Update list
-            this.update();
+
+            if (nodeIndex >= 0) {
+                // Update nodes & rows
+                this.nodes.splice(nodeIndex + 1, total);
+                this.rows.splice(nodeIndex + 1, total);
+
+                // Update the row corresponding to the node
+                this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
+
+                // Update list
+                this.update();
+            }
 
             if (!silent) {
                 // Emit a "closeNode" event
@@ -960,8 +968,13 @@ class InfiniteTree extends events.EventEmitter {
             return false;
         }
 
-        if (this.nodeTable.get(node.id) === undefined) {
-            error('Invalid node index');
+        if (!this.nodeTable.has(node.id)) {
+            error('Cannot open node with the given node id:', node.id);
+            return false;
+        }
+
+        // Check if the openNode action can be performed
+        if (this.state.openNodes.indexOf(node) >= 0) {
             return false;
         }
 
@@ -972,8 +985,11 @@ class InfiniteTree extends events.EventEmitter {
 
         const fn = () => {
             node.state.open = true; // Set node.state.open to true
-            // the most recently used items first
-            this.state.openNodes = [node].concat(this.state.openNodes);
+
+            if (this.state.openNodes.indexOf(node) < 0) {
+                // the most recently used items first
+                this.state.openNodes = [node].concat(this.state.openNodes);
+            }
 
             const nodes = flatten(node.children, { openNodes: this.state.openNodes });
 
@@ -1020,17 +1036,16 @@ class InfiniteTree extends events.EventEmitter {
         };
 
         if (nodeIndex < 0) {
+            // Toggle the expanding state
+            node.state.expanding = true;
+
             if (async) {
                 setTimeout(fn, 0);
             } else {
                 fn();
             }
-            return true;
-        }
 
-        // Check if the openNode action can be performed
-        if (this.state.openNodes.indexOf(node) >= 0) {
-            return false;
+            return true;
         }
 
         if (!node.hasChildren() && node.loadOnDemand) {
@@ -1110,6 +1125,7 @@ class InfiniteTree extends events.EventEmitter {
 
         // Toggle the expanding state
         node.state.expanding = true;
+
         // Update the row corresponding to the node
         this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
         // Update list
@@ -1394,7 +1410,6 @@ class InfiniteTree extends events.EventEmitter {
         // Retrieve node index
         const nodeIndex = this.nodes.indexOf(node);
         if (nodeIndex < 0) {
-            error('Invalid node index');
             return false;
         }
 
