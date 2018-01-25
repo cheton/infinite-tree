@@ -781,21 +781,21 @@ test('tree.openNode', (t) => {
     t.equal(tree.nodes.length, 10);
     t.equal(tree.state.openNodes.length, 5);
 
-    t.ok(tree.closeNode(tree.getNodeById('india')));
+    t.notOk(tree.closeNode(tree.getNodeById('india')));
     t.equal(tree.nodes.length, 10);
-    t.equal(tree.state.openNodes.length, 4);
+    t.equal(tree.state.openNodes.length, 5);
 
     // Check event fired count
     t.equal(eventFiredCount, 5);
 
     // Should be able to open existed hidden node (happening async loaded children appended to a
     // node, which was collapsed till data was fully loaded).
-    t.ok(tree.openNode(tree.getNodeById('india')));
+    t.notOk(tree.openNode(tree.getNodeById('india')));
     t.equal(tree.nodes.length, 10);
     t.equal(tree.state.openNodes.length, 5);
 
     // Check event fired count
-    t.equal(eventFiredCount, 6);
+    t.equal(eventFiredCount, 5);
 
     // Open the node again should not change the result of tree.state.openNodes
     t.notOk(tree.openNode(tree.getNodeById('india')));
@@ -803,7 +803,7 @@ test('tree.openNode', (t) => {
     t.equal(tree.state.openNodes.length, 5);
 
     // Check event fired count
-    t.equal(eventFiredCount, 6); // should not fire event
+    t.equal(eventFiredCount, 5); // should not fire event
 
     t.end();
 });
