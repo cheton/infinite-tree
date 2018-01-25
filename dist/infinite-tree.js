@@ -1428,8 +1428,12 @@ var InfiniteTree = function (_events$EventEmitter) {
             return false;
         }
 
-        if (!this.nodeTable.has(node.id)) {
-            error('Cannot close node with the given node id:', node.id);
+        this.emit('willCloseNode', node);
+
+        // Retrieve node index
+        var nodeIndex = this.nodes.indexOf(node);
+        if (nodeIndex < 0) {
+            error('Invalid node index');
             return false;
         }
 
@@ -1438,24 +1442,16 @@ var InfiniteTree = function (_events$EventEmitter) {
             return false;
         }
 
-        this.emit('willCloseNode', node);
-
-        // Retrieve node index
-        var nodeIndex = this.nodes.indexOf(node);
-
         // Toggle the collapsing state
         node.state.collapsing = true;
-
-        if (nodeIndex >= 0) {
-            // Update the row corresponding to the node
-            this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
-            // Update list
-            this.update();
-        }
+        // Update the row corresponding to the node
+        this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
+        // Update list
+        this.update();
 
         var fn = function fn() {
             // Keep selected node unchanged if "node" is equal to "this.state.selectedNode"
-            if (_this4.state.selectedNode && _this4.state.selectedNode !== node && nodeIndex >= 0) {
+            if (_this4.state.selectedNode && _this4.state.selectedNode !== node) {
                 // row #0 - node.0         => parent node (total=4)
                 // row #1   - node.0.0     => close this node; next selected node (total=2)
                 // row #2       node.0.0.0 => selected node (total=0)
@@ -1483,20 +1479,17 @@ var InfiniteTree = function (_events$EventEmitter) {
                 p.state.total = p.state.total - total;
             }
 
+            // Update nodes & rows
+            _this4.nodes.splice(nodeIndex + 1, total);
+            _this4.rows.splice(nodeIndex + 1, total);
+
             // Toggle the collapsing state
             node.state.collapsing = false;
+            // Update the row corresponding to the node
+            _this4.rows[nodeIndex] = _this4.options.rowRenderer(node, _this4.options);
 
-            if (nodeIndex >= 0) {
-                // Update nodes & rows
-                _this4.nodes.splice(nodeIndex + 1, total);
-                _this4.rows.splice(nodeIndex + 1, total);
-
-                // Update the row corresponding to the node
-                _this4.rows[nodeIndex] = _this4.options.rowRenderer(node, _this4.options);
-
-                // Update list
-                _this4.update();
-            }
+            // Update list
+            _this4.update();
 
             if (!silent) {
                 // Emit a "closeNode" event
@@ -2008,6 +2001,7 @@ var InfiniteTree = function (_events$EventEmitter) {
                             asyncCallback: function asyncCallback() {
                                 // Toggle the loading state
                                 node.state.loading = false;
+                                var nodeIndex = _this6.nodes.indexOf(node);
                                 // Update the row corresponding to the node
                                 _this6.rows[nodeIndex] = _this6.options.rowRenderer(node, _this6.options);
                                 // Update list
