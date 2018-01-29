@@ -1977,6 +1977,10 @@ var InfiniteTree = function (_events$EventEmitter) {
 
                     nodes = (0, _ensureArray2['default'])(nodes);
 
+                    if (node.length === 0) {
+                        node.state.expanding = true;
+                    }
+
                     if (err || nodes.length === 0) {
                         // Toggle the loading state
                         node.state.loading = false;

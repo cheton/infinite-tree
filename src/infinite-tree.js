@@ -1063,6 +1063,10 @@ class InfiniteTree extends events.EventEmitter {
                 this.options.loadNodes(node, (err, nodes, done = noop) => {
                     nodes = ensureArray(nodes);
 
+                    if (node.length === 0) {
+                        node.state.expanding = true;
+                    }
+
                     if (err || nodes.length === 0) {
                         // Toggle the loading state
                         node.state.loading = false;
