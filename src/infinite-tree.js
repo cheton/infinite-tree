@@ -1063,15 +1063,17 @@ class InfiniteTree extends events.EventEmitter {
                 this.options.loadNodes(node, (err, nodes, done = noop) => {
                     nodes = ensureArray(nodes);
 
-                    if (node.length === 0) {
-                        node.state.expanding = true;
+                    const currentNodeIndex = this.nodes.indexOf(node);
+
+                    if (nodes.length === 0 && currentNodeIndex >= 0) {
+                        node.state.open = true;
                     }
 
                     if (err || nodes.length === 0) {
                         // Toggle the loading state
                         node.state.loading = false;
                         // Update the row corresponding to the node
-                        this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
+                        this.rows[currentNodeIndex] = this.options.rowRenderer(node, this.options);
                         // Update list
                         this.update();
 
@@ -1092,9 +1094,9 @@ class InfiniteTree extends events.EventEmitter {
                             asyncCallback: () => {
                                 // Toggle the loading state
                                 node.state.loading = false;
-                                const nodeIndex = this.nodes.indexOf(node);
+                                const openedNodeIndex = this.nodes.indexOf(node);
                                 // Update the row corresponding to the node
-                                this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
+                                this.rows[openedNodeIndex] = this.options.rowRenderer(node, this.options);
                                 // Update list
                                 this.update();
 
@@ -1107,7 +1109,7 @@ class InfiniteTree extends events.EventEmitter {
                         // Toggle the loading state
                         node.state.loading = false;
                         // Update the row corresponding to the node
-                        this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
+                        this.rows[currentNodeIndex] = this.options.rowRenderer(node, this.options);
                         // Update list
                         this.update();
 

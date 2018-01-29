@@ -7,7 +7,7 @@ import { Node } from 'flattree';
 const virtualConsole = new VirtualConsole();
 virtualConsole.sendTo(console);
 
-const dom = new JSDOM(``, { virtualConsole });
+const dom = new JSDOM('', { virtualConsole });
 
 global.window = dom.window;
 global.document = dom.window.document;
@@ -141,12 +141,20 @@ test('loadOnDemand', (t) => {
 
             // Asynchronous
             setTimeout(() => {
+                next(null, [], () => {
+                    t.equal(tree.getNodeById('<root>').getChildren().length, 0);
+                    t.equal(node.state.open, true);
+                });
+            }, 250);
+
+            // Asynchronous
+            setTimeout(() => {
                 const data = getTreeData();
                 next(null, data.children, () => {
                     t.equal(tree.getNodeById('<root>').getChildren().length, 2);
                     t.end();
                 });
-            }, 250);
+            }, 500);
         }
     });
 

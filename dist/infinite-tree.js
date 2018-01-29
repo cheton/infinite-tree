@@ -1977,15 +1977,17 @@ var InfiniteTree = function (_events$EventEmitter) {
 
                     nodes = (0, _ensureArray2['default'])(nodes);
 
-                    if (node.length === 0) {
-                        node.state.expanding = true;
+                    var currentNodeIndex = _this6.nodes.indexOf(node);
+
+                    if (nodes.length === 0 && currentNodeIndex >= 0) {
+                        node.state.open = true;
                     }
 
                     if (err || nodes.length === 0) {
                         // Toggle the loading state
                         node.state.loading = false;
                         // Update the row corresponding to the node
-                        _this6.rows[nodeIndex] = _this6.options.rowRenderer(node, _this6.options);
+                        _this6.rows[currentNodeIndex] = _this6.options.rowRenderer(node, _this6.options);
                         // Update list
                         _this6.update();
 
@@ -2005,9 +2007,9 @@ var InfiniteTree = function (_events$EventEmitter) {
                             asyncCallback: function asyncCallback() {
                                 // Toggle the loading state
                                 node.state.loading = false;
-                                var nodeIndex = _this6.nodes.indexOf(node);
+                                var openedNodeIndex = _this6.nodes.indexOf(node);
                                 // Update the row corresponding to the node
-                                _this6.rows[nodeIndex] = _this6.options.rowRenderer(node, _this6.options);
+                                _this6.rows[openedNodeIndex] = _this6.options.rowRenderer(node, _this6.options);
                                 // Update list
                                 _this6.update();
 
@@ -2020,7 +2022,7 @@ var InfiniteTree = function (_events$EventEmitter) {
                         // Toggle the loading state
                         node.state.loading = false;
                         // Update the row corresponding to the node
-                        _this6.rows[nodeIndex] = _this6.options.rowRenderer(node, _this6.options);
+                        _this6.rows[currentNodeIndex] = _this6.options.rowRenderer(node, _this6.options);
                         // Update list
                         _this6.update();
 
