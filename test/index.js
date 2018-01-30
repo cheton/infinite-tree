@@ -144,7 +144,6 @@ test('loadOnDemand', (t) => {
                 next(null, [], () => {
                     t.equal(tree.getNodeById('<root>').getChildren().length, 0);
                     t.equal(node.state.open, true);
-                    t.end();
                 });
             }, 250);
 
