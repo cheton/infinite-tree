@@ -486,11 +486,11 @@ class InfiniteTree extends events.EventEmitter {
             this.rows = rows;
         } else {
             const parentOffset = this.nodes.indexOf(parentNode);
-            if (parentOffset >= 0) {
+            if (parentOffset >= 0 && parentNode.state.open === true) {
                 // Update nodes & rows
                 this.nodes.splice.apply(this.nodes, [parentOffset + 1, deleteCount].concat(nodes));
                 this.rows.splice.apply(this.rows, [parentOffset + 1, deleteCount].concat(rows));
-
+                this.state.openNodes = [parentNode].concat(this.state.openNodes);
                 // Update the row corresponding to the parent node
                 this.rows[parentOffset] = this.options.rowRenderer(parentNode, this.options);
             }
