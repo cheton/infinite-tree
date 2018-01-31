@@ -1471,7 +1471,7 @@ var InfiniteTree = function (_events$EventEmitter) {
 
             node.state.open = false; // Set the open state to false
             var openNodes = _this4.state.openNodes.filter(function (node) {
-                return node.hasChildren() && node.state.open;
+                return node.state.open;
             });
             _this4.state.openNodes = openNodes;
 
@@ -1799,7 +1799,7 @@ var InfiniteTree = function (_events$EventEmitter) {
         this.nodeTable.clear();
 
         this.state.openNodes = this.nodes.filter(function (node) {
-            return node.hasChildren() && node.state.open;
+            return node.state.open;
         });
         this.state.selectedNode = null;
 
@@ -2126,7 +2126,7 @@ var InfiniteTree = function (_events$EventEmitter) {
         {
             // Update open nodes and lookup table
             this.state.openNodes = this.state.openNodes.filter(function (node) {
-                return removedNodes.indexOf(node) < 0 && node.hasChildren() && node.state.open;
+                return removedNodes.indexOf(node) < 0 && node.state.open;
             });
 
             removedNodes.forEach(function (node) {
@@ -2217,7 +2217,7 @@ var InfiniteTree = function (_events$EventEmitter) {
         {
             // Update open nodes and lookup table
             this.state.openNodes = this.state.openNodes.filter(function (node) {
-                return removedNodes.indexOf(node) < 0 && node.hasChildren() && node.state.open;
+                return removedNodes.indexOf(node) < 0 && node.state.open;
             });
 
             removedNodes.forEach(function (node) {
