@@ -1471,7 +1471,7 @@ var InfiniteTree = function (_events$EventEmitter) {
 
             node.state.open = false; // Set the open state to false
             var openNodes = _this4.state.openNodes.filter(function (node) {
-                return node.hasChildren() && node.state.open;
+                return node.state.open;
             });
             _this4.state.openNodes = openNodes;
 
@@ -1799,7 +1799,7 @@ var InfiniteTree = function (_events$EventEmitter) {
         this.nodeTable.clear();
 
         this.state.openNodes = this.nodes.filter(function (node) {
-            return node.hasChildren() && node.state.open;
+            return node.state.open;
         });
         this.state.selectedNode = null;
 
@@ -1983,11 +1983,7 @@ var InfiniteTree = function (_events$EventEmitter) {
 
                     if (nodes.length === 0 && currentNodeIndex >= 0) {
                         node.state.open = true;
-
-                        if (_this6.state.openNodes.indexOf(node) < 0) {
-                            // the most recently used items first
-                            _this6.state.openNodes = [node].concat(_this6.state.openNodes);
-                        }
+                        _this6.state.openNodes = [node].concat(_this6.state.openNodes);
                     }
 
                     if (err || nodes.length === 0) {
@@ -2130,7 +2126,7 @@ var InfiniteTree = function (_events$EventEmitter) {
         {
             // Update open nodes and lookup table
             this.state.openNodes = this.state.openNodes.filter(function (node) {
-                return removedNodes.indexOf(node) < 0 && node.hasChildren() && node.state.open;
+                return removedNodes.indexOf(node) < 0 && node.state.open;
             });
 
             removedNodes.forEach(function (node) {
@@ -2221,7 +2217,7 @@ var InfiniteTree = function (_events$EventEmitter) {
         {
             // Update open nodes and lookup table
             this.state.openNodes = this.state.openNodes.filter(function (node) {
-                return removedNodes.indexOf(node) < 0 && node.hasChildren() && node.state.open;
+                return removedNodes.indexOf(node) < 0 && node.state.open;
             });
 
             removedNodes.forEach(function (node) {

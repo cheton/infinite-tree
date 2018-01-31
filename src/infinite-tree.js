@@ -599,9 +599,7 @@ class InfiniteTree extends events.EventEmitter {
             }
 
             node.state.open = false; // Set the open state to false
-            const openNodes = this.state.openNodes.filter((node) => {
-                return node.hasChildren() && node.state.open;
-            });
+            const openNodes = this.state.openNodes.filter((node) => node.state.open);
             this.state.openNodes = openNodes;
 
             // Subtract total from ancestor nodes
@@ -896,9 +894,7 @@ class InfiniteTree extends events.EventEmitter {
         // Clear lookup table
         this.nodeTable.clear();
 
-        this.state.openNodes = this.nodes.filter((node) => {
-            return node.hasChildren() && node.state.open;
-        });
+        this.state.openNodes = this.nodes.filter((node) => node.state.open);
         this.state.selectedNode = null;
 
         const rootNode = ((node = null) => {
@@ -1069,11 +1065,7 @@ class InfiniteTree extends events.EventEmitter {
 
                     if (nodes.length === 0 && currentNodeIndex >= 0) {
                         node.state.open = true;
-
-                        if (this.state.openNodes.indexOf(node) < 0) {
-                            // the most recently used items first
-                            this.state.openNodes = [node].concat(this.state.openNodes);
-                        }
+                        this.state.openNodes = [node].concat(this.state.openNodes);
                     }
 
                     if (err || nodes.length === 0) {
@@ -1212,7 +1204,7 @@ class InfiniteTree extends events.EventEmitter {
 
         { // Update open nodes and lookup table
             this.state.openNodes = this.state.openNodes.filter((node) => {
-                return (removedNodes.indexOf(node) < 0) && node.hasChildren() && node.state.open;
+                return (removedNodes.indexOf(node) < 0) && node.state.open;
             });
 
             removedNodes.forEach((node) => {
@@ -1298,7 +1290,7 @@ class InfiniteTree extends events.EventEmitter {
 
         { // Update open nodes and lookup table
             this.state.openNodes = this.state.openNodes.filter((node) => {
-                return (removedNodes.indexOf(node) < 0) && node.hasChildren() && node.state.open;
+                return (removedNodes.indexOf(node) < 0) && node.state.open;
             });
 
             removedNodes.forEach((node) => {
