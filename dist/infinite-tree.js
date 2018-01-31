@@ -1,4 +1,4 @@
-/*! infinite-tree v1.14.8 | (c) 2018 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
+/*! infinite-tree v1.14.9 | (c) 2018 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -1891,7 +1891,7 @@ var InfiniteTree = function (_events$EventEmitter) {
         var nodeIndex = this.nodes.indexOf(node);
 
         var fn = function fn() {
-            node.state.open = true; // Set node.state.open to true
+            node.state.open = true;
 
             if (_this6.state.openNodes.indexOf(node) < 0) {
                 // the most recently used items first
@@ -1983,7 +1983,11 @@ var InfiniteTree = function (_events$EventEmitter) {
 
                     if (nodes.length === 0 && currentNodeIndex >= 0) {
                         node.state.open = true;
-                        _this6.state.openNodes = [node].concat(_this6.state.openNodes);
+
+                        if (_this6.state.openNodes.indexOf(node) < 0) {
+                            // the most recently used items first
+                            _this6.state.openNodes = [node].concat(_this6.state.openNodes);
+                        }
                     }
 
                     if (err || nodes.length === 0) {
