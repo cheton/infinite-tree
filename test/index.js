@@ -143,7 +143,9 @@ test('loadOnDemand', (t) => {
             setTimeout(() => {
                 next(null, [], () => {
                     t.equal(tree.getNodeById('<root>').getChildren().length, 0);
+                    t.equal(tree.state.openNodes.length, 1);
                     t.equal(node.state.open, true);
+                    t.end();
                 });
             }, 250);
 
@@ -152,6 +154,7 @@ test('loadOnDemand', (t) => {
                 const data = getTreeData();
                 next(null, data.children, () => {
                     t.equal(tree.getNodeById('<root>').getChildren().length, 2);
+                    t.equal(tree.state.openNodes.length, 1);
                     t.end();
                 });
             }, 500);

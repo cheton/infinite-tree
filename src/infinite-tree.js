@@ -1069,6 +1069,7 @@ class InfiniteTree extends events.EventEmitter {
 
                     if (nodes.length === 0 && currentNodeIndex >= 0) {
                         node.state.open = true;
+                        this.state.openNodes = [node].concat(this.state.openNodes);
                     }
 
                     if (err || nodes.length === 0) {

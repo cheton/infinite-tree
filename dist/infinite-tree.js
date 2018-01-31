@@ -1983,6 +1983,7 @@ var InfiniteTree = function (_events$EventEmitter) {
 
                     if (nodes.length === 0 && currentNodeIndex >= 0) {
                         node.state.open = true;
+                        _this6.state.openNodes = [node].concat(_this6.state.openNodes);
                     }
 
                     if (err || nodes.length === 0) {
