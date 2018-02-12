@@ -531,8 +531,9 @@ class InfiniteTree extends events.EventEmitter {
         const newNodes = [].concat(newNode || []); // Ensure array
         return this.addChildNodes(newNodes, index, parentNode);
     }
+    // Checks or unchecks a node.
     // @param {Node} node The Node object.
-    // @param {boolean} [checked] Whether to check or uncheck the node. If the parameter is not specified, it will toggle between checked and unchecked state. The checked state is true when the indeterminate state is true.
+    // @param {boolean} [checked] Whether to check or uncheck the node. If not specified, it will toggle between checked and unchecked state.
     // @return {boolean} Returns true on success, false otherwise.
     // @example
     //
