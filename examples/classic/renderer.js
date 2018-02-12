@@ -5,7 +5,7 @@ import tag from 'html5-tag';
 const renderer = (node, treeOptions) => {
     const { id, name, loadOnDemand = false, children, state, props = {} } = node;
     const droppable = (treeOptions.droppable) && (props.droppable);
-    const { depth, open, path, total, selected = false, filtered } = state;
+    const { depth, open, path, total, selected = false, filtered, checked, indeterminate } = state;
     const childrenLength = Object.keys(children).length;
     const more = node.hasChildren();
 
@@ -62,6 +62,15 @@ const renderer = (node, treeOptions) => {
         )
     }, '');
 
+    const checkbox = tag('input', {
+        type: 'checkbox',
+        style: 'display: inline-block; margin: 0 4px',
+        'class': 'checkbox',
+        checked: checked,
+        'data-checked': checked,
+        'data-indeterminate': indeterminate
+    });
+
     const title = tag('span', {
         'class': classNames('infinite-tree-title')
     }, escapeHTML(loadOnDemand ? '(loadOnDemand) ' + name : name));
@@ -83,7 +92,7 @@ const renderer = (node, treeOptions) => {
     const treeNode = tag('div', {
         'class': 'infinite-tree-node',
         'style': 'margin-left: ' + depth * 18 + 'px'
-    }, toggler + icon + title + loadingIcon + count);
+    }, toggler + checkbox + icon + title + loadingIcon + count);
 
     let treeNodeAttributes = {
         'draggable': 'true',

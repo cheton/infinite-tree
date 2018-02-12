@@ -1,4 +1,4 @@
-/*! infinite-tree v1.14.9 | (c) 2018 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
+/*! infinite-tree v1.15.0 | (c) 2018 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -1393,6 +1393,118 @@ var InfiniteTree = function (_events$EventEmitter) {
         var index = parentNode.children.length;
         var newNodes = [].concat(newNode || []); // Ensure array
         return this.addChildNodes(newNodes, index, parentNode);
+    };
+    // @param {Node} node The Node object.
+    // @param {boolean} [checked] Whether to check or uncheck the node. If the parameter is not specified, it will toggle between checked and unchecked state. The checked state is true when the indeterminate state is true.
+    // @return {boolean} Returns true on success, false otherwise.
+    // @example
+    //
+    // tree.checkNode(node); // toggle checked and unchecked state
+    // tree.checkNode(node, true); // checked=true, indeterminate=false
+    // tree.checkNode(node, false); // checked=false, indeterminate=false
+    //
+    // @doc
+    //
+    // state.checked | state.indeterminate | description
+    // ------------- | ------------------- | -----------
+    // false         | false               | The node and all of its children are unchecked.
+    // true          | false               | The node and all of its children are checked.
+    // true          | true                | The node will appear as indeterminate when the node is checked and some (but not all) of its children are checked.
+
+
+    InfiniteTree.prototype.checkNode = function checkNode(node, checked) {
+        if (!ensureNodeInstance(node)) {
+            return false;
+        }
+
+        this.emit('willCheckNode', node);
+
+        // Retrieve node index
+        var nodeIndex = this.nodes.indexOf(node);
+        if (nodeIndex < 0) {
+            error('Invalid node index');
+            return false;
+        }
+
+        if (checked === true) {
+            node.state.checked = true;
+            node.state.indeterminate = false;
+        } else if (checked === false) {
+            node.state.checked = false;
+            node.state.indeterminate = false;
+        } else {
+            node.state.checked = !!node.state.checked;
+            node.state.indeterminate = !!node.state.indeterminate;
+            node.state.checked = node.state.checked && node.state.indeterminate || !node.state.checked;
+            node.state.indeterminate = false;
+        }
+
+        var topmostNode = node;
+
+        var updateChildNodes = function updateChildNodes(parentNode) {
+            var childNode = parentNode.getFirstChild(); // Ignore parent node
+            while (childNode) {
+                // Update checked and indeterminate state
+                childNode.state.checked = parentNode.state.checked;
+                childNode.state.indeterminate = false;
+
+                if (childNode.hasChildren()) {
+                    childNode = childNode.getFirstChild();
+                } else {
+                    // Find the parent level
+                    while (childNode.getNextSibling() === null && childNode.parent !== parentNode) {
+                        // Use child-parent link to get to the parent level
+                        childNode = childNode.getParent();
+                    }
+
+                    // Get next sibling
+                    childNode = childNode.getNextSibling();
+                }
+            }
+        };
+
+        var updateParentNodes = function updateParentNodes(childNode) {
+            var parentNode = childNode.parent;
+
+            while (parentNode && parentNode.state.depth >= 0) {
+                topmostNode = parentNode;
+
+                var checkedCount = 0;
+                var indeterminate = false;
+
+                var len = parentNode.children ? parentNode.children.length : 0;
+                for (var i = 0; i < len; ++i) {
+                    var _childNode = parentNode.children[i];
+                    indeterminate = indeterminate || !!_childNode.state.indeterminate;
+                    if (_childNode.state.checked) {
+                        checkedCount++;
+                    }
+                }
+
+                if (checkedCount === 0) {
+                    parentNode.state.indeterminate = false;
+                    parentNode.state.checked = false;
+                } else if (checkedCount > 0 && checkedCount < len || indeterminate) {
+                    parentNode.state.indeterminate = true;
+                    parentNode.state.checked = true;
+                } else {
+                    parentNode.state.indeterminate = false;
+                    parentNode.state.checked = true;
+                }
+
+                parentNode = parentNode.parent;
+            }
+        };
+
+        updateChildNodes(node);
+        updateParentNodes(node);
+
+        this.updateNode(topmostNode);
+
+        // Emit a "checkNode" event
+        this.emit('checkNode', node);
+
+        return true;
     };
     // Clears the tree.
 

@@ -8,6 +8,18 @@ import './animation.styl';
 import { addEventListener, preventDefault, stopPropagation } from '../../src/dom';
 import data from '../data.json';
 
+const updateCheckboxState = (tree) => {
+    const checkboxes = tree.contentElement.querySelectorAll('input[type="checkbox"]');
+    for (let i = 0; i < checkboxes.length; ++i) {
+        const checkbox = checkboxes[i];
+        if (checkbox.hasAttribute('data-indeterminate')) {
+            checkbox.indeterminate = true;
+        } else {
+            checkbox.indeterminate = false;
+        }
+    }
+};
+
 const updatePreview = (node) => {
     const el = document.querySelector('#classic [data-id="preview"]');
     if (!el) {
@@ -29,6 +41,8 @@ const updatePreview = (node) => {
                 prefixMask: node.state.prefixMask,
                 selected: node.state.selected,
                 total: node.state.total,
+                checked: node.state.checked,
+                indeterminate: node.state.indeterminate,
                 filtered: node.state.filtered,
                 unfilteredChildren: node.state.unfilteredChildren
                     ? node.state.unfilteredChildren.map(node => node.id)
@@ -112,6 +126,12 @@ tree.on('click', (event) => {
 
     const currentNode = tree.getNodeFromPoint(event.x, event.y);
     if (!currentNode) {
+        return;
+    }
+
+    if (event.target.className === 'checkbox') {
+        event.stopPropagation();
+        tree.checkNode(currentNode);
         return;
     }
 
@@ -211,6 +231,9 @@ tree.on('contentWillUpdate', () => {
 });
 tree.on('contentDidUpdate', () => {
     //console.log('contentDidUpdate');
+
+    updateCheckboxState(tree);
+
     const node = tree.getSelectedNode();
     updatePreview(node);
 });
@@ -234,6 +257,10 @@ tree.on('willSelectNode', (node) => {
     //console.log('willSelectNode:', node);
 });
 tree.on('clusterDidChange', () => {
+    //console.log('clusterDidChange');
+
+    updateCheckboxState(tree);
+
     // No overlay on filtered mode
     if (tree.filtered) {
         return;

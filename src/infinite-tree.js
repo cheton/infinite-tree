@@ -531,6 +531,116 @@ class InfiniteTree extends events.EventEmitter {
         const newNodes = [].concat(newNode || []); // Ensure array
         return this.addChildNodes(newNodes, index, parentNode);
     }
+    // @param {Node} node The Node object.
+    // @param {boolean} [checked] Whether to check or uncheck the node. If the parameter is not specified, it will toggle between checked and unchecked state. The checked state is true when the indeterminate state is true.
+    // @return {boolean} Returns true on success, false otherwise.
+    // @example
+    //
+    // tree.checkNode(node); // toggle checked and unchecked state
+    // tree.checkNode(node, true); // checked=true, indeterminate=false
+    // tree.checkNode(node, false); // checked=false, indeterminate=false
+    //
+    // @doc
+    //
+    // state.checked | state.indeterminate | description
+    // ------------- | ------------------- | -----------
+    // false         | false               | The node and all of its children are unchecked.
+    // true          | false               | The node and all of its children are checked.
+    // true          | true                | The node will appear as indeterminate when the node is checked and some (but not all) of its children are checked.
+    checkNode(node, checked) {
+        if (!ensureNodeInstance(node)) {
+            return false;
+        }
+
+        this.emit('willCheckNode', node);
+
+        // Retrieve node index
+        const nodeIndex = this.nodes.indexOf(node);
+        if (nodeIndex < 0) {
+            error('Invalid node index');
+            return false;
+        }
+
+        if (checked === true) {
+            node.state.checked = true;
+            node.state.indeterminate = false;
+        } else if (checked === false) {
+            node.state.checked = false;
+            node.state.indeterminate = false;
+        } else {
+            node.state.checked = !!node.state.checked;
+            node.state.indeterminate = !!node.state.indeterminate;
+            node.state.checked = (node.state.checked && node.state.indeterminate) || (!node.state.checked);
+            node.state.indeterminate = false;
+        }
+
+        let topmostNode = node;
+
+        const updateChildNodes = (parentNode) => {
+            let childNode = parentNode.getFirstChild(); // Ignore parent node
+            while (childNode) {
+                // Update checked and indeterminate state
+                childNode.state.checked = parentNode.state.checked;
+                childNode.state.indeterminate = false;
+
+                if (childNode.hasChildren()) {
+                    childNode = childNode.getFirstChild();
+                } else {
+                    // Find the parent level
+                    while ((childNode.getNextSibling() === null) && (childNode.parent !== parentNode)) {
+                        // Use child-parent link to get to the parent level
+                        childNode = childNode.getParent();
+                    }
+
+                    // Get next sibling
+                    childNode = childNode.getNextSibling();
+                }
+            }
+        };
+
+        const updateParentNodes = (childNode) => {
+            let parentNode = childNode.parent;
+
+            while (parentNode && parentNode.state.depth >= 0) {
+                topmostNode = parentNode;
+
+                let checkedCount = 0;
+                let indeterminate = false;
+
+                const len = parentNode.children ? parentNode.children.length : 0;
+                for (let i = 0; i < len; ++i) {
+                    const childNode = parentNode.children[i];
+                    indeterminate = indeterminate || (!!childNode.state.indeterminate);
+                    if (childNode.state.checked) {
+                        checkedCount++;
+                    }
+                }
+
+                if (checkedCount === 0) {
+                    parentNode.state.indeterminate = false;
+                    parentNode.state.checked = false;
+                } else if ((checkedCount > 0 && checkedCount < len) || indeterminate) {
+                    parentNode.state.indeterminate = true;
+                    parentNode.state.checked = true;
+                } else {
+                    parentNode.state.indeterminate = false;
+                    parentNode.state.checked = true;
+                }
+
+                parentNode = parentNode.parent;
+            }
+        };
+
+        updateChildNodes(node);
+        updateParentNodes(node);
+
+        this.updateNode(topmostNode);
+
+        // Emit a "checkNode" event
+        this.emit('checkNode', node);
+
+        return true;
+    }
     // Clears the tree.
     clear() {
         if (this.clusterize) {

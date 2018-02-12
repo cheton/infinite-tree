@@ -121,12 +121,14 @@ tree.on('clusterWillChange', function() {});
 tree.on('clusterDidChange', function() {});
 tree.on('contentWillUpdate', function() {});
 tree.on('contentDidUpdate', function() {});
-tree.on('openNode', function(node) {});
-tree.on('closeNode', function(node) {});
-tree.on('selectNode', function(node) {});
-tree.on('willOpenNode', function(node) {});
-tree.on('willCloseNode', function(node) {});
-tree.on('willSelectNode', function(node) {});
+tree.on('openNode', function(Node) {});
+tree.on('closeNode', function(Node) {});
+tree.on('selectNode', function(Node) {});
+tree.on('checkNode', function(Node) {});
+tree.on('willOpenNode', function(Node) {});
+tree.on('willCloseNode', function(Node) {});
+tree.on('willSelectNode', function(Node) {});
+tree.on('willCheckNode', function(Node) {});
 ```
 
 ## API Documentation
