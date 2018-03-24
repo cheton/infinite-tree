@@ -66,7 +66,13 @@ const tree = new InfiniteTree({
         drop: function(event, options) {
         }
     },
-    loadNodes: function(parentNode, next) { // Load node on demand
+    shouldLoadNodes: function(parentNode) {
+        if (!parentNode.hasChildren() && parentNode.loadOnDemand) {
+            return true;
+        }
+        return false;
+    },
+    loadNodes: function(parentNode, next) {
         // Loading...
         const nodes = [];
         nodes.length = 1000;

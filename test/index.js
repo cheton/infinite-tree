@@ -164,6 +164,45 @@ test('loadOnDemand', (t) => {
     t.ok(tree.openNode(tree.getNodeById('<root>')));
 });
 
+test('shouldLoadNodes', (t) => {
+    const el = getTreeElement();
+    const tree = new InfiniteTree(el, {
+        autoOpen: true,
+        data: {
+            id: '<root>',
+            loadNodes: true
+        },
+        shouldLoadNodes: (node) => {
+            return !node.hasChildren() && node.loadNodes;
+        },
+        loadNodes: (node, next) => {
+            t.equal(tree.getNodeById('<root>').getChildren().length, 0);
+
+            // Asynchronous
+            setTimeout(() => {
+                next(null, [], () => {
+                    t.equal(tree.getNodeById('<root>').getChildren().length, 0);
+                    t.equal(tree.state.openNodes.length, 1);
+                    t.equal(node.state.open, true);
+                    t.end();
+                });
+            }, 250);
+
+            // Asynchronous
+            setTimeout(() => {
+                const data = getTreeData();
+                next(null, data.children, () => {
+                    t.equal(tree.getNodeById('<root>').getChildren().length, 2);
+                    t.equal(tree.state.openNodes.length, 1);
+                    t.end();
+                });
+            }, 500);
+        }
+    });
+
+    t.ok(tree.openNode(tree.getNodeById('<root>')));
+});
+
 test('tree.destroy', (t) => {
     const el = getTreeElement();
     const tree = new InfiniteTree(el, {

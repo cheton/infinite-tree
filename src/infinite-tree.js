@@ -66,6 +66,7 @@ class InfiniteTree extends events.EventEmitter {
     options = {
         autoOpen: false,
         droppable: false,
+        shouldLoadNodes: null,
         loadNodes: null,
         rowRenderer: defaultRowRenderer,
         selectable: true,
@@ -1150,7 +1151,11 @@ class InfiniteTree extends events.EventEmitter {
             return true;
         }
 
-        if (!node.hasChildren() && node.loadOnDemand) {
+        const shouldLoadNodes = (typeof this.options.shouldLoadNodes === 'function')
+            ? !!(this.options.shouldLoadNodes(node))
+            : !node.hasChildren() && node.loadOnDemand;
+
+        if (shouldLoadNodes) {
             if (typeof this.options.loadNodes !== 'function') {
                 return false;
             }
