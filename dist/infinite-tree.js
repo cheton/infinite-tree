@@ -1,4 +1,4 @@
-/*! infinite-tree v1.16.0 | (c) 2018 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
+/*! infinite-tree v1.16.1 | (c) 2018 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -1546,6 +1546,12 @@ var InfiniteTree = function (_events$EventEmitter) {
 
         this.emit('willCloseNode', node);
 
+        // Cannot close the root node
+        if (node === this.state.rootNode) {
+            error('Cannot close the root node');
+            return false;
+        }
+
         // Retrieve node index
         var nodeIndex = this.nodes.indexOf(node);
         if (nodeIndex < 0) {
@@ -2232,7 +2238,9 @@ var InfiniteTree = function (_events$EventEmitter) {
 
         // Update parent node
         parentNode.children = [];
-        parentNode.state.open = parentNode.state.open && parentNode.children.length > 0;
+        if (parentNode !== this.state.rootNode) {
+            parentNode.state.open = parentNode.state.open && parentNode.children.length > 0;
+        }
 
         if (parentNodeIndex >= 0) {
             // Update nodes & rows
@@ -2321,7 +2329,9 @@ var InfiniteTree = function (_events$EventEmitter) {
 
         // Update parent node
         parentNode.children.splice(parentNode.children.indexOf(node), 1);
-        parentNode.state.open = parentNode.state.open && parentNode.children.length > 0;
+        if (parentNode !== this.state.rootNode) {
+            parentNode.state.open = parentNode.state.open && parentNode.children.length > 0;
+        }
 
         if (nodeIndex >= 0) {
             // Update nodes & rows
