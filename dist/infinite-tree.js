@@ -3295,11 +3295,13 @@ var Clusterize = function (_EventEmitter) {
                 itemHeight += Math.max(marginTop, marginBottom);
             }
 
-            return {
-                blockHeight: this.state.itemHeight * this.options.rowsInBlock,
-                clusterHeight: this.state.blockHeight * this.options.blocksInCluster,
-                itemHeight: itemHeight
-            };
+			var blockHeight = itemHeight * this.options.rowsInBlock;
+
+			return {
+				blockHeight,
+				clusterHeight: blockHeight * this.options.blocksInCluster,
+				itemHeight
+			};
         }
     };
 
