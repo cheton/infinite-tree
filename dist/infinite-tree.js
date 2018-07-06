@@ -1,4 +1,4 @@
-/*! infinite-tree v1.16.1 | (c) 2018 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
+/*! infinite-tree v1.16.2 | (c) 2018 Cheton Wu <cheton@gmail.com> | MIT | https://github.com/cheton/infinite-tree */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -3295,13 +3295,14 @@ var Clusterize = function (_EventEmitter) {
                 itemHeight += Math.max(marginTop, marginBottom);
             }
 
-			var blockHeight = itemHeight * this.options.rowsInBlock;
+            var blockHeight = itemHeight * this.options.rowsInBlock;
+            var clusterHeight = blockHeight * this.options.blocksInCluster;
 
-			return {
-				blockHeight,
-				clusterHeight: blockHeight * this.options.blocksInCluster,
-				itemHeight
-			};
+            return {
+                itemHeight: itemHeight,
+                blockHeight: blockHeight,
+                clusterHeight: clusterHeight
+            };
         }
     };
 

@@ -193,12 +193,13 @@ class Clusterize extends EventEmitter {
                 itemHeight += Math.max(marginTop, marginBottom);
             }
 
-            const blockHeight = itemHeight * this.options.rowsInBlock
+            const blockHeight = itemHeight * this.options.rowsInBlock;
+            const clusterHeight = blockHeight * this.options.blocksInCluster;
 
             return {
+                itemHeight,
                 blockHeight,
-                clusterHeight: blockHeight * this.options.blocksInCluster,
-                itemHeight
+                clusterHeight
             };
         }
     }
