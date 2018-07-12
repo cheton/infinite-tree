@@ -184,7 +184,7 @@ const updateIndeterminateState = (tree) => {
 };
 
 tree.on('click', function(node) {
-    const currentNode = tree.getNodeFromPoint(event.x, event.y);
+    const currentNode = tree.getNodeFromPoint(event.clientX, event.clientY);
     if (!currentNode) {
         return;
     }
@@ -368,7 +368,7 @@ You need to maintain an array of selected nodes by yourself. See below for detai
 let selectedNodes = [];
 tree.on('click', (event) => {
     // Return the node at the specified point
-    const currentNode = tree.getNodeFromPoint(event.x, event.y);
+    const currentNode = tree.getNodeFromPoint(event.clientX, event.clientY);
     if (!currentNode) {
         return;
     }
