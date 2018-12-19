@@ -1727,6 +1727,13 @@ class InfiniteTree extends events.EventEmitter {
         // Emit a "contentWillUpdate" event
         this.emit('contentWillUpdate');
 
+        // Update rows
+        this.rows.length = this.nodes.length;
+        for (var i = 0; i < this.nodes.length; ++i) {
+            var node = this.nodes[i];
+            this.rows[i] = this.options.rowRenderer(node, this.options);
+        }
+
         if (this.clusterize) {
             // Update list
             const rows = this.rows.filter(row => !!row);
