@@ -1,3 +1,3 @@
-import InfiniteTree from './infinite-tree';
+const InfiniteTree = require('./infinite-tree').default;
 
 module.exports = InfiniteTree;

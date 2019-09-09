@@ -1,30 +1,30 @@
-var path = require('path');
-var webpack = require('webpack');
-var pkg = require('./package.json');
-var banner = pkg.name + ' v' + pkg.version + ' | (c) ' + new Date().getFullYear() + ' ' + pkg.author + ' | ' + pkg.license + ' | ' + pkg.homepage;
-var env = process.env.BUILD_ENV;
-var plugins = [
+const path = require('path');
+const TerserPlugin = require('terser-webpack-plugin');
+const webpack = require('webpack');
+const pkg = require('./package.json');
+const banner = pkg.name + ' v' + pkg.version + ' | (c) ' + new Date().getFullYear() + ' ' + pkg.author + ' | ' + pkg.license + ' | ' + pkg.homepage;
+const env = process.env;
+const plugins = [
     new webpack.BannerPlugin(banner)
 ];
 
-if (env === 'dist') {
-    plugins = plugins.concat([
-        new webpack.optimize.UglifyJsPlugin({
-            compress: {
-                warnings: false
-            },
-            mangle: false
-        })
-    ]);
-}
+const USE_TERSER_PLUGIN = (env.BUILD_ENV === 'dist');
 
 module.exports = {
+    mode: 'development',
     entry: path.resolve(__dirname, 'lib/index.js'),
     output: {
         path: path.join(__dirname, 'dist'),
-        filename: env === 'dist' ? 'infinite-tree.min.js' : 'infinite-tree.js',
+        filename: env.BUILD_ENV === 'dist' ? 'infinite-tree.min.js' : 'infinite-tree.js',
         libraryTarget: 'umd',
         library: 'InfiniteTree'
     },
-    plugins: plugins
+    optimization: {
+        minimizer: [
+            USE_TERSER_PLUGIN && (
+                new TerserPlugin()
+            )
+        ].filter(Boolean)
+    },
+    plugins: plugins,
 };
