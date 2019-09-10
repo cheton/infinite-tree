@@ -60,11 +60,6 @@ const webpackConfig = {
             }
         ]
     },
-    plugins: [
-        new webpack.LoaderOptionsPlugin({
-            debug: true
-        }),
-    ],
     // https://webpack.github.io/docs/webpack-dev-server.html#additional-configuration-options
     devServer: {
         disableHostCheck: true,
