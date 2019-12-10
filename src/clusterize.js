@@ -27,8 +27,11 @@ class Clusterize extends EventEmitter {
     };
 
     scrollElement = null;
+
     contentElement = null;
+
     rows = [];
+
     cache = {};
 
     scrollEventListener = (() => {
@@ -128,6 +131,7 @@ class Clusterize extends EventEmitter {
         addEventListener(this.scrollElement, 'scroll', this.scrollEventListener);
         addEventListener(window, 'resize', this.resizeEventListener);
     }
+
     destroy(clean) {
         removeEventListener(this.scrollElement, 'scroll', this.scrollEventListener);
         removeEventListener(window, 'resize', this.resizeEventListener);
@@ -135,6 +139,7 @@ class Clusterize extends EventEmitter {
         const rows = clean ? this.generateEmptyRow() : this.rows();
         this.setContent(rows.join(''));
     }
+
     update(rows) {
         this.rows = ensureArray(rows);
 
@@ -150,10 +155,12 @@ class Clusterize extends EventEmitter {
         // Restore scroll position
         this.scrollElement.scrollTop = scrollTop;
     }
+
     clear() {
         this.rows = [];
         this.update();
     }
+
     append(rows) {
         rows = ensureArray(rows);
         if (!rows.length) {
@@ -162,6 +169,7 @@ class Clusterize extends EventEmitter {
         this.rows = this.rows.concat(rows);
         this.changeDOM();
     }
+
     prepend(rows) {
         rows = ensureArray(rows);
         if (!rows.length) {
@@ -170,6 +178,7 @@ class Clusterize extends EventEmitter {
         this.rows = rows.concat(this.rows);
         this.changeDOM();
     }
+
     computeHeight() {
         if (!this.rows.length) {
             return {
@@ -203,6 +212,7 @@ class Clusterize extends EventEmitter {
             };
         }
     }
+
     getCurrentClusterIndex() {
         const { blockHeight, clusterHeight } = this.state;
         if (!blockHeight || !clusterHeight) {
@@ -210,6 +220,7 @@ class Clusterize extends EventEmitter {
         }
         return Math.floor(this.scrollElement.scrollTop / (clusterHeight - blockHeight)) || 0;
     }
+
     generateEmptyRow() {
         const { tag, emptyText, emptyClass } = this.options;
 
@@ -231,6 +242,7 @@ class Clusterize extends EventEmitter {
 
         return [emptyRow.outerHTML];
     }
+
     renderExtraTag(className, height) {
         const tag = document.createElement(this.options.tag);
         const prefix = 'infinite-tree-';
@@ -246,6 +258,7 @@ class Clusterize extends EventEmitter {
 
         return tag.outerHTML;
     }
+
     changeDOM() {
         if (!this.state.clusterHeight && this.rows.length > 0) {
             if (ie && ie <= 9 && !this.options.tag) {
@@ -312,6 +325,7 @@ class Clusterize extends EventEmitter {
             this.contentElement.lastChild.style.height = bottomOffset + 'px';
         }
     }
+
     setContent(content) {
         // For IE 9 and older versions
         if (ie && ie <= 9 && this.options.tag === 'tr') {
@@ -332,6 +346,7 @@ class Clusterize extends EventEmitter {
             this.contentElement.innerHTML = content;
         }
     }
+
     getChildNodes(tag) {
         const childNodes = tag.children;
         const nodes = [];
@@ -343,6 +358,7 @@ class Clusterize extends EventEmitter {
 
         return nodes;
     }
+
     checkChanges(type, value) {
         const changed = (value !== this.cache[type]);
         this.cache[type] = value;
