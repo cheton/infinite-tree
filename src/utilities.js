@@ -8,6 +8,21 @@ export const trim = (str, chars = ' \f\n\r\t\v') => {
     return str;
 };
 
+// Use this function instead of Array.prototype.splice(...) as it results into
+// "Maximum call stack size exceeded" when dealing with very big number.
+export const spliceArray = (target, source, start, count) => {
+    let res = target.splice(start, count);
+
+    if (source && source.length) {
+        for (let idx = Math.floor(source.length / 10000); idx >= 0; idx--) {
+            target.splice.apply(target, [start, 0].concat(
+                source.slice(idx * 10000, (idx + 1) * 10000)
+            ));
+        }
+    }
+    return res;
+};
+
 export const get = (function() {
     const re = new RegExp(/[\w\-]+|\[[^\]]*\]+/g);
 
