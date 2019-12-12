@@ -72,7 +72,7 @@ class InfiniteTree extends events.EventEmitter {
         selectable: true,
         shouldSelectNode: null,
 
-        // Allow user to create - how many rows to be rendered at a time.
+        // Allow user to define the number of rows, and blocks to be rendered.
         rowsInBlock: 50,
         blocksInCluster: 4,
 
