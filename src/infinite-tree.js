@@ -8,7 +8,7 @@ import { flatten, Node } from 'flattree';
 import Clusterize from './clusterize';
 import ensureArray from './ensure-array';
 import extend from './extend';
-import { get } from './utilities';
+import { get, spliceArray } from './utilities';
 import LookupTable from './lookup-table';
 import { defaultRowRenderer } from './renderer';
 import {
@@ -479,7 +479,7 @@ class InfiniteTree extends events.EventEmitter {
         });
 
         // Insert new child node at the specified index
-        parentNode.children.splice.apply(parentNode.children, [index, 0].concat(newNodes));
+        spliceArray(parentNode.children, newNodes, index, 0);
 
         // Get the index of the first new node within the array of child nodes
         index = parentNode.children.indexOf(newNodes[0]);
@@ -502,8 +502,8 @@ class InfiniteTree extends events.EventEmitter {
             if (parentOffset >= 0) {
                 if (parentNode.state.open === true) {
                     // Update nodes & rows
-                    this.nodes.splice.apply(this.nodes, [parentOffset + 1, deleteCount].concat(nodes));
-                    this.rows.splice.apply(this.rows, [parentOffset + 1, deleteCount].concat(rows));
+                    spliceArray(this.nodes, nodes, parentOffset + 1, deleteCount);
+                    spliceArray(this.rows, rows, parentOffset + 1, deleteCount);
                 }
 
                 // Update the row corresponding to the parent node
@@ -1155,8 +1155,8 @@ class InfiniteTree extends events.EventEmitter {
                 }
 
                 // Update nodes & rows
-                this.nodes.splice.apply(this.nodes, [nodeIndex + 1, 0].concat(nodes));
-                this.rows.splice.apply(this.rows, [nodeIndex + 1, 0].concat(rows));
+                spliceArray(this.nodes, nodes, nodeIndex + 1, 0);
+                spliceArray(this.rows, rows, nodeIndex + 1, 0);
 
                 // Update the row corresponding to the node
                 this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
