@@ -8,9 +8,10 @@ import { flatten, Node } from 'flattree';
 import Clusterize from './clusterize';
 import ensureArray from './ensure-array';
 import extend from './extend';
-import { get } from './utilities';
 import LookupTable from './lookup-table';
+import removeArrayItems from './remove-array-items';
 import { defaultRowRenderer } from './renderer';
+import { get } from './utilities';
 import {
     preventDefault,
     addEventListener,
@@ -749,8 +750,8 @@ class InfiniteTree extends events.EventEmitter {
             }
 
             // Update nodes & rows
-            this.nodes.splice(nodeIndex + 1, total);
-            this.rows.splice(nodeIndex + 1, total);
+            removeArrayItems(this.nodes, nodeIndex + 1, total);
+            removeArrayItems(this.rows, nodeIndex + 1, total);
 
             // Toggle the collapsing state
             node.state.collapsing = false;
@@ -1361,8 +1362,8 @@ class InfiniteTree extends events.EventEmitter {
 
         if (parentNodeIndex >= 0) {
             // Update nodes & rows
-            this.nodes.splice(parentNodeIndex + 1, deleteCount);
-            this.rows.splice(parentNodeIndex + 1, deleteCount);
+            removeArrayItems(this.nodes, parentNodeIndex + 1, deleteCount);
+            removeArrayItems(this.rows, parentNodeIndex + 1, deleteCount);
 
             // Update the row corresponding to the parent node
             this.rows[parentNodeIndex] = this.options.rowRenderer(parentNode, this.options);
@@ -1441,15 +1442,15 @@ class InfiniteTree extends events.EventEmitter {
         }
 
         // Update parent node
-        parentNode.children.splice(parentNode.children.indexOf(node), 1);
+        removeArrayItems(parentNode.children, parentNode.children.indexOf(node), 1);
         if (parentNode !== this.state.rootNode) {
             parentNode.state.open = parentNode.state.open && (parentNode.children.length > 0);
         }
 
         if (nodeIndex >= 0) {
             // Update nodes & rows
-            this.nodes.splice(nodeIndex, deleteCount);
-            this.rows.splice(nodeIndex, deleteCount);
+            removeArrayItems(this.nodes, nodeIndex, deleteCount);
+            removeArrayItems(this.rows, nodeIndex, deleteCount);
         }
 
         // Update the row corresponding to the parent node
