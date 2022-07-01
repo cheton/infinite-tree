@@ -1492,10 +1492,11 @@ class InfiniteTree extends events.EventEmitter {
         }
 
         // Scroll to a desired position
+        const prefix = 'infinite-tree-';
         let firstChild = this.contentElement.firstChild;
         while (firstChild) {
             const className = firstChild.className || '';
-            if (className.indexOf('clusterize-extra-row') < 0 && (firstChild.offsetHeight > 0)) {
+            if (className.indexOf(prefix + 'extra-row') < 0 && (firstChild.offsetHeight > 0)) {
                 break;
             }
             firstChild = firstChild.nextSibling;
