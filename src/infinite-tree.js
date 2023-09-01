@@ -1502,9 +1502,9 @@ class InfiniteTree extends events.EventEmitter {
             firstChild = firstChild.nextSibling;
         }
         // If all items in the list is the same height, it can be calculated by nodeIndex * height.
-        const offsetHeight = (firstChild && firstChild.offsetHeight) || 0;
-        if (offsetHeight > 0) {
-            this.scrollTop(nodeIndex * offsetHeight);
+        const itemHeight = (firstChild && firstChild.getBoundingClientRect().height) || 0;
+        if (itemHeight > 0) {
+            this.scrollTop(nodeIndex * itemHeight);
         }
 
         // Find the absolute position of the node
@@ -1615,7 +1615,7 @@ class InfiniteTree extends events.EventEmitter {
                 const nodeEl = this.contentElement.querySelector(nodeSelector);
                 if (nodeEl) {
                     const offsetTop = nodeEl.offsetTop || 0;
-                    const offsetHeight = nodeEl.offsetHeight || 0;
+                    const itemHeight = nodeEl.itemHeight || 0;
 
                     // Scroll Up
                     if (offsetTop < this.scrollElement.scrollTop) {
@@ -1623,8 +1623,8 @@ class InfiniteTree extends events.EventEmitter {
                     }
 
                     // Scroll Down
-                    if (offsetTop + offsetHeight >= this.scrollElement.scrollTop + this.scrollElement.clientHeight) {
-                        this.scrollElement.scrollTop += offsetHeight;
+                    if (offsetTop + itemHeight >= this.scrollElement.scrollTop + this.scrollElement.clientHeight) {
+                        this.scrollElement.scrollTop += itemHeight;
                     }
                 }
             }
