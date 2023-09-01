@@ -1615,7 +1615,7 @@ class InfiniteTree extends events.EventEmitter {
                 const nodeEl = this.contentElement.querySelector(nodeSelector);
                 if (nodeEl) {
                     const offsetTop = nodeEl.offsetTop || 0;
-                    const itemHeight = nodeEl.itemHeight || 0;
+                    const itemHeight = nodeEl.getBoundingClientRect().height || 0;
 
                     // Scroll Up
                     if (offsetTop < this.scrollElement.scrollTop) {
