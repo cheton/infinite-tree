@@ -190,7 +190,7 @@ class Clusterize extends EventEmitter {
             const nodes = this.contentElement.children;
             const node = nodes[Math.floor(nodes.length / 2)];
 
-            let itemHeight = node.offsetHeight;
+            let itemHeight = node.getBoundingClientRect().height;
 
             if (this.options.tag === 'tr' && getElementStyle(this.contentElement, 'borderCollapse') !== 'collapse') {
                 itemHeight += parseInt(getElementStyle(this.contentElement, 'borderSpacing'), 10) || 0;
